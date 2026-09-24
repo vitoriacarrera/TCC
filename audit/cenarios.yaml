@@ -1,0 +1,140 @@
+# Cenários de risco (ISO/IEC 27005:2023 — identificação de riscos por cenário de evento).
+# Cada cenário é um EVENTO DE PERDA distinto na ontologia FAIR. Vetores de ataque (golpe por e-mail, credencial
+# roubada, falha não corrigida) não são cenários: entram como perguntas que reduzem a Vulnerabilidade.
+#
+# FAIR: Risco = LEF × LM
+#   LEF (eventos de perda/ano) = TEF × Vulnerabilidade
+#   TEF do perfil  = tef_base × setor.multiplicador_tef[cenario] × porte.multiplicador_tef
+#   Vulnerabilidade = v_min + (v_max − v_min) × (1 − maturidade)                  (TCC1 §3.6, item 1)
+#
+# Magnitude por evento = Perda Primária + Perda Secundária (decomposição da ontologia FAIR — ADR-002)
+#
+#   PERDA PRIMÁRIA — custos diretos da própria empresa (parada, recuperação, valor desviado).
+#     Limitada e estimável em três pontos  =>  Beta-PERT(mín, mais provável, máx; λ)            (RF08)
+#     Cada ponto é a soma de:
+#        horas_parada    × custo_hora_parada
+#        pct_faturamento × faturamento_anual
+#        fixo            (R$)
+#
+#   PERDA SECUNDÁRIA — reação de terceiros (clientes, titulares dos dados, ANPD, Justiça, mercado).
+#     Nem sempre ocorre  =>  Bernoulli(probabilidade)  (SLEF da ontologia FAIR)
+#     Cauda longa        =>  Lognormal(μ, σ), truncada em teto_pct_faturamento × faturamento  (TCC1 §3.6, item 3)
+#     Parametrizada por dois pontos intuitivos, cada um soma de:
+#        por_registro    × registros_pessoais × setor.multiplicador_custo_registro × fator_tipo_dado
+#        pct_faturamento × faturamento_anual
+#        fixo            (R$)
+#     μ = ln(mediana);  σ = [ln(p95) − ln(mediana)] / 1,645
+#
+# Calibração: tef_base referido ao nível 3 (EPP) com multiplicador de setor 1,0, de modo que uma empresa com
+# maturidade média (0,5) tenha P(≥1 evento de perda/ano) ≈ 45–50% e uma sem controles ≈ 70%, coerente com os 59%
+# de PMEs atacadas/ano de hiscox2025. Magnitudes: julgamento, com ordens de grandeza de sophos2025, dbir2025,
+# ibm2025 e lgpd (teto de multa = 2% do faturamento por infração).
+
+parametros_modelo:
+  vulnerabilidade_min: 0.02     # maturidade máxima
+  vulnerabilidade_max: 0.35     # maturidade nula
+  pert_lambda: 4
+  iteracoes: 10000
+  resposta_nao_sei: 1           # ADR-006: conservador
+  percentil_mapa_calor: 90      # "pior cenário razoável" (TCC1 §3.6, item 3)
+  z_p95: 1.6448536              # quantil 95% da normal padrão, para derivar σ da lognormal
+
+cenarios:
+  - id: RAN
+    nome: "Sequestro de dados (ransomware)"
+    descricao: "Um vírus tranca os computadores e arquivos da empresa e os criminosos pedem um resgate para devolvê-los. Às vezes eles também copiam os dados e ameaçam divulgá-los."
+    ameaca: "Grupos criminosos com motivação financeira"
+    efeito: [disponibilidade, confidencialidade]
+    tef_base: 0.6
+    perda_primaria:                          # parada, técnicos, recuperação, eventual resgate
+      horas_parada:    [8, 72, 240]
+      pct_faturamento: [0.005, 0.02, 0.06]
+      fixo:            [2000, 10000, 50000]
+    perda_secundaria:                        # dados divulgados (dupla extorsão): titulares, clientes, ANPD
+      probabilidade: 0.3
+      mediana: { por_registro: 5,  pct_faturamento: 0.005 }
+      p95:     { por_registro: 60, pct_faturamento: 0.05 }
+      teto_pct_faturamento: 1.0
+    fonte: [dbir2025, sophos2025, julgamento]
+
+  - id: VAZ
+    nome: "Vazamento de dados de clientes ou sigilosos"
+    descricao: "Alguém de fora consegue acesso a dados de pessoas ou a informações sigilosas — por uma senha roubada, uma configuração errada ou uma falha no sistema — e copia ou divulga esses dados."
+    ameaca: "Criminosos externos; eventualmente ex-colaboradores"
+    efeito: [confidencialidade]
+    tef_base: 0.7
+    perda_primaria:                          # investigação, contenção, assessoria jurídica
+      pct_faturamento: [0.001, 0.003, 0.01]
+      fixo:            [500, 3000, 15000]
+    perda_secundaria:                        # comunicação aos titulares, indenizações, perda de clientes, sanção LGPD
+      probabilidade: 0.7
+      mediana: { por_registro: 15,  pct_faturamento: 0.003 }
+      p95:     { por_registro: 100, pct_faturamento: 0.03 }
+      teto_pct_faturamento: 1.0
+    fonte: [ibm2025, lgpd, julgamento]
+
+  - id: FRA
+    nome: "Golpe financeiro (boleto falso, PIX, falso fornecedor)"
+    descricao: "Alguém se passa por fornecedor, cliente ou sócio — por e-mail, WhatsApp ou telefone — e convence a empresa a pagar um boleto falso, fazer um PIX ou trocar a conta bancária de um fornecedor."
+    ameaca: "Golpistas (Business Email Compromise, pretexting)"
+    efeito: [integridade]
+    tef_base: 0.8
+    perda_primaria:                          # valor desviado
+      pct_faturamento: [0.002, 0.01, 0.05]
+      fixo:            [1000, 5000, 20000]
+    perda_secundaria:                        # disputas com clientes/fornecedores enganados em nome da empresa
+      probabilidade: 0.1
+      mediana: { pct_faturamento: 0.002, fixo: 2000 }
+      p95:     { pct_faturamento: 0.02,  fixo: 20000 }
+      teto_pct_faturamento: 0.5
+    fonte: [ic3_2024, dbir2025, julgamento]
+
+  - id: IND
+    nome: "Sistemas fora do ar"
+    descricao: "O sistema de vendas, o site, a agenda ou a produção param por um ataque de sobrecarga, uma pane ou uma falha de TI (sem sequestro de dados)."
+    ameaca: "Ataques de sobrecarga (DDoS), falhas de infraestrutura, erros operacionais"
+    efeito: [disponibilidade]
+    tef_base: 0.5
+    perda_primaria:
+      horas_parada:    [2, 16, 96]
+      pct_faturamento: [0, 0.002, 0.01]
+      fixo:            [500, 2000, 10000]
+    perda_secundaria:                        # multas contratuais, clientes que migram para o concorrente
+      probabilidade: 0.15
+      mediana: { pct_faturamento: 0.002 }
+      p95:     { pct_faturamento: 0.02 }
+      teto_pct_faturamento: 0.5
+    fonte: [julgamento]
+
+  - id: TER
+    nome: "Problema num fornecedor"
+    descricao: "Um fornecedor que guarda seus dados ou cuida dos seus sistemas (nuvem, contador, sistema de gestão, empresa de TI) sofre um incidente que atinge a sua empresa."
+    ameaca: "Ataques à cadeia de suprimentos"
+    efeito: [confidencialidade, disponibilidade]
+    tef_base: 0.4
+    perda_primaria:
+      horas_parada:    [4, 24, 120]
+      pct_faturamento: [0.001, 0.003, 0.01]
+      fixo:            [500, 3000, 15000]
+    perda_secundaria:
+      probabilidade: 0.4
+      mediana: { por_registro: 5,  pct_faturamento: 0.002 }
+      p95:     { por_registro: 50, pct_faturamento: 0.02 }
+      teto_pct_faturamento: 1.0
+    fonte: [dbir2025, ibm2025, julgamento]
+
+  - id: IA
+    nome: "Exposição de dados pelo uso de Inteligência Artificial"
+    descricao: "Alguém da equipe cola dados de clientes, contratos ou documentos sigilosos numa ferramenta de IA sem controle, e essa informação acaba exposta ou usada indevidamente."
+    ameaca: "Uso não governado de IA generativa; vazamento acidental"
+    efeito: [confidencialidade]
+    tef_base: 0.3
+    perda_primaria:
+      pct_faturamento: [0.001, 0.003, 0.01]
+      fixo:            [500, 3000, 15000]
+    perda_secundaria:
+      probabilidade: 0.4
+      mediana: { por_registro: 3,  pct_faturamento: 0.002 }
+      p95:     { por_registro: 30, pct_faturamento: 0.02 }
+      teto_pct_faturamento: 1.0
+    fonte: [ibm2025, julgamento]

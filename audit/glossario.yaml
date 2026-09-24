@@ -1,0 +1,333 @@
+# Glossário — RNF04 (linguagem acessível).
+#
+# Público: gestor de PME sem formação em TI. Regras de redação usadas em todo o catálogo:
+#   1. Fale com o usuário ("você", "sua empresa"); frases curtas; uma ideia por pergunta.
+#   2. Todo termo técnico que aparecer num texto precisa estar neste glossário (a interface mostra a explicação
+#      ao tocar na palavra). O validador detecta os termos pelos `aliases`.
+#   3. Siglas da lista `evitar_no_texto` não podem aparecer nas perguntas nem nas ajudas — só nas recomendações
+#      (que são lidas também por quem vai implementar) e, mesmo lá, precisam estar no glossário.
+#   4. Explique pelo efeito no negócio ("se o computador parar, você perde vendas"), não pela tecnologia.
+
+evitar_no_texto:
+  - EDR
+  - DLP
+  - SIEM
+  - SOC
+  - MDR
+  - WAF
+  - CDN
+  - SPF
+  - DKIM
+  - DMARC
+  - SAST
+  - CLP
+  - PCI DSS
+  - endpoint
+  - MFA
+  - 2FA
+  - 3-2-1
+
+termos:
+  # ---------------------------------------------------------------- ameaças
+  - id: ransomware
+    termo: "Ransomware (sequestro de dados)"
+    aliases: [ransomware, "sequestro de dados"]
+    explicacao: "Tipo de vírus que tranca (criptografa) os arquivos e sistemas da empresa e exige um pagamento — o \"resgate\" — para devolvê-los. Muitas vezes os criminosos também copiam os dados e ameaçam divulgá-los."
+    exemplo: "Numa segunda-feira, todos os computadores mostram uma mensagem pedindo pagamento em criptomoeda, e nenhum arquivo abre."
+
+  - id: golpe_digital
+    termo: "Golpe digital (phishing e engenharia social)"
+    aliases: [phishing, "engenharia social", golpe, golpes, "e-mail falso", pretexting]
+    explicacao: "Mensagem falsa (e-mail, WhatsApp, SMS, ligação) que se passa por alguém de confiança — banco, fornecedor, chefe — para fazer a pessoa clicar num link, informar uma senha ou fazer um pagamento."
+    exemplo: "Um \"fornecedor\" avisa por e-mail que mudou de banco e manda um boleto novo. O boleto é do golpista."
+
+  - id: ddos
+    termo: "Ataque de sobrecarga (DDoS)"
+    aliases: [DDoS, "negação de serviço", sobrecarga]
+    explicacao: "Ataque que envia uma enxurrada de acessos falsos ao site ou sistema até ele ficar lento ou sair do ar. Não rouba dados, mas impede os clientes de comprar ou acessar."
+    exemplo: "Na Black Friday, a loja virtual fica fora do ar por horas por causa de milhões de acessos falsos."
+
+  - id: vulnerabilidade
+    termo: "Falha de segurança (vulnerabilidade)"
+    aliases: [vulnerabilidade, vulnerabilidades, "falha de segurança", "falhas de segurança"]
+    explicacao: "Um defeito num programa, sistema ou configuração que permite a um criminoso entrar ou causar dano. Os fabricantes corrigem essas falhas pelas atualizações."
+    exemplo: "Uma versão antiga do sistema da loja virtual permite que alguém de fora baixe o cadastro de clientes."
+
+  - id: vazamento
+    termo: "Vazamento de dados"
+    aliases: [vazamento, vazar, vazou]
+    explicacao: "Quando informações da empresa ou de pessoas (clientes, pacientes, funcionários) chegam a quem não deveria, por ataque, erro ou descuido."
+    exemplo: "Uma planilha com CPF e endereço de clientes é enviada por engano para um grupo de WhatsApp."
+
+  - id: incidente
+    termo: "Incidente de segurança"
+    aliases: [incidente, incidentes, ataque, ataques]
+    explicacao: "Qualquer acontecimento que coloca em risco os dados ou o funcionamento da empresa: vírus, invasão de conta, golpe, vazamento, sistema fora do ar."
+    exemplo: "Alguém descobre que o e-mail do financeiro está enviando mensagens estranhas para clientes."
+
+  - id: shadow_ai
+    termo: "Inteligência Artificial (IA) sem controle"
+    aliases: ["Inteligência Artificial", "IA", "shadow AI", ChatGPT]
+    explicacao: "Ferramentas como ChatGPT, Gemini ou Copilot, que respondem perguntas e escrevem textos. O risco aparece quando alguém cola nelas dados de clientes ou documentos sigilosos: dependendo da ferramenta e do plano contratado, esse conteúdo pode ser guardado e usado pelo fornecedor."
+    exemplo: "Um colaborador cola um contrato inteiro com dados do cliente numa IA gratuita para pedir um resumo."
+
+  # ---------------------------------------------------------------- proteções
+  - id: duas_etapas
+    termo: "Verificação em duas etapas"
+    aliases: ["duas etapas", "dois fatores", MFA, 2FA, "autenticação multifator"]
+    explicacao: "Além da senha, o sistema pede uma segunda confirmação — um código no celular, um aplicativo autenticador ou uma chave física. Mesmo que um criminoso descubra a senha, ele não entra sem o seu celular."
+    exemplo: "Ao entrar no e-mail num computador novo, chega um código por aplicativo que você precisa digitar."
+
+  - id: gerenciador_senhas
+    termo: "Gerenciador de senhas (cofre de senhas)"
+    aliases: ["gerenciador de senhas", "cofre de senhas", cofre]
+    explicacao: "Aplicativo que cria e guarda senhas fortes e diferentes para cada serviço. Você só precisa lembrar de uma senha principal. Versões para empresas permitem compartilhar acessos com a equipe sem revelar a senha."
+    exemplo: "Bitwarden, 1Password, Keeper, ou o gerenciador do Google/Microsoft configurado pela empresa."
+
+  - id: backup
+    termo: "Backup (cópia de segurança)"
+    aliases: [backup, "cópia de segurança", "cópias de segurança"]
+    explicacao: "Uma cópia dos arquivos e sistemas guardada em outro lugar, para recuperar tudo se o original for apagado, trancado por um vírus ou o computador quebrar."
+    exemplo: "Todo dia, às 22h, os arquivos da empresa são copiados automaticamente para um serviço de nuvem."
+
+  - id: backup_isolado
+    termo: "Backup isolado"
+    aliases: ["backup isolado", "separada da rede", desconectada, imutável, "3-2-1"]
+    explicacao: "Uma cópia de segurança que um vírus não consegue alcançar: um HD que fica desconectado ou uma nuvem que não deixa apagar as cópias por alguns dias. A regra prática \"3-2-1\" recomenda 3 cópias, em 2 tipos de mídia, sendo 1 fora da empresa."
+    exemplo: "Toda sexta, o HD externo é conectado, recebe a cópia e é guardado na gaveta, desligado."
+
+  - id: restauracao
+    termo: "Teste de restauração"
+    aliases: [restaurar, restauração, "recuperar arquivos", "recuperação"]
+    explicacao: "Usar de fato o backup para recuperar arquivos, para ter certeza de que ele funciona e saber quanto tempo leva. Muitos backups só se revelam incompletos no dia em que são necessários."
+    exemplo: "Uma vez por semestre, a empresa recupera uma pasta antiga do backup e confere se os arquivos abrem."
+
+  - id: atualizacao
+    termo: "Atualização de segurança"
+    aliases: [atualização, atualizações, atualizado, atualizada]
+    explicacao: "Correção que o fabricante do programa ou aparelho publica para fechar falhas de segurança. Aparelhos e programas muito antigos deixam de receber essas correções e ficam permanentemente vulneráveis."
+    exemplo: "O aviso \"reiniciar para atualizar\" do Windows ou do celular."
+
+  - id: antivirus
+    termo: "Antivírus / proteção do computador"
+    aliases: [antivírus, "proteção de endpoint", endpoint, EDR]
+    explicacao: "Programa que detecta e bloqueia vírus e comportamentos suspeitos no computador. As versões mais modernas (chamadas EDR) também avisam alguém quando algo estranho acontece."
+    exemplo: "Microsoft Defender ativo e atualizado em todos os computadores da empresa."
+
+  - id: firewall
+    termo: "Firewall"
+    aliases: [firewall, roteador]
+    explicacao: "Equipamento ou programa que controla o que entra e sai da rede da empresa pela internet, como um porteiro. Muitas vezes já vem no roteador, mas precisa estar bem configurado."
+    exemplo: "O roteador bloqueia acessos vindos da internet aos computadores do escritório."
+
+  - id: rede_visitantes
+    termo: "Rede Wi-Fi de visitantes"
+    aliases: ["Wi-Fi de visitantes", "Wi-Fi interno", "rede separada", "redes separadas"]
+    explicacao: "Uma rede sem fio só para clientes e visitantes, separada da rede onde ficam os computadores e sistemas da empresa. Assim, um celular infectado de um visitante não alcança seus arquivos."
+    exemplo: "\"Clinica-Visitantes\" para a sala de espera e \"Clinica-Interna\" só para os computadores da recepção."
+
+  - id: criptografia
+    termo: "Criptografia"
+    aliases: [criptografia, criptografado, criptografados, BitLocker, FileVault]
+    explicacao: "Embaralha as informações para que só quem tem a senha consiga ler. Se um notebook criptografado for roubado, o ladrão leva o aparelho, mas não os dados."
+    exemplo: "BitLocker (Windows) ou FileVault (Mac) ativados no notebook do sócio."
+
+  - id: conta_admin
+    termo: "Conta de administrador"
+    aliases: [administrador, administradores]
+    explicacao: "Usuário com poder de instalar programas e mudar configurações do computador ou sistema. Se um vírus entra por uma conta de administrador, ele também ganha esse poder."
+    exemplo: "O técnico usa uma conta \"admin\" só para instalar programas; no dia a dia, todos usam contas comuns."
+
+  - id: nuvem
+    termo: "Nuvem"
+    aliases: [nuvem, "em nuvem", "Google Workspace", "Microsoft 365"]
+    explicacao: "Serviços e arquivos que ficam nos computadores de um fornecedor e são acessados pela internet, em vez de ficarem num servidor dentro da empresa."
+    exemplo: "E-mail do Gmail ou Outlook, Google Drive, OneDrive, sistema de gestão online."
+
+  - id: responsabilidade_compartilhada
+    termo: "Responsabilidade compartilhada"
+    aliases: ["responsabilidade de vocês", "responsabilidade compartilhada"]
+    explicacao: "Na nuvem, o fornecedor protege a estrutura dele, mas quem cuida de senhas, permissões e de quem acessa o quê é a sua empresa. Se alguém entra com a senha de um funcionário, o fornecedor não tem como impedir."
+    exemplo: "O Google garante que o Drive não cai; a empresa garante que ex-funcionários não têm mais acesso."
+
+  - id: log
+    termo: "Registros de acesso (logs)"
+    aliases: [logs, log, registros, "registra quem acessou"]
+    explicacao: "Um histórico automático de quem entrou em qual sistema, quando e de onde. É o que permite descobrir o que aconteceu depois de um incidente."
+    exemplo: "O e-mail mostra que alguém entrou na conta do financeiro às 3h da manhã, de outro país."
+
+  - id: alerta
+    termo: "Alerta de segurança"
+    aliases: [alertas, alerta, "login suspeito"]
+    explicacao: "Aviso automático enviado por um sistema quando algo estranho acontece: vírus detectado, login de um lugar incomum, transferência fora do padrão."
+    exemplo: "\"Novo acesso à sua conta Google a partir de um Windows em Lagos, Nigéria.\""
+
+  - id: monitoramento
+    termo: "Monitoramento contínuo"
+    aliases: [monitoramento, "24 horas", SOC, MDR, SIEM]
+    explicacao: "Serviço (em geral de uma empresa especializada) que acompanha os alertas de segurança o tempo todo e reage rápido a um ataque, inclusive fora do horário comercial."
+    exemplo: "Uma empresa contratada isola um computador infectado às 2h da manhã, antes de o vírus se espalhar."
+
+  - id: dlp
+    termo: "Prevenção de vazamento de dados (DLP)"
+    aliases: [DLP, "impede ou alerta o envio", "prevenção de vazamento"]
+    explicacao: "Regras configuradas no e-mail ou na nuvem que detectam quando alguém tenta enviar para fora informações sensíveis (como listas de CPF) e bloqueiam ou avisam."
+    exemplo: "O e-mail avisa \"Esta mensagem contém 200 números de CPF. Deseja mesmo enviar para um endereço externo?\""
+
+  - id: filtro_email
+    termo: "Filtro de e-mail"
+    aliases: ["filtro de e-mail", spam, SPF, DKIM, DMARC]
+    explicacao: "Proteção do provedor de e-mail que barra mensagens falsas, anexos perigosos e links maliciosos antes de chegarem à caixa de entrada. SPF, DKIM e DMARC são configurações do domínio que impedem criminosos de enviar e-mails fingindo ser a sua empresa."
+    exemplo: "O e-mail com \"boleto_atualizado.exe\" vai direto para a quarentena."
+
+  - id: protecao_site
+    termo: "Proteção do site contra ataques"
+    aliases: [WAF, CDN, "proteção contra ataques", "firewall de aplicação"]
+    explicacao: "Serviço colocado \"na frente\" do site que filtra acessos maliciosos e aguenta ataques de sobrecarga. Muitas plataformas de loja virtual já incluem."
+    exemplo: "Cloudflare ou a proteção embutida da plataforma de e-commerce."
+
+  - id: inventario
+    termo: "Inventário"
+    aliases: [inventário, "lista atualizada"]
+    explicacao: "Uma lista simples de todos os equipamentos, sistemas e serviços que a empresa usa, e de quem é responsável por cada um. Não dá para proteger o que não se sabe que existe."
+    exemplo: "Uma planilha com: notebook do João, celular da recepção, sistema de agenda, conta do banco, domínio do site."
+
+  - id: politica
+    termo: "Política de segurança"
+    aliases: ["regras escritas", política]
+    explicacao: "Um documento curto com as regras da empresa para usar computadores, senhas, e-mail e dados. Não precisa ser longo: uma ou duas páginas que todos leram e assinaram já ajudam."
+    exemplo: "\"Não é permitido usar pendrive pessoal; senhas não podem ser anotadas em papel.\""
+
+  - id: plano_resposta
+    termo: "Plano de resposta a incidentes"
+    aliases: ["plano de resposta", "o que fazer e quem chamar"]
+    explicacao: "Um roteiro combinado antes do problema: quem avisar, o que desligar, quem chamar (TI, banco, advogado, polícia) e como falar com clientes. Na hora do susto, economiza horas e dinheiro."
+    exemplo: "Uma folha impressa na parede: \"1. Tire o cabo de rede. 2. Ligue para o técnico (número). 3. Avise o sócio.\""
+
+  - id: simulacao
+    termo: "Simulação (exercício)"
+    aliases: [simulação, simulações, "exercício de mesa"]
+    explicacao: "Um treino em que a equipe finge que um problema aconteceu e percorre o plano, para descobrir falhas antes que seja real."
+    exemplo: "Numa reunião de 1 hora, a equipe discute: \"e se hoje o sistema de agenda amanhecesse trancado?\""
+
+  - id: contingencia
+    termo: "Plano de contingência (continuidade)"
+    aliases: [contingência, "continuar atendendo", "voltar a operar", continuidade]
+    explicacao: "Um jeito alternativo de continuar funcionando enquanto os sistemas estão fora do ar, e um plano para voltar ao normal no menor tempo possível."
+    exemplo: "Se o sistema de vendas cair, os pedidos são anotados em formulário de papel e lançados depois."
+
+  - id: redundancia
+    termo: "Redundância"
+    aliases: [redundância, "link de internet reserva", "alta disponibilidade"]
+    explicacao: "Ter um \"estepe\" para o que não pode parar: uma segunda conexão de internet, um segundo servidor, um serviço que assume se o principal cair."
+    exemplo: "Internet de fibra de uma operadora e 4G/5G de outra como reserva."
+
+  - id: fornecedor
+    termo: "Fornecedor com acesso (terceiro)"
+    aliases: [fornecedor, fornecedores, terceirizado, terceiro]
+    explicacao: "Empresa ou profissional de fora que guarda dados da sua empresa ou acessa seus sistemas: contador, empresa de TI, sistema de gestão online, agência de marketing. Se ele sofre um ataque, você pode ser atingido."
+    exemplo: "O escritório de contabilidade tem acesso à folha de pagamento com dados de todos os funcionários."
+
+  # ---------------------------------------------------------------- dados e leis
+  - id: lgpd
+    termo: "LGPD"
+    aliases: [LGPD]
+    explicacao: "Lei Geral de Proteção de Dados (Lei 13.709/2018). Define como empresas podem coletar e usar dados de pessoas e prevê multas e outras sanções quando esses dados são mal protegidos."
+    exemplo: "Informar ao cliente para que você usa o CPF dele e avisá-lo se esses dados vazarem."
+
+  - id: anpd
+    termo: "ANPD"
+    aliases: [ANPD]
+    explicacao: "Autoridade Nacional de Proteção de Dados: o órgão do governo que fiscaliza a LGPD e deve ser avisado quando um vazamento pode causar dano às pessoas."
+    exemplo: "Após um vazamento de dados de pacientes, a clínica tem prazo para comunicar a ANPD."
+
+  - id: encarregado
+    termo: "Encarregado de dados (DPO)"
+    aliases: [encarregado, DPO]
+    explicacao: "Pessoa indicada pela empresa como ponto de contato sobre dados pessoais, com clientes e com a ANPD. Pequenas empresas têm regras simplificadas e, em muitos casos, são dispensadas."
+    exemplo: "\"Dúvidas sobre seus dados: privacidade@suaempresa.com.br\" no site."
+
+  - id: dado_pessoal
+    termo: "Dado pessoal"
+    aliases: ["dados pessoais", "dado pessoal", "dados de pessoas"]
+    explicacao: "Qualquer informação que identifica uma pessoa: nome, CPF, telefone, e-mail, endereço, placa do carro."
+    exemplo: "O cadastro de clientes da loja."
+
+  - id: dado_sensivel
+    termo: "Dado pessoal sensível"
+    aliases: ["dados sensíveis", "dado sensível", biometria]
+    explicacao: "Dados que a LGPD protege com mais rigor porque podem causar discriminação: saúde, biometria, religião, origem racial, vida sexual, opinião política, filiação sindical."
+    exemplo: "Prontuários, resultados de exames, digital usada no ponto eletrônico."
+
+  - id: pci
+    termo: "Certificação de pagamento com cartão (PCI DSS)"
+    aliases: ["PCI DSS", certificada, certificados]
+    explicacao: "Padrão de segurança exigido pelas bandeiras de cartão para quem processa pagamentos. Usar maquininha ou plataforma certificada transfere essa responsabilidade técnica ao fornecedor."
+    exemplo: "Pagamentos pela maquininha do adquirente ou pelo checkout da plataforma de e-commerce."
+
+  - id: med
+    termo: "MED — Mecanismo Especial de Devolução do PIX"
+    aliases: [MED, PIX]
+    explicacao: "Procedimento do Banco Central que permite ao banco bloquear e tentar devolver um PIX feito por golpe. Quanto mais rápido o banco é avisado, maior a chance de recuperar o dinheiro."
+    exemplo: "Ao perceber o golpe, ligar imediatamente para o banco e pedir a abertura do MED."
+
+  # ---------------------------------------------------------------- setoriais
+  - id: prontuario
+    termo: "Prontuário eletrônico"
+    aliases: [prontuário, prontuários]
+    explicacao: "Registro digital do histórico de saúde do paciente. Por conter dados sensíveis, o Conselho Federal de Medicina exige login individual e registro de quem acessou."
+    exemplo: "O sistema da clínica onde o médico anota consultas e exames."
+
+  - id: automacao_industrial
+    termo: "Rede de automação industrial"
+    aliases: [automação, CLP, supervisório, "máquinas e sistemas de produção"]
+    explicacao: "Os computadores e controladores que comandam as máquinas da fábrica (CLPs, sistemas supervisórios). Se um vírus do escritório chega até eles, a produção pode parar."
+    exemplo: "O computador que programa a injetora plástica e a tela que mostra a produção da linha."
+
+  - id: revisao_codigo
+    termo: "Revisão de segurança do software"
+    aliases: ["revisão de segurança", "revisão de código", SAST, "análise automática"]
+    explicacao: "Conferência, feita por pessoas e por ferramentas automáticas, para encontrar falhas de segurança no programa antes de ele ser entregue ao cliente."
+    exemplo: "Toda alteração no código passa por outro desenvolvedor e por uma ferramenta que procura falhas conhecidas."
+
+# Conceitos exibidos na tela de resultados e no relatório (RF10, RF11, RF12).
+conceitos_resultado:
+  - id: cenario_risco
+    termo: "Cenário de risco"
+    explicacao: "Uma história do que pode dar errado — por exemplo, \"um vírus tranca os computadores\". A ferramenta estima, para cada cenário, com que frequência ele pode acontecer e quanto custaria."
+  - id: maturidade
+    termo: "Maturidade de segurança"
+    explicacao: "Uma nota de 0% a 100% calculada a partir das suas respostas: quanto mais proteções a empresa já tem, maior a maturidade e menor a chance de um ataque dar certo."
+  - id: probabilidade_anual
+    termo: "Chance de acontecer no ano"
+    explicacao: "A probabilidade de o cenário causar pelo menos um prejuízo nos próximos 12 meses. 30% quer dizer: em 10 anos parecidos com este, espera-se problema em cerca de 3."
+  - id: perda_esperada
+    termo: "Perda esperada por ano"
+    explicacao: "A média do prejuízo anual considerando todos os anos simulados, inclusive aqueles em que nada acontece. Serve para comparar com o custo de se proteger."
+  - id: p90
+    termo: "Perda num ano ruim (P90)"
+    explicacao: "O valor de prejuízo que só é ultrapassado em 1 de cada 10 anos. É o \"pior cenário razoável\" usado para colorir o mapa de calor: não é o pior caso possível, mas um ano ruim realista."
+  - id: apetite
+    termo: "Apetite ao risco"
+    explicacao: "Quanto a empresa aceita perder num ano ruim sem mudar os planos. Riscos abaixo disso podem ser apenas acompanhados."
+  - id: tolerancia
+    termo: "Tolerância ao risco"
+    explicacao: "O limite de perda a partir do qual a continuidade da empresa fica ameaçada. Riscos acima disso são críticos e pedem ação imediata."
+  - id: mapa_calor
+    termo: "Mapa de calor"
+    explicacao: "Quadro que posiciona cada cenário pela chance de acontecer (eixo horizontal) e pelo prejuízo num ano ruim (eixo vertical). Verde: aceitável; amarelo: atenção; laranja: acima do apetite; vermelho: acima da tolerância."
+  - id: monte_carlo
+    termo: "Simulação de Monte Carlo"
+    explicacao: "Em vez de dar um único número, a ferramenta \"sorteia\" 10.000 anos possíveis para a sua empresa — em alguns nada acontece, em outros há um ou mais incidentes de tamanhos diferentes — e resume o resultado. É como jogar um dado milhares de vezes para entender quais resultados são comuns e quais são raros."
+  - id: perda_primaria
+    termo: "Prejuízo direto"
+    explicacao: "O que a própria empresa gasta ou deixa de ganhar com o incidente: horas paradas, técnico, recuperação de sistemas, dinheiro desviado."
+  - id: perda_secundaria
+    termo: "Prejuízo com terceiros"
+    explicacao: "O que vem da reação de outras pessoas ao incidente: clientes que vão embora, indenizações, multas da ANPD, comunicação aos afetados. Nem sempre acontece, mas quando acontece pode ser muito alto — por isso é simulado separadamente."
+  - id: reducao_risco
+    termo: "Redução de perda esperada"
+    explicacao: "Quanto a perda esperada por ano cai se a empresa melhorar aquele ponto do questionário."
+  - id: retorno_investimento
+    termo: "Retorno sobre o investimento (ROI)"
+    explicacao: "Compara quanto a proteção economiza por ano com quanto ela custa por ano. ROI de 200% quer dizer que cada R$ 1 investido evita, em média, R$ 3 de perda (R$ 1 de volta + R$ 2 de ganho)."

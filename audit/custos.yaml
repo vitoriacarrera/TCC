@@ -1,0 +1,120 @@
+# Modelo de custo dos controles — base do ROI do plano de ação (RF11).
+#
+# Substitui os valores fixos por uma MEMÓRIA DE CÁLCULO auditável (ENISA, 2012 — custo da solução inclui
+# licenças + implantação + operação):
+#
+#   custo_anual(controle, porte) = Σ licenças(porte)
+#                                + (horas_implantacao[porte] / vida_util_anos + horas_anuais[porte]
+#                                   + horas_por_usuario_ano × usuarios[porte]) × custo_hora[porte]
+#
+# O que tem fonte pública: preços de licença (listas oficiais dos fabricantes), câmbio (BCB) e custo da hora
+# (Guia Salarial Robert Half 2026 + encargos trabalhistas). O que continua sendo estimativa: as HORAS de esforço
+# e o volume de dados por porte — declaradas aqui de forma explícita para revisão por especialista.
+# Chaves BibTeX em docs/referencias.bib.
+
+parametros:
+  cambio_usd_brl: 5.1408          # PTAX venda 23/09/2026 — bcb2026ptax
+  vida_util_anos: 3               # implantação amortizada em 3 anos (julgamento; ciclo usual de revisão de políticas)
+  usuarios: [2, 10, 50, 150]      # ponto representativo das faixas da Tabela 3.1 do TCC1 (1–2, 3–19, 20–99, 100+)
+  dados_tb: [0.2, 1, 5, 20]       # volume a proteger em backup, em TB (julgamento)
+  custo_hora: [41, 41, 85, 85]    # R$/h — ver bloco `mao_de_obra`
+  fonte: [bcb2026ptax, tcc1, julgamento]
+
+# Custo da hora = salário mensal P50 × (1 + encargos) / 220 h (jornada mensal CLT)
+mao_de_obra:
+  - portes: [1, 2]
+    perfil: "Analista de Suporte Pleno (P50)"
+    salario_mensal: 6500
+    encargos: 0.3937              # Simples Nacional
+    custo_hora_calculado: 41.18   # 6.500 × 1,3937 / 220
+    fonte: [roberthalf2026suporte, fernandes2023encargos]
+  - portes: [3, 4]
+    perfil: "Analista de Segurança Pleno (P50)"
+    salario_mensal: 11150
+    encargos: 0.6818              # Lucro Presumido / Lucro Real
+    custo_hora_calculado: 85.24   # 11.150 × 1,6818 / 220
+    fonte: [roberthalf2026seguranca, fernandes2023encargos]
+
+# Preços públicos (sem impostos). `unidade`: usuario_mes | tb_mes | mes
+precos:
+  - { id: bitwarden_teams,     descricao: "Bitwarden Teams (gerenciador de senhas corporativo)", valor: 4.00,  moeda: USD, unidade: usuario_mes, fonte: bitwarden2026 }
+  - { id: defender_business,   descricao: "Microsoft Defender for Business (antivírus com detecção e resposta)", valor: 3.00, moeda: USD, unidade: usuario_mes, fonte: microsoft2026smb }
+  - { id: defender_office_p1,  descricao: "Microsoft Defender for Office 365 Plano 1 (filtro avançado de e-mail)", valor: 2.00, moeda: USD, unidade: usuario_mes, fonte: microsoft2026smb }
+  - { id: intune_p1,           descricao: "Microsoft Intune Plano 1 (gestão e criptografia de dispositivos)", valor: 8.00, moeda: USD, unidade: usuario_mes, fonte: microsoft2026smb }
+  - { id: m365_premium_delta,  descricao: "Diferença Microsoft 365 Business Premium (US$ 22) − Business Standard (US$ 14): inclui prevenção de vazamento de dados (Purview DLP)", valor: 8.00, moeda: USD, unidade: usuario_mes, fonte: microsoft2026smb }
+  - { id: backblaze_b2,        descricao: "Backblaze B2 (armazenamento em nuvem para backup)", valor: 6.95, moeda: USD, unidade: tb_mes, fonte: backblaze2026 }
+  - { id: cloudflare_pro,      descricao: "Cloudflare Pro (proteção do site contra ataques e sobrecarga)", valor: 20.00, moeda: USD, unidade: mes, fonte: cloudflare2026 }
+  - { id: cloudflare_business, descricao: "Cloudflare Business", valor: 200.00, moeda: USD, unidade: mes, fonte: cloudflare2026 }
+  - { id: link_reserva,        descricao: "Link de internet reserva (4G/5G ou fibra de 2ª operadora)", valor: 150.00, moeda: BRL, unidade: mes, fonte: julgamento }
+
+# Composição por controle. horas_* por porte [1, 2, 3, 4]. licencas: preço aplicado nos portes listados.
+# Ferramentas gratuitas citadas (sem custo de licença): MFA nativo (security defaults / verificação em duas
+# etapas do Google e da Microsoft), Microsoft Defender Antivirus e BitLocker nativos do Windows, Cloudflare Free,
+# Cartilha CERT.br (cert2024cartilha) para treinamento, OpenVAS/Greenbone Community para varredura.
+controles:
+  "5.1":  { horas_implantacao: [4, 8, 24, 40],   horas_anuais: [1, 2, 8, 16] }
+  "5.2":  { horas_implantacao: [0, 2, 4, 8],     horas_anuais: [0, 24, 96, 192] }          # 0 / 2 / 8 / 16 h por mês do responsável
+  "5.9":  { horas_implantacao: [2, 4, 16, 40],   horas_anuais: [1, 4, 16, 40] }
+  "5.10": { horas_implantacao: [2, 4, 8, 16],    horas_anuais: [1, 2, 4, 8] }
+  "5.14": { horas_implantacao: [1, 2, 4, 8],     horas_anuais: [1, 4, 12, 24] }
+  "5.15": { horas_implantacao: [1, 4, 24, 60],   horas_anuais: [1, 4, 16, 40] }
+  "5.16": { horas_implantacao: [0, 4, 16, 40],   horas_anuais: [0, 2, 8, 24] }
+  "5.17":
+    horas_implantacao: [1, 4, 12, 24]
+    horas_anuais: [0, 2, 4, 8]
+    licencas: [{ preco: bitwarden_teams, portes: [1, 2, 3, 4] }]
+  "5.18": { horas_implantacao: [0, 2, 4, 8],     horas_anuais: [0, 2, 8, 24] }
+  "5.19": { horas_implantacao: [0, 4, 16, 40],   horas_anuais: [0, 2, 8, 24] }
+  "5.23": { horas_implantacao: [0, 4, 16, 40],   horas_anuais: [0, 2, 8, 16] }
+  "5.24": { horas_implantacao: [2, 8, 24, 40],   horas_anuais: [1, 4, 8, 24] }
+  "5.30": { horas_implantacao: [2, 8, 32, 80],   horas_anuais: [1, 4, 16, 40] }
+  "5.31": { horas_implantacao: [1, 2, 4, 8],     horas_anuais: [0, 1, 2, 4] }
+  "5.34": { horas_implantacao: [4, 16, 60, 120], horas_anuais: [2, 8, 24, 60] }
+  "6.3":                                                                                    # material gratuito do CERT.br
+    horas_implantacao: [2, 4, 8, 16]
+    horas_anuais: [1, 2, 4, 8]
+    horas_por_usuario_ano: 1                                                                # 1 h de treinamento por pessoa/ano
+  "8.1":
+    horas_implantacao: [1, 2, 8, 24]
+    horas_anuais: [0, 1, 4, 8]
+    licencas: [{ preco: intune_p1, portes: [3, 4] }]                                        # portes 1–2: BitLocker/FileVault nativos
+  "8.2":  { horas_implantacao: [1, 4, 16, 40],   horas_anuais: [0, 2, 8, 16] }
+  "8.5":  { horas_implantacao: [1, 2, 8, 16],    horas_anuais: [0, 1, 4, 8] }             # MFA nativo gratuito
+  "8.7":
+    horas_implantacao: [1, 2, 8, 16]
+    horas_anuais: [0, 2, 8, 24]
+    licencas: [{ preco: defender_business, portes: [2, 3, 4] }]                             # porte 1: Defender Antivirus nativo
+  "8.8":  { horas_implantacao: [1, 4, 16, 40],   horas_anuais: [2, 12, 48, 120] }         # atualizações + varredura (OpenVAS)
+  "8.9":  { horas_implantacao: [0, 2, 16, 40],   horas_anuais: [0, 1, 8, 16] }
+  "8.10": { horas_implantacao: [1, 2, 8, 24],    horas_anuais: [1, 2, 4, 8] }
+  "8.12":
+    horas_implantacao: [0, 0, 16, 40]
+    horas_anuais: [0, 0, 8, 24]
+    licencas: [{ preco: m365_premium_delta, portes: [4] }]
+  "8.13":
+    horas_implantacao: [2, 4, 16, 32]
+    horas_anuais: [2, 6, 24, 48]                                                            # inclui testes de restauração
+    licencas: [{ preco: backblaze_b2, portes: [1, 2, 3, 4] }]
+  "8.14":
+    horas_implantacao: [0, 4, 16, 40]
+    horas_anuais: [0, 2, 8, 16]
+    licencas: [{ preco: link_reserva, portes: [2, 3, 4] }]
+  "8.15": { horas_implantacao: [0, 0, 8, 24],    horas_anuais: [0, 0, 8, 24] }
+  "8.16": { horas_implantacao: [0, 2, 16, 40],   horas_anuais: [0, 12, 104, 416] }        # 0 / 15 min / 2 h / 8 h por semana
+  "8.20":
+    horas_implantacao: [1, 4, 16, 40]
+    horas_anuais: [0, 2, 8, 16]
+    licencas: [{ preco: cloudflare_pro, portes: [3] }, { preco: cloudflare_business, portes: [4] }]
+  "8.22": { horas_implantacao: [0, 8, 24, 60],   horas_anuais: [0, 2, 8, 16] }
+  "8.23":
+    horas_implantacao: [0, 1, 4, 8]
+    horas_anuais: [0, 1, 4, 8]
+    licencas: [{ preco: defender_office_p1, portes: [2, 3, 4] }]
+  "8.24": { horas_implantacao: [1, 2, 8, 16],    horas_anuais: [0, 1, 2, 4] }
+  "8.28": { horas_implantacao: [0, 16, 40, 80],  horas_anuais: [0, 24, 96, 240] }          # ferramentas livres (ex.: Semgrep CE)
+
+# Verificação de razoabilidade (cis2025cost): custo anual de FERRAMENTAS para o CIS IG1, modelo on-premises.
+# Tier 1 (1–10 empregados): US$ 0–38.124; Tier 2 (10–100): US$ 0–176.961; Tier 3 (100–999): US$ 0–1.446.187.
+# CIS recomenda que as ferramentas de IG1 fiquem abaixo de 20% do orçamento de TI.
+# Mapeamento pelo nº de empregados representativo: portes 1–2 → Tier 1; porte 3 → Tier 2; porte 4 → Tier 3.
+referencia_cis_ig1_usd: [38124, 38124, 176961, 1446187]

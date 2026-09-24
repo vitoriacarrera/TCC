@@ -1,0 +1,73 @@
+# Setores — TCC1, Tabela 3.2.
+#
+# multiplicador_tef[cenario]: quão mais (ou menos) frequente é a ameaça no setor vs. a média (1.0).
+# multiplicador_custo_registro: custo relativo de um vazamento por registro.
+#   Derivado das RAZÕES setoriais do ibm2025 (Brasil: média R$ 7,19 mi):
+#   saúde 11,43/7,19 = 1,59; serviços 8,51/7,19 = 1,18. Demais setores sem recorte Brasil => 1,0.
+# Cenários omitidos em multiplicador_tef assumem 1.0.
+
+setores:
+  - id: varejo
+    nome: "Varejo & Comércio"
+    exemplos: "E-commerce, lojas de bairro, restaurantes, distribuidores"
+    multiplicador_tef:
+      VAZ: 1.2   # dados de clientes e pagamento; ataques web a lojas virtuais
+      FRA: 1.2   # golpes com boleto/PIX e fornecedores
+      IND: 1.3   # venda depende do site/PDV no ar
+      IA: 0.7
+    multiplicador_custo_registro: 1.0
+    justificativa: "dbir2025 (Basic Web Application Attacks entre os 3 padrões dominantes em PMEs); julgamento"
+    fonte: [dbir2025, julgamento]
+
+  - id: servicos
+    nome: "Serviços"
+    exemplos: "Agências, escritórios de advocacia e contabilidade, consultorias, SaaS"
+    multiplicador_tef:
+      FRA: 1.3   # BEC/pretexting contra financeiro e clientes
+      VAZ: 1.1
+      IND: 0.8
+      TER: 1.1
+      IA: 1.3    # uso intenso de IA generativa com documentos de clientes
+    multiplicador_custo_registro: 1.18
+    justificativa: "ibm2025 (serviços R$ 8,51 mi vs. média R$ 7,19 mi); dbir2025 (pretexting mais comum em PMEs)"
+    fonte: [ibm2025, dbir2025, julgamento]
+
+  - id: saude
+    nome: "Saúde"
+    exemplos: "Clínicas médicas e odontológicas, consultórios, pequenos laboratórios"
+    multiplicador_tef:
+      RAN: 1.4   # setor mais visado por ransomware
+      VAZ: 1.3
+      IND: 1.2   # agenda/prontuário fora do ar para atendimento
+      FRA: 0.9
+      IA: 0.9
+    multiplicador_custo_registro: 1.59
+    justificativa: "ibm2025 (saúde é o setor mais caro no Brasil: R$ 11,43 mi; 279 dias para conter); dados sensíveis pela LGPD"
+    fonte: [ibm2025, lgpd, julgamento]
+
+  - id: industria
+    nome: "Indústria Leve"
+    exemplos: "Pequenas fábricas, manufatura, alimentos, têxtil"
+    multiplicador_tef:
+      RAN: 1.4   # parada de produção aumenta a pressão por pagamento
+      IND: 1.3
+      VAZ: 0.7   # menos dados pessoais de consumidores
+      FRA: 1.1   # fraude em pagamento a fornecedores
+      TER: 1.1
+      IA: 0.6
+    multiplicador_custo_registro: 1.0
+    justificativa: "sophos2025 (relatório setorial de manufatura); julgamento"
+    fonte: [sophos2025, julgamento]
+
+  - id: tecnologia
+    nome: "Serviços de Tecnologia"
+    exemplos: "Consultorias de TI, software houses, provedores de serviços gerenciados (MSPs)"
+    multiplicador_tef:
+      TER: 1.4   # são o elo da cadeia de suprimentos de outros clientes
+      VAZ: 1.3   # código-fonte, credenciais de clientes
+      RAN: 1.1
+      IND: 1.1
+      IA: 1.4
+    multiplicador_custo_registro: 1.0
+    justificativa: "dbir2025 (terceiros em 30% das violações); ibm2025 (cadeia de suprimentos é o vetor mais caro: R$ 8,98 mi)"
+    fonte: [dbir2025, ibm2025, julgamento]

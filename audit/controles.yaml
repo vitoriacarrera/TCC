@@ -1,0 +1,40 @@
+# Controles de segurança — ABNT NBR ISO/IEC 27002:2022 (ADR-003).
+# tipo: atributo "tipo de controle" da própria 27002 (preventivo, detectivo, corretivo).
+# Custo anual de cada controle por porte: calculado a partir de `custos.yaml` (licenças com preço público +
+#   horas × custo da hora de mercado). Ver `riskpme-catalogo custos`.
+# esforco: baixo (dias), medio (semanas), alto (meses / depende de fornecedor).
+
+controles:
+  - { id: "5.1",  nome: "Políticas de segurança da informação",              tipo: preventivo, esforco: baixo }
+  - { id: "5.2",  nome: "Papéis e responsabilidades pela segurança da informação", tipo: preventivo, esforco: baixo }
+  - { id: "5.9",  nome: "Inventário de informações e outros ativos associados", tipo: preventivo, esforco: medio }
+  - { id: "5.10", nome: "Uso aceitável de informações e outros ativos associados", tipo: preventivo, esforco: baixo }
+  - { id: "5.14", nome: "Transferência de informações",                      tipo: preventivo, esforco: baixo }
+  - { id: "5.15", nome: "Controle de acesso",                                tipo: preventivo, esforco: medio }
+  - { id: "5.16", nome: "Gestão de identidade",                              tipo: preventivo, esforco: baixo }
+  - { id: "5.17", nome: "Informações de autenticação",                       tipo: preventivo, esforco: baixo }
+  - { id: "5.18", nome: "Direitos de acesso",                                tipo: preventivo, esforco: baixo }
+  - { id: "5.19", nome: "Segurança da informação nas relações com fornecedores", tipo: preventivo, esforco: medio }
+  - { id: "5.23", nome: "Segurança da informação para uso de serviços em nuvem", tipo: preventivo, esforco: medio }
+  - { id: "5.24", nome: "Planejamento e preparação da gestão de incidentes de segurança da informação", tipo: corretivo, esforco: medio }
+  - { id: "5.30", nome: "Prontidão de TIC para continuidade de negócios",    tipo: corretivo, esforco: alto }
+  - { id: "5.31", nome: "Requisitos legais, estatutários, regulamentares e contratuais", tipo: preventivo, esforco: medio }
+  - { id: "5.34", nome: "Privacidade e proteção de dados pessoais",          tipo: preventivo, esforco: medio }
+  - { id: "6.3",  nome: "Conscientização, educação e treinamento em segurança da informação", tipo: preventivo, esforco: baixo }
+  - { id: "8.1",  nome: "Dispositivos endpoint do usuário",                  tipo: preventivo, esforco: medio }
+  - { id: "8.2",  nome: "Direitos de acessos privilegiados",                 tipo: preventivo, esforco: medio }
+  - { id: "8.5",  nome: "Autenticação segura",                               tipo: preventivo, esforco: baixo }
+  - { id: "8.7",  nome: "Proteção contra malware",                           tipo: preventivo, esforco: baixo }
+  - { id: "8.8",  nome: "Gestão de vulnerabilidades técnicas",               tipo: preventivo, esforco: medio }
+  - { id: "8.9",  nome: "Gestão de configuração",                            tipo: preventivo, esforco: medio }
+  - { id: "8.10", nome: "Exclusão de informações",                           tipo: preventivo, esforco: baixo }
+  - { id: "8.12", nome: "Prevenção de vazamento de dados",                   tipo: preventivo, esforco: alto }
+  - { id: "8.13", nome: "Backup das informações",                            tipo: corretivo, esforco: baixo }
+  - { id: "8.14", nome: "Redundância dos recursos de tratamento de informações", tipo: preventivo, esforco: alto }
+  - { id: "8.15", nome: "Registros (logs)",                                  tipo: detectivo,  esforco: medio }
+  - { id: "8.16", nome: "Atividades de monitoramento",                       tipo: detectivo,  esforco: alto }
+  - { id: "8.20", nome: "Segurança de redes",                                tipo: preventivo, esforco: medio }
+  - { id: "8.22", nome: "Segregação de redes",                               tipo: preventivo, esforco: medio }
+  - { id: "8.23", nome: "Filtragem da web",                                  tipo: preventivo, esforco: baixo }
+  - { id: "8.24", nome: "Uso de criptografia",                               tipo: preventivo, esforco: baixo }
+  - { id: "8.28", nome: "Codificação segura",                                tipo: preventivo, esforco: medio }

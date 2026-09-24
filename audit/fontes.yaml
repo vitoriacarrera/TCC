@@ -1,0 +1,145 @@
+# Fontes secundárias usadas na calibração (TCC1 §3.3). Cada número do catálogo aponta para um id daqui.
+# Valores de calibração marcados como "julgamento" são estimativas da autora a serem justificadas no texto.
+
+fontes:
+  - id: ibm2025
+    titulo: "IBM Security — Cost of a Data Breach Report 2025 (recorte Brasil)"
+    url: https://brasil.newsroom.ibm.com/2025-07-30-Relatorio-da-IBM-Custo-medio-de-uma-violacao-de-dados-no-Brasil-atinge-R-7,19-milhoes
+    dados:
+      - "Custo médio de violação no Brasil: R$ 7,19 mi (2024: R$ 6,75 mi)"
+      - "Por setor no Brasil: saúde R$ 11,43 mi; financeiro R$ 8,92 mi; serviços R$ 8,51 mi"
+      - "Vetores: phishing 18% (R$ 7,18 mi); terceiros/cadeia de suprimentos 15% (R$ 8,98 mi); exploração de vulnerabilidade 13% (R$ 7,61 mi)"
+      - "Shadow AI acrescenta em média R$ 591,4 mil ao custo; 87% sem política de governança de IA"
+    limitacao: "Amostra de 600 organizações no mundo, majoritariamente de grande porte; valores absolutos não se aplicam a PMEs — usamos apenas as RAZÕES entre setores."
+
+  - id: dbir2025
+    titulo: "Verizon — 2025 Data Breach Investigations Report, SMB Snapshot"
+    url: https://www.verizon.com/business/resources/infographics/2025-dbir-smb-snapshot.pdf
+    dados:
+      - "3.049 incidentes em empresas com < 1.000 funcionários; 2.842 com vazamento confirmado"
+      - "Ransomware presente em 88% das violações em PMEs (39% em grandes)"
+      - "Credenciais roubadas: 33%; engenharia social ~18%, quase só phishing; pretexting mais comum em PMEs"
+      - "Envolvimento de terceiros dobrou de 15% para 30% (todas as empresas)"
+      - "Resgate mediano US$ 115 mil; 64% não pagaram"
+
+  - id: sophos2025
+    titulo: "Sophos — The State of Ransomware 2025"
+    url: https://www.sophos.com/en-us/press/press-releases/2025/06/nearly-half-companies-opt-pay-ransom-sophos-report-finds
+    dados:
+      - "Custo médio de recuperação US$ 1,53 mi; resgate mediano US$ 1 mi (empresas até US$ 250 mi de receita: demanda < US$ 350 mil)"
+      - "Causa técnica principal: vulnerabilidade explorada; 40% tinham falha de segurança desconhecida"
+      - "53% se recuperaram em até uma semana; 18% levaram mais de um mês; 54% usaram backup"
+
+  - id: hiscox2025
+    titulo: "Hiscox Cyber Readiness Report 2025"
+    url: https://www.theinsurer.com/cyber-risk/news/hiscox-survey-finds-59-of-smes-have-faced-cyber-attack-in-past-year-2025-09-29/
+    dados:
+      - "59% das PMEs relataram ao menos um ataque cibernético nos últimos 12 meses"
+
+  - id: ic3_2024
+    titulo: "FBI IC3 — Internet Crime Report 2024"
+    url: https://www.ic3.gov/AnnualReport/Reports/2024_IC3Report.pdf
+    dados:
+      - "Business Email Compromise (BEC): ~US$ 2,8 bi em perdas reportadas em 2024, segunda maior categoria"
+
+  - id: lgpd
+    titulo: "Lei 13.709/2018 (LGPD) e Resolução CD/ANPD nº 4/2023 (dosimetria de sanções)"
+    url: https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm
+    dados:
+      - "Multa simples de até 2% do faturamento, limitada a R$ 50 mi por infração (art. 52, II)"
+      - "Dados sensíveis (art. 5º, II e art. 11) — ex.: saúde — agravam a infração"
+
+  - id: julgamento
+    titulo: "Estimativa da autora (julgamento especializado)"
+    url: null
+    dados:
+      - "Parâmetros sem fonte pública específica para PMEs brasileiras; devem ser revisados por especialista e declarados como limitação (TCC1 §3.8)."
+
+  # ---------------------------------------------------------------- custos dos controles (custos.yaml)
+  - id: tcc1
+    titulo: "Oliveira, V. M. C. — TCC1: Texto inicial da monografia (UFMG), Tabela 3.1"
+    url: null
+    dados:
+      - "Faixas de pessoas por porte: 1–2, 3–19, 20–99, 100+"
+
+  - id: bcb2026ptax
+    titulo: "Banco Central do Brasil — Taxa de câmbio PTAX (dólar americano, venda)"
+    url: https://dadosabertos.bcb.gov.br/dataset/dolar-americano-usd-todos-os-boletins-diarios
+    dados:
+      - "PTAX venda em 23/09/2026: R$ 5,1408 (atualizar na data de fechamento do TCC)"
+
+  - id: roberthalf2026suporte
+    titulo: "Robert Half — Guia Salarial 2026: Analista de Suporte Pleno"
+    url: https://www.roberthalf.com/br/pt/vagas-detalhes/analista-de-suporte-pleno
+    dados:
+      - "Salário mensal: P25 R$ 4.950; P50 R$ 6.500; P75 R$ 8.350"
+
+  - id: roberthalf2026seguranca
+    titulo: "Robert Half — Guia Salarial 2026: Analista de Segurança Pleno"
+    url: https://www.roberthalf.com/br/pt/vagas-detalhes/analista-de-seguranca-pleno
+    dados:
+      - "Salário mensal: P25 R$ 8.500; P50 R$ 11.150; P75 R$ 14.300"
+
+  - id: fernandes2023encargos
+    titulo: "Fernandes, D. — Encargos trabalhistas: quanto custa um funcionário? (Treasy, atualizado em 05/05/2023)"
+    url: https://www.treasy.com.br/blog/encargos-trabalhistas/
+    dados:
+      - "Encargos sobre a folha: 39,37% (Simples Nacional); 68,18% (Lucro Real/Presumido)"
+    limitacao: "Fonte secundária (blog especializado); pode ser substituída por tabela do DIEESE ou de contabilidade."
+
+  - id: microsoft2026smb
+    titulo: "Microsoft — Microsoft 365 Security Pricing for Small and Medium Business"
+    url: https://www.microsoft.com/en-us/security/pricing/small-medium-business
+    dados:
+      - "Business Standard US$ 14 e Business Premium US$ 22 por usuário/mês (anual)"
+      - "Defender for Business US$ 3; Entra ID P1 US$ 7; Intune P1 US$ 8; Defender for Office 365 P1 US$ 2 por usuário/mês"
+
+  - id: bitwarden2026
+    titulo: "Bitwarden — Business plans pricing"
+    url: https://bitwarden.com/pricing/business/
+    dados:
+      - "Teams US$ 4 e Enterprise US$ 6 por usuário/mês (anual)"
+
+  - id: backblaze2026
+    titulo: "Backblaze — B2 Cloud Storage pricing"
+    url: https://www.backblaze.com/cloud-storage/pricing
+    dados:
+      - "A partir de US$ 6,95 por TB/mês"
+
+  - id: cloudflare2026
+    titulo: "Cloudflare — Plans"
+    url: https://www.cloudflare.com/plans/
+    dados:
+      - "Free US$ 0, Pro US$ 20, Business US$ 200 por mês (anual); WAF e proteção DDoS em todos"
+
+  - id: cis2025cost
+    titulo: "Center for Internet Security — The Cost of Cyber Defense: CIS Controls IG1, v1.1 (abr. 2025)"
+    url: https://www.cisecurity.org/insights/white-papers/the-cost-of-cyber-defense-cis-controls-ig1
+    dados:
+      - "Ferramentas de IG1 devem custar menos de 20% do orçamento de TI de qualquer porte"
+      - "Custo anual de ferramentas on-premises: Tier 1 (1–10 empregados) US$ 0–38.124; Tier 2 (10–100) US$ 0–176.961; Tier 3 (100–999) US$ 0–1.446.187"
+    limitacao: "Valores por tier obtidos de resumo secundário; conferir no PDF original antes de citar."
+
+  - id: enisa2012rosi
+    titulo: "ENISA — Introduction to Return on Security Investment (dez. 2012)"
+    url: https://www.enisa.europa.eu/sites/default/files/publications/Return%20On%20Security%20Investment.pdf
+    dados:
+      - "ROSI = (ALE − ALE modificada − custo da solução) / custo da solução; custo inclui licenças, instalação, treinamento e manutenção"
+
+  - id: gordon2002
+    titulo: "Gordon, L. A.; Loeb, M. P. — The Economics of Information Security Investment (ACM TISSEC, 2002)"
+    url: https://dl.acm.org/doi/10.1145/581271.581274
+    dados:
+      - "O investimento ótimo em segurança não excede 1/e (≈ 36,8%) da perda esperada"
+
+  - id: cert2024cartilha
+    titulo: "CERT.br — Cartilha de Segurança para Internet (fascículos)"
+    url: https://cartilha.cert.br/fasciculos/
+    dados:
+      - "Material de conscientização gratuito, em português, reutilizável em treinamentos"
+
+  - id: anpd2021guia
+    titulo: "ANPD — Guia orientativo: segurança da informação para agentes de tratamento de pequeno porte (v1.0, out. 2021)"
+    url: https://www.gov.br/anpd/pt-br/centrais-de-conteudo/materiais-educativos-e-publicacoes/guia-orientativo-sobre-seguranca-da-informacao-para-agentes-de-tratamento-de-pequeno-porte
+    dados:
+      - "Medidas mínimas recomendadas pela ANPD para pequenos agentes de tratamento"
