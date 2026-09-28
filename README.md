@@ -35,7 +35,7 @@ com controles priorizados, seguindo o processo da **ABNT NBR ISO/IEC 27005:2023*
 | §3.6 Lognormal no Monte Carlo | `perda_secundaria` de `audit/cenarios.yaml` (ADR-002) |
 | RF09–RF12 | backend/frontend (próximas etapas) |
 | RNF04 Linguagem acessível | `audit/glossario.yaml`, `ajuda` obrigatória, validador de linguagem (ADR-007) |
-| RNF01/RNF02 | API sem estado, sem banco, sem login (ADR-005) |
+| RNF01/RNF02 | Simulação sem estado; contribuição anonimizada só com consentimento (ADR-005) |
 
 ## Rodando o validador do catálogo
 
