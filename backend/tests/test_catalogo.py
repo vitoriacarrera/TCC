@@ -137,21 +137,94 @@ def test_detecta_cenario_sem_cobertura(copia_catalogo):
 def test_todo_controle_tem_custo_para_todo_porte(cat):
     for c in cat.controles:
         for porte in NIVEIS_PORTE:
-            assert cat.custo_controle(c.id, porte).total >= 0
+            assert cat.custo_controle(c.id, porte, usuarios=10).total >= 0
 
 
 def test_custo_cresce_com_o_porte(cat):
+    # mesmo nº de usuários: o porte muda só as horas e o custo da hora
     for c in cat.controles:
-        custos = [cat.custo_controle(c.id, p).total for p in NIVEIS_PORTE]
+        custos = [cat.custo_controle(c.id, p, usuarios=10).total for p in NIVEIS_PORTE]
         assert custos == sorted(custos), f"{c.id}: {custos}"
 
 
+def test_custo_nao_diminui_com_usuarios(cat):
+    for c in cat.controles:
+        for porte in NIVEIS_PORTE:
+            custos = [cat.custo_controle(c.id, porte, u).total for u in (1, 5, 50, 500)]
+            assert custos == sorted(custos), f"{c.id}/porte {porte}: {custos}"
+
+
 def test_memoria_de_calculo_gerenciador_de_senhas(cat):
-    # 5.17, porte 3: Bitwarden Teams US$ 4 × 50 usuários × 12 × câmbio + (12/3 + 4) h × R$ 85
+    # 5.17, porte 3, 50 usuários: Bitwarden Teams US$ 4 × 50 × 12 × câmbio + (12/3 + 4) h × R$ 85
     par = cat.custos.parametros
-    d = cat.custo_controle("5.17", 3)
+    d = cat.custo_controle("5.17", 3, usuarios=50)
+    assert d.usuarios == 50
     assert d.licencas == pytest.approx(4 * 50 * 12 * par.cambio_usd_brl)
     assert d.mao_de_obra == pytest.approx((12 / 3 + 4) * par.custo_hora[2])
+
+
+def test_backup_escala_com_usuarios(cat):
+    # 8.13: Backblaze US$ 6,95/TB/mês × (usuários × GB por usuário ÷ 1024) × 12 × câmbio
+    par = cat.custos.parametros
+    for u in (3, 40):
+        d = cat.custo_controle("8.13", 2, usuarios=u)
+        tb = u * par.gb_por_usuario / 1024
+        assert d.licencas == pytest.approx(6.95 * tb * 12 * par.cambio_usd_brl)
+
+
+def test_treinamento_cobra_hora_por_usuario(cat):
+    # 6.3: 1 h por pessoa/ano — diferença entre 20 e 10 usuários = 10 h × custo da hora do porte
+    par = cat.custos.parametros
+    d10, d20 = (cat.custo_controle("6.3", 3, u) for u in (10, 20))
+    assert d20.total - d10.total == pytest.approx(10 * par.custo_hora[2])
+
+
+def test_decomposicao_fixo_mais_por_usuario(cat):
+    from riskpme.catalog.custos import custo_fixo_e_por_usuario
+    for c in cat.controles:
+        fixo, por_u = custo_fixo_e_por_usuario(cat.custos, c.id, 4)
+        assert cat.custo_controle(c.id, 4, 37).total == pytest.approx(fixo + por_u * 37)
+
+
+@pytest.mark.parametrize("usuarios", [0, -1])
+def test_usuarios_invalido(cat, usuarios):
+    with pytest.raises(ValueError):
+        cat.custo_controle("5.17", 1, usuarios)
+
+
+# ---------------------------------------------------------------------- revisão S3/S4: sem padrões por porte
+def test_portes_nao_tem_valores_padrao(cat):
+    for p in cat.portes:
+        assert not hasattr(p, "padroes")
+    assert not hasattr(cat.custos.parametros, "usuarios")
+    assert not hasattr(cat.custos.parametros, "dados_tb")
+
+
+def test_entradas_do_gestor_sao_obrigatorias(cat):
+    perguntas = {p["id"]: p for b in ("financeiro", "ativos") for p in cat.contexto[b]}
+    for pid in ("faturamento_anual", "registros_pessoais", "usuarios_ti"):
+        assert perguntas[pid].get("obrigatorio") is True
+        assert perguntas[pid].get("padrao") != "porte"
+    assert perguntas["usuarios_ti"]["minimo"] == 1
+
+
+def test_detecta_padrao_por_porte_reintroduzido(copia_catalogo):
+    def volta_padrao(d):
+        for p in d["financeiro"]:
+            if p["id"] == "faturamento_anual":
+                p["padrao"] = "porte"
+    _editar(copia_catalogo, "contexto", volta_padrao)
+    r = validar(carregar_catalogo(copia_catalogo))
+    assert any("faturamento_anual" in e and "S3/S4" in e for e in r.erros)
+
+
+def test_perfis_de_teste_cobrem_limites_e_faixas(cat):
+    from riskpme.catalog.validate import perfis_de_teste
+    perfis = perfis_de_teste(cat)
+    faixas = {o["valor"] for p in cat.contexto["ativos"] if p["id"] == "registros_pessoais" for o in p["opcoes"]}
+    assert {n for _, _, n in perfis} == faixas
+    assert {f for _, f, _ in perfis} == {p.receita_anual_max for p in cat.portes}
+    assert len(perfis) == len(faixas) * (1 + 2 * 3)   # porte 1: só limite superior; demais: os dois limites
 
 
 def test_custo_hora_bate_com_salario_e_encargos(cat):
@@ -162,7 +235,8 @@ def test_custo_hora_bate_com_salario_e_encargos(cat):
 def test_custo_total_dentro_da_referencia_cis(cat):
     cambio = cat.custos.parametros.cambio_usd_brl
     for porte in NIVEIS_PORTE:
-        total = sum(cat.custo_controle(c.id, porte).total for c in cat.controles)
+        usuarios = cat.custos.referencia_cis_ig1_empregados[porte - 1]
+        total = sum(cat.custo_controle(c.id, porte, usuarios).total for c in cat.controles)
         assert total <= cat.custos.referencia_cis_ig1_usd[porte - 1] * cambio
 
 

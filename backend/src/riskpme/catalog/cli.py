@@ -12,6 +12,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from .custos import custo_fixo_e_por_usuario
 from .loader import carregar_catalogo
 from .models import NIVEIS_PORTE, Catalogo
 from .validate import validar
@@ -93,6 +94,12 @@ def _brl(v: float) -> str:
     return f"R$ {v:,.0f}".replace(",", ".")
 
 
+def _fixo_mais_usuario(fixo: float, por_usuario: float) -> str:
+    if por_usuario < 0.5:
+        return _brl(fixo)
+    return f"{_brl(fixo)} + {_brl(por_usuario)}/usuário"
+
+
 def _cmd_custos(cat: Catalogo, destino: Path) -> int:
     m = cat.custos
     par = m.parametros
@@ -108,8 +115,9 @@ def _cmd_custos(cat: Catalogo, destino: Path) -> int:
         "",
         f"- Câmbio: US$ 1 = R$ {par.cambio_usd_brl:.4f} (PTAX venda, [@bcb2026ptax])",
         f"- Vida útil da implantação: {par.vida_util_anos:g} anos",
-        f"- Usuários por porte: {', '.join(str(u) for u in par.usuarios)} ([@tcc1], Tabela 3.1)",
-        f"- Dados em backup (TB): {', '.join(f'{d:g}' for d in par.dados_tb)} (estimativa)",
+        ("- Usuários: informados pelo gestor (pergunta `usuarios_ti`); por isso cada custo é apresentado como"
+         " **parte fixa + parte por usuário**"),
+        f"- Volume de backup: usuários × {par.gb_por_usuario:g} GB ÷ 1024 (estimativa declarada)",
         "",
         "| Portes | Perfil | Salário P50 | Encargos | Custo/hora | Fonte |",
         "|---|---|---|---|---|---|",
@@ -121,14 +129,22 @@ def _cmd_custos(cat: Catalogo, destino: Path) -> int:
     L += ["", "## Preços de licença", "", "| Item | Preço | Unidade | Fonte |", "|---|---|---|---|"]
     for p in m.precos:
         L.append(f"| {p.descricao} | {p.moeda} {p.valor:,.2f} | {p.unidade} | [@{p.fonte}] |")
-    L += ["", "## Custo anual por controle (R$)", "",
+    L += ["", "## Custo anual por controle (R$): fixo + por usuário", "",
+          "custo_anual = fixo + por_usuário × usuários", "",
           "| ISO 27002 | Controle | MEI | ME | EPP | Média |", "|---|---|---|---|---|---|"]
-    totais = [0.0] * 4
+    fixos = [0.0] * 4
+    por_u = [0.0] * 4
     for c in cat.controles:
-        vals = [cat.custo_controle(c.id, p).total for p in NIVEIS_PORTE]
-        totais = [a + b for a, b in zip(totais, vals)]
-        L.append(f"| {c.id} | {c.nome} | " + " | ".join(_brl(v) for v in vals) + " |")
-    L.append("| | **Total (todos os controles)** | " + " | ".join(f"**{_brl(v)}**" for v in totais) + " |")
+        partes = [custo_fixo_e_por_usuario(m, c.id, p) for p in NIVEIS_PORTE]
+        fixos = [a + f for a, (f, _) in zip(fixos, partes)]
+        por_u = [a + u for a, (_, u) in zip(por_u, partes)]
+        L.append(f"| {c.id} | {c.nome} | " + " | ".join(_fixo_mais_usuario(f, u) for f, u in partes) + " |")
+    L.append("| | **Total (todos os controles)** | "
+             + " | ".join(f"**{_fixo_mais_usuario(f, u)}**" for f, u in zip(fixos, por_u)) + " |")
+    emp = m.referencia_cis_ig1_empregados
+    tot_ref = [f + u * e for f, u, e in zip(fixos, por_u, emp)]
+    L.append("| | Total com o nº de empregados do limite do Tier CIS | "
+             + " | ".join(f"{_brl(t)} ({e} usuários)" for t, e in zip(tot_ref, emp)) + " |")
     cis = [v * par.cambio_usd_brl for v in m.referencia_cis_ig1_usd]
     L.append("| | Teto CIS IG1 – ferramentas [@cis2025cost] | " + " | ".join(_brl(v) for v in cis) + " |")
     L += ["", "## Detalhamento", ""]

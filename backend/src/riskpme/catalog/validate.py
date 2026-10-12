@@ -50,9 +50,20 @@ def _validar_contexto(cat: Catalogo, r: Relatorio) -> None:
         return
 
     ids_ativos = {p["id"] for p in ctx["ativos"]}
-    for obrigatorio in ("ativo_critico", "tipo_dado", "registros_pessoais"):
+    for obrigatorio in ("ativo_critico", "tipo_dado", "registros_pessoais", "usuarios_ti"):
         if obrigatorio not in ids_ativos:
             r.erros.append(f"contexto.yaml: pergunta de ativos '{obrigatorio}' ausente (RF05)")
+
+    # revisão S3/S4: nenhuma entrada pode cair num valor padrão por porte — essas perguntas são obrigatórias
+    perguntas = {p["id"]: p for bloco in ("financeiro", "ativos") for p in ctx[bloco]}
+    for pid in ("faturamento_anual", "registros_pessoais", "usuarios_ti"):
+        p = perguntas.get(pid)
+        if p is None:
+            continue
+        if p.get("padrao") == "porte":
+            r.erros.append(f"contexto.yaml: {pid} usa 'padrao: porte', removido na revisão S3/S4")
+        if not p.get("obrigatorio"):
+            r.erros.append(f"contexto.yaml: {pid} deve ser obrigatória (revisão S3/S4)")
 
     cenarios = {c.id for c in cat.cenarios}
     for p in ctx["ativos"]:
@@ -77,6 +88,24 @@ def _validar_contexto(cat: Catalogo, r: Relatorio) -> None:
 
 def _valor_secundaria(ponto, registros: float, faturamento: float) -> float:
     return ponto.por_registro * registros + ponto.pct_faturamento * faturamento + ponto.fixo
+
+
+def perfis_de_teste(cat: Catalogo) -> list[tuple[int, float, int]]:
+    """Combinações (porte, faturamento, registros) usadas só nas checagens de sanidade — nunca na simulação.
+
+    Não há valor "típico" por porte (revisão S3): percorre os LIMITES de faturamento de cada porte
+    (`receita_anual_max` do porte anterior e do próprio porte; o porte 1 só tem limite superior) × todas as
+    faixas de `registros_pessoais` de contexto.yaml.
+    """
+    faixas = next(p for p in cat.contexto["ativos"] if p["id"] == "registros_pessoais")["opcoes"]
+    registros = [int(o["valor"]) for o in faixas]
+    perfis = []
+    anterior = None
+    for porte in sorted(cat.portes, key=lambda x: x.nivel):
+        limites = [porte.receita_anual_max] if anterior is None else [anterior, porte.receita_anual_max]
+        perfis += [(porte.nivel, f, n) for f in limites for n in registros]
+        anterior = porte.receita_anual_max
+    return perfis
 
 
 def validar(cat: Catalogo) -> Relatorio:
@@ -109,26 +138,37 @@ def validar(cat: Catalogo) -> Relatorio:
         if porte >= 3 and p50 < 0.10:
             r.avisos.append(f"porte {porte}/{setor}: P(≥1 perda/ano) com maturidade média = {p50:.0%} — TEF possivelmente baixa")
 
-    # sanidade da perda secundária (lognormal) no perfil padrão de cada porte
-    for porte in NIVEIS_PORTE:
-        pad = cat.porte(porte).padroes
-        for c in cat.cenarios:
-            ps = c.perda_secundaria
-            med, p95 = (_valor_secundaria(x, pad.registros_pessoais, pad.faturamento_anual)
-                        for x in (ps.mediana, ps.p95))
+    # sanidade da perda secundária (lognormal) nos perfis de teste — um aviso por cenário, com a contagem
+    perfis = perfis_de_teste(cat)
+    for c in cat.cenarios:
+        ps = c.perda_secundaria
+        fora_sigma: list[str] = []
+        acima_teto: list[str] = []
+        for porte, fat, reg in perfis:
+            med, p95 = (_valor_secundaria(x, reg, fat) for x in (ps.mediana, ps.p95))
             sigma = (math.log(p95) - math.log(med)) / cat.parametros_modelo.z_p95
+            rotulo = f"porte {porte}, faturamento R$ {fat:,.0f}, {reg} registros (σ={sigma:.2f})"
             if not 0.3 <= sigma <= 2.5:
-                r.avisos.append(f"porte {porte}/{c.id}: σ da lognormal secundária = {sigma:.2f} (esperado 0,3–2,5)")
-            if p95 > ps.teto_pct_faturamento * pad.faturamento_anual:
-                r.avisos.append(f"porte {porte}/{c.id}: p95 da perda secundária acima do teto — cauda cortada demais")
+                fora_sigma.append(rotulo)
+            if p95 > ps.teto_pct_faturamento * fat:
+                acima_teto.append(rotulo)
+        if fora_sigma:
+            r.avisos.append(f"{c.id}: σ da lognormal secundária fora de 0,3–2,5 em {len(fora_sigma)}/{len(perfis)}"
+                            f" perfis de teste (ex.: {fora_sigma[0]})")
+        if acima_teto:
+            r.avisos.append(f"{c.id}: p95 da perda secundária acima do teto em {len(acima_teto)}/{len(perfis)}"
+                            f" perfis de teste (ex.: {acima_teto[0]})")
 
-    # custos dos controles: soma por porte vs. referência do CIS IG1 (cis2025cost)
+    # custos dos controles: soma por porte vs. referência do CIS IG1 (cis2025cost), com o nº de empregados do
+    # limite superior de cada Tier do CIS como usuários (pior caso)
     cambio = cat.custos.parametros.cambio_usd_brl
     for porte in NIVEIS_PORTE:
-        total = sum(cat.custo_controle(c.id, porte).total for c in cat.controles)
+        usuarios = cat.custos.referencia_cis_ig1_empregados[porte - 1]
+        total = sum(cat.custo_controle(c.id, porte, usuarios).total for c in cat.controles)
         teto = cat.custos.referencia_cis_ig1_usd[porte - 1] * cambio
         if total > teto:
-            r.avisos.append(f"porte {porte}: custo anual de todos os controles R$ {total:,.0f} acima da faixa CIS IG1 (R$ {teto:,.0f})")
+            r.avisos.append(f"porte {porte} ({usuarios} usuários): custo anual de todos os controles"
+                            f" R$ {total:,.0f} acima da faixa CIS IG1 (R$ {teto:,.0f})")
 
     usados = {p.controle for p in cat.perguntas}
     for c in cat.controles:

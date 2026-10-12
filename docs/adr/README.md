@@ -13,3 +13,4 @@ Cada ADR registra uma decisão, o contexto e as alternativas descartadas. Status
 | [006](006-catalogo-declarativo.md) | Catálogo de auditoria declarativo (YAML) e pesos relativos | Aceita |
 | [007](007-linguagem-acessivel.md) | Linguagem acessível: glossário, ajuda obrigatória e validação automática | Aceita |
 | [008](008-custo-controles.md) | Custo dos controles calculado (licenças públicas + horas × custo de mercado) | Aceita |
+| [009](009-entradas-sem-padrao-por-porte.md) | Faturamento, registros e usuários informados pelo gestor, sem valor padrão por porte | Aceita |

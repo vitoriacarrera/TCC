@@ -36,18 +36,12 @@ class Fonte(_Base):
 
 
 # --------------------------------------------------------------------------- perfil
-class PadroesPorte(_Base):
-    faturamento_anual: float = Field(gt=0)
-    registros_pessoais: int = Field(ge=0)
-
-
 class Porte(_Base):
     nivel: int
     nome: str
     pessoas: tuple[int, int | None]
     receita_anual_max: float = Field(gt=0)
     multiplicador_tef: float = Field(gt=0)
-    padroes: PadroesPorte
     fonte: list[str]
 
     _fonte = field_validator("fonte", mode="before")(_lista)
@@ -268,10 +262,11 @@ class Catalogo(_Base):
     def controle(self, controle_id: str) -> Controle:
         return _unico(self.controles, lambda c: c.id == controle_id, f"controle '{controle_id}'")
 
-    def custo_controle(self, controle_id: str, porte: int) -> CustoDetalhado:
-        """Custo anual (R$) de implantar e manter um controle numa empresa do porte dado."""
+    def custo_controle(self, controle_id: str, porte: int, usuarios: int) -> CustoDetalhado:
+        """Custo anual (R$) de implantar e manter um controle numa empresa do porte dado, com `usuarios`
+        pessoas usando TI (resposta à pergunta `usuarios_ti`)."""
         self.controle(controle_id)
-        return custo_controle(self.custos, controle_id, porte)
+        return custo_controle(self.custos, controle_id, porte, usuarios)
 
     def questionario(self, porte: int, setor: str) -> list[Pergunta]:
         """Perguntas aplicáveis a um perfil (RF01 + RF04), na ordem do catálogo."""

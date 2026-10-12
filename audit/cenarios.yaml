@@ -25,6 +25,12 @@
 #        fixo            (R$)
 #     μ = ln(mediana);  σ = [ln(p95) − ln(mediana)] / 1,645
 #
+# Entradas do gestor (audit/contexto.yaml), todas obrigatórias e SEM valor padrão por porte (revisão S3/S4):
+#   faturamento_anual, custo_hora_parada (fórmula a partir do faturamento, se não souber),
+#   registros_pessoais (faixa), fator_tipo_dado (tipo de dado mais delicado).
+# A checagem de sanidade da lognormal (validate.py) percorre PERFIS DE TESTE: limites de faturamento de cada
+# porte (portes.yaml) × todas as faixas de registros_pessoais (contexto.yaml).
+#
 # Calibração: tef_base referido ao nível 3 (EPP) com multiplicador de setor 1,0, de modo que uma empresa com
 # maturidade média (0,5) tenha P(≥1 evento de perda/ano) ≈ 45–50% e uma sem controles ≈ 70%, coerente com os 59%
 # de PMEs atacadas/ano de hiscox2025. Magnitudes: julgamento, com ordens de grandeza de sophos2025, dbir2025,

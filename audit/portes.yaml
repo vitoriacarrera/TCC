@@ -3,7 +3,8 @@
 # multiplicador_tef: exposição relativa a ameaças (mais pessoas, contas, dispositivos e sistemas
 #   expostos => mais eventos de ameaça por ano). Crescimento sublinear. Referência = nível 3.
 #   Fonte: julgamento, ancorado em hiscox2025 (59% das PMEs atacadas/ano) — revisar na calibração.
-# padroes: valores sugeridos quando o usuário não souber informar (TCC1 §3.6, item 2).
+# Sem valores padrão por porte (revisão S3/S4, 12/10/2026): faturamento, nº de pessoas com dados guardados e
+# nº de usuários vêm sempre das respostas do gestor (audit/contexto.yaml).
 
 portes:
   - nivel: 1
@@ -11,9 +12,6 @@ portes:
     pessoas: [1, 2]
     receita_anual_max: 81000
     multiplicador_tef: 0.30
-    padroes:
-      faturamento_anual: 60000
-      registros_pessoais: 300
     fonte: julgamento
 
   - nivel: 2
@@ -21,9 +19,6 @@ portes:
     pessoas: [3, 19]
     receita_anual_max: 360000
     multiplicador_tef: 0.60
-    padroes:
-      faturamento_anual: 250000
-      registros_pessoais: 2000
     fonte: julgamento
 
   - nivel: 3
@@ -31,9 +26,6 @@ portes:
     pessoas: [20, 99]
     receita_anual_max: 4800000
     multiplicador_tef: 1.00
-    padroes:
-      faturamento_anual: 2500000
-      registros_pessoais: 10000
     fonte: julgamento
 
   - nivel: 4
@@ -41,7 +33,4 @@ portes:
     pessoas: [100, null]
     receita_anual_max: 300000000
     multiplicador_tef: 1.60
-    padroes:
-      faturamento_anual: 30000000
-      registros_pessoais: 60000
     fonte: julgamento

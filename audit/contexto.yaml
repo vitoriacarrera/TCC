@@ -6,7 +6,7 @@ financeiro:            # RF02
     texto: "Qual foi o faturamento aproximado da empresa nos últimos 12 meses?"
     ajuda: "Um valor aproximado basta. Ele é usado para estimar o tamanho dos prejuízos e dos seus limites de perda — não é guardado nem enviado a ninguém."
     tipo: moeda
-    padrao: porte          # usa portes.padroes.faturamento_anual se o usuário não souber
+    obrigatorio: true      # sem valor padrão por porte (revisão S3, 12/10/2026)
   - id: custo_hora_parada
     texto: "Se os sistemas da empresa (vendas, atendimento, produção) parassem por 1 hora em horário comercial, quanto vocês deixariam de ganhar ou gastariam a mais?"
     ajuda: "Pense em vendas perdidas, equipe parada e horas extras para recuperar o atraso. Um valor aproximado já ajuda."
@@ -45,7 +45,18 @@ ativos:                # RF05
       - { id: ate10k,   rotulo: "Entre 1.000 e 10.000",  valor: 5000 }
       - { id: ate100k,  rotulo: "Entre 10.000 e 100.000", valor: 50000 }
       - { id: mais100k, rotulo: "Mais de 100.000",       valor: 200000 }
-    padrao: porte
+    obrigatorio: true      # sem valor padrão por porte (revisão S3, 12/10/2026)
+    # `valor` = número usado na simulação para cada faixa. ESCOLHA DE MODELAGEM declarada (inventário J7):
+    # valor arredondado próximo ao ponto médio da faixa; na última faixa (aberta), o dobro do limite inferior.
+    fonte: julgamento
+  - id: usuarios_ti
+    texto: "Quantas pessoas usam computador, celular ou e-mail da empresa para trabalhar?"
+    ajuda: "Conte todos que têm login em algum sistema ou e-mail da empresa: sócios, funcionários, estagiários e terceiros fixos. Essa quantidade define quantas licenças de proteção a empresa precisaria comprar, o que entra no custo de cada recomendação."
+    tipo: inteiro
+    minimo: 1
+    obrigatorio: true      # revisão S4, 12/10/2026 — substitui custos.parametros.usuarios por porte
+    # Uso: licenças cobradas por usuário/mês e volume de backup (usuarios_ti × gb_por_usuario, audit/custos.yaml).
+    # Se o número fugir das faixas de pessoas do porte (portes.yaml), a tela mostra um aviso, sem bloquear.
 
 calibracao_risco:      # RF03 — Módulo de Calibração
   - id: apetite_pct
