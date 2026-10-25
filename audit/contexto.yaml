@@ -37,7 +37,8 @@ ativos:                # RF05
     tipo: escolha
     # Não multiplica o prejuízo (revisão C-DADO): vira um selo nas recomendações dos controles abaixo.
     selo_em_controles: ["5.34", "8.10", "8.12"]
-    selo_em_perguntas: [SAU-01]
+    # Revisão M3: ID-02 (saber onde ficam os dados) e SER-01 também levam o selo, para que o MEI fora da saúde o veja.
+    selo_em_perguntas: [SAU-01, ID-02, SER-01]
     opcoes:
       - { id: minimo,     rotulo: "Quase nada: só nome e telefone de alguns contatos" }
       - { id: cadastral,  rotulo: "Dados cadastrais (nome, CPF, endereço, e-mail)",
@@ -115,10 +116,14 @@ matriz:
     - { nivel: 1, id: abaixo_apetite,   rotulo: "Abaixo do apetite",               condicao: "p90 < apetite" }
     - { nivel: 2, id: entre,            rotulo: "Entre o apetite e a tolerância",  condicao: "apetite <= p90 < tolerancia" }
     - { nivel: 3, id: acima_tolerancia, rotulo: "Acima da tolerância",             condicao: "p90 >= tolerancia" }
+  # Revisão M1: a chance é medida nos próximos `horizonte_anos` anos, P = 1 − e^(−horizonte × LEF), o mesmo prazo
+  # da vida útil dos controles (custos.yaml, K1). Com a frequência calibrada pelo CSBS (CJ1), a chance em 1 ano
+  # fica entre 1% e 5% por cenário e todos cairiam em "rara".
+  horizonte_anos: 5
   probabilidade:
-    - { nivel: 1, id: rara,     rotulo: "Rara (menos de 1 vez em 10 anos)",            maximo: 0.10 }
-    - { nivel: 2, id: possivel, rotulo: "Possível (de 1 vez em 10 anos a 1 vez em 2)", maximo: 0.50 }
-    - { nivel: 3, id: provavel, rotulo: "Provável (mais de 1 vez em 2 anos)",          maximo: 1.00 }
+    - { nivel: 1, id: rara,     rotulo: "Rara (menos de 1 chance em 10 nos próximos 5 anos)",          maximo: 0.10 }
+    - { nivel: 2, id: possivel, rotulo: "Possível (de 1 chance em 10 a 1 em 2 nos próximos 5 anos)",  maximo: 0.50 }
+    - { nivel: 3, id: provavel, rotulo: "Provável (mais de 1 chance em 2 nos próximos 5 anos)",        maximo: 1.00 }
   # Cor pela soma dos níveis: 2–3 verde, 4 amarelo, 5–6 vermelho.
   cores:
     - { cor: verde,    soma: [2, 3], significado: "Aceitável, basta acompanhar" }
@@ -129,3 +134,10 @@ matriz:
     quando: { impacto: 3, probabilidade: 1 }
     texto: "Risco de ruptura: é raro, mas se acontecer pode ameaçar a continuidade da empresa. Aqui, mais do que reduzir a chance, vale estar preparado para o impacto: backup isolado e testado, plano de contingência e, se fizer sentido, um seguro cibernético que cubra parte do prejuízo."
     transferencia: "Seguro cibernético: solicite cotação a um corretor de seguros. O custo não entra no cálculo de retorno do investimento, porque o preço depende da análise de cada seguradora."
+    # Revisão M2 (c): nos riscos de ruptura, destacar as ações que limitam o impacto mesmo com retorno médio
+    # negativo. São as ligadas às funções Responder (RS) e Recuperar (RC) do NIST CSF 2.0, ao backup (PR.DS-11) e
+    # à resiliência (PR.IR-03). Prefixo da subcategoria da pergunta.
+    preparacao:
+      subcategorias: ["RS.", "RC.", "PR.DS-11", "PR.IR-03"]
+      fonte: nistcsf2
+    texto_preparacao: "Esta ação ajuda a empresa a aguentar o impacto se o problema acontecer. Mesmo que o retorno médio pareça baixo, ela funciona como um seguro contra um prejuízo acima do que a empresa suporta."

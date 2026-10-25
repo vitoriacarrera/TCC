@@ -17,3 +17,4 @@ Cada ADR registra uma decisão, o contexto e as alternativas descartadas. Status
 | [010](010-porte-pela-receita.md) | Porte classificado pela receita bruta (LC 123/2006 e BNDES); multiplicadores do UK CSBS | Aceita |
 | [011](011-calibracao-por-dados-publicos.md) | Calibração por dados públicos: setores, frequência, ransomware, apetite/tolerância e custos | Aceita |
 | [012](012-matriz-3x3.md) | Avaliação de riscos em matriz 3 × 3 com selo de risco de ruptura | Aceita |
+| [013](013-plano-duas-lentes.md) | Plano de ação com duas lentes: ROSI e redução do prejuízo num período ruim; preparação nos riscos de ruptura | Aceita |

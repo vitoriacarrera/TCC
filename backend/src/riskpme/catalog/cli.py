@@ -198,22 +198,32 @@ def _cmd_simular(cat: Catalogo, arquivo: Path, semente: int | None) -> int:
     print(f"{cat.porte(r.porte).nome} · {cat.setor(r.setor).nome} · {r.iteracoes} anos simulados")
     print(f"Apetite R$ {r.apetite_rs:,.0f} · tolerância R$ {r.tolerancia_rs:,.0f} · custo da hora parada "
           f"R$ {r.custo_hora_parada:,.0f}{' (estimado)' if r.custo_hora_estimado else ''}")
-    print(f"Chance de algum prejuízo no ano: {r.chance_algum_prejuizo:.0%} · perda esperada R$ "
-          f"{r.perda_esperada_total:,.0f}/ano · P90 do total R$ {r.percentis_total[90]:,.0f}\n")
-    print(f"{'cenário':<8}{'maturid.':>9}{'chance/ano':>12}{'perda esp.':>13}{'P90 se ocorre':>15}  célula")
+    h = r.horizonte_anos
+    print(f"Chance de algum prejuízo: {r.chance_algum_prejuizo:.0%} no ano, {r.chance_algum_prejuizo_horizonte:.0%} "
+          f"em {h} anos · perda esperada R$ {r.perda_esperada_total:,.0f}/ano · P90 do ano R$ "
+          f"{r.percentis_total[90]:,.0f}\n")
+    print(f"{'cenário':<8}{'maturid.':>9}{'chance/ano':>12}{f'em {h} anos':>12}{'perda esp.':>13}"
+          f"{'P90 se ocorre':>15}  célula (impacto, probabilidade)")
     for c in r.cenarios:
         selo = " · RISCO DE RUPTURA" if c.ruptura else ""
-        print(f"{c.id:<8}{c.maturidade:>9.0%}{c.chance_ano:>12.1%}{c.perda_esperada:>13,.0f}"
-              f"{c.p90_quando_ocorre:>15,.0f}  {c.cor} ({c.nivel_impacto},{c.nivel_probabilidade}){selo}")
+        print(f"{c.id:<8}{c.maturidade:>9.0%}{c.chance_ano:>12.1%}{c.chance_horizonte:>12.1%}"
+              f"{c.perda_esperada:>13,.0f}{c.p90_quando_ocorre:>15,.0f}  {c.cor} ({c.nivel_impacto},"
+              f"{c.nivel_probabilidade}){selo}")
     if r.nao_sei:
         print(f"\nRespostas \"Não sei\": {', '.join(r.nao_sei)}")
     plano = plano_de_acao(cat, perfil, respostas, [c.id for c in r.cenarios if c.ruptura])
-    print(f"\nPlano de ação · limite de investimento (Gordon-Loeb) R$ {plano.limite_investimento:,.0f}/ano")
+    print(f"\nPlano de ação · limite de investimento (Gordon-Loeb) R$ {plano.limite_investimento:,.0f}/ano · "
+          f"prejuízo num período ruim de {plano.horizonte_anos} anos (P90) R$ {plano.perda_periodo_ruim_atual:,.0f}")
     for a in plano.acoes:
         rosi = "sem custo" if a.rosi is None else f"ROSI {a.rosi:+.0%}"
         lim = " · acima do limite" if a.acima_do_limite else ""
-        print(f"{a.prioridade:>3}. {a.controle} {a.controle_nome}: reduz R$ {a.reducao_perda_anual:,.0f}/ano, "
-              f"custa R$ {a.custo_anual:,.0f}/ano, {rosi}{lim}")
+        rup = f" · protege contra ruptura ({', '.join(a.protege_ruptura)})" if a.protege_ruptura else ""
+        print(f"{a.prioridade:>3}. {a.controle} {a.controle_nome}: reduz R$ {a.reducao_perda_anual:,.0f}/ano "
+              f"(período ruim: −R$ {a.reducao_periodo_ruim:,.0f}), custa R$ {a.custo_anual:,.0f}/ano, "
+              f"{rosi}{lim}{rup}")
+    for x in plano.ruptura:
+        prep = ", ".join(x["preparacao"]) or "nenhuma ação de preparação pendente"
+        print(f"\nRisco de ruptura {x['cenario']}: preparação {prep}; transferência: seguro (cotação com corretor)")
     return 0
 
 

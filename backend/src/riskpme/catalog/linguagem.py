@@ -80,7 +80,7 @@ def _textos_com_recomendacoes(cat: Catalogo):
             if op.get("selo"):
                 yield f"{q['id']}.{op['id']}", "selo", op["selo"]
     selo = cat.contexto.get("matriz", {}).get("selo_ruptura", {})
-    for campo in ("texto", "transferencia"):
+    for campo in ("texto", "transferencia", "texto_preparacao"):
         if selo.get(campo):
             yield "matriz.selo_ruptura", campo, selo[campo]
 

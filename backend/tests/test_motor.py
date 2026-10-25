@@ -181,3 +181,69 @@ def test_plano_traz_transferencia_para_ruptura(cat):
     plano = plano_de_acao(cat, p, respostas(cat, p, 1), cenarios_ruptura=["RAN"])
     assert plano.ruptura[0]["cenario"] == "RAN"
     assert "corretor de seguros" in plano.ruptura[0]["transferencia"]
+
+
+# ------------------------------------------------------------------ revisões M1, M2 e M3 (25/10)
+def test_m1_probabilidade_pela_chance_em_5_anos(cat):
+    from riskpme.engine.simulacao import chance_em, horizonte
+    assert horizonte(cat) == 5 == cat.custos.parametros.vida_util_anos
+    p = perfil()
+    r = simular(cat, p, respostas(cat, p, 2), iteracoes=5000, semente=3)
+    limites = {n["nivel"]: n["maximo"] for n in cat.contexto["matriz"]["probabilidade"]}
+    for c in r.cenarios:
+        assert c.chance_horizonte == pytest.approx(chance_em(c.lef, 5))
+        assert c.chance_horizonte > c.chance_ano
+        esperado = 1 if c.chance_horizonte < limites[1] else 2 if c.chance_horizonte < limites[2] else 3
+        assert c.nivel_probabilidade == esperado
+    assert r.horizonte_anos == 5
+    assert r.chance_algum_prejuizo_horizonte == pytest.approx(chance_em(sum(c.lef for c in r.cenarios), 5))
+
+
+def test_m1_matriz_deixa_de_ter_uma_coluna_so(cat):
+    p = perfil()
+    r = simular(cat, p, respostas(cat, p, 2), iteracoes=5000, semente=3)
+    assert len({c.nivel_probabilidade for c in r.cenarios}) >= 2
+
+
+def test_m2_periodo_ruim_monotonico_e_reprodutivel(cat):
+    p = perfil()
+    resp = respostas(cat, p, 1)
+    a = plano_de_acao(cat, p, resp, semente=7)
+    b = plano_de_acao(cat, p, resp, semente=7)
+    assert [x.reducao_periodo_ruim for x in a.acoes] == [x.reducao_periodo_ruim for x in b.acoes]
+    assert a.horizonte_anos == 5 and a.perda_periodo_ruim_atual > 0
+    assert all(0 <= x.reducao_periodo_ruim <= a.perda_periodo_ruim_atual for x in a.acoes)
+    assert any(x.reducao_periodo_ruim > 0 for x in a.acoes)
+
+
+def test_m2_sorteio_comum_nao_aumenta_perda_quando_lef_cai(cat):
+    from riskpme.engine.plano import sortear_periodo
+    res = resolver(cat, perfil())
+    s = sortear_periodo(cat, res, 5, 4000, semente=1)
+    lef = {c.id: 0.05 for c in cat.cenarios}
+    menor = {c: v / 2 for c, v in lef.items()}
+    assert np.all(s.perda(menor) <= s.perda(lef))
+
+
+def test_m2_ruptura_destaca_acoes_de_preparacao(cat):
+    p = perfil()
+    resp = respostas(cat, p, 1)
+    plano = plano_de_acao(cat, p, resp, cenarios_ruptura=["RAN"])
+    prep = tuple(cat.contexto["matriz"]["selo_ruptura"]["preparacao"]["subcategorias"])
+    marcadas = [a for a in plano.acoes if a.protege_ruptura]
+    assert marcadas, "backup e plano de incidentes devem proteger contra ruptura de ransomware"
+    assert "8.13" in {a.controle for a in marcadas}
+    for a in marcadas:
+        assert a.protege_ruptura == ["RAN"]
+        subcats = {q.id: q.subcategoria for q in cat.perguntas}
+        assert any(subcats[pid].startswith(prep) for pid in a.perguntas)
+    assert plano.ruptura[0]["preparacao"] == [a.controle for a in marcadas]
+    assert plano.ruptura[0]["texto_preparacao"]
+    assert all(not a.protege_ruptura for a in plano_de_acao(cat, p, resp).acoes)   # sem ruptura, sem marca
+
+
+def test_m3_mei_fora_da_saude_ve_o_selo_de_privacidade(cat):
+    p = perfil(setor="varejo", receita_operacional_bruta=60_000, usuarios_ti=1, tipo_dado="sensivel")
+    plano = plano_de_acao(cat, p, respostas(cat, p, 0))
+    com_selo = [a for a in plano.acoes if a.selo]
+    assert com_selo and any("ID-02" in a.perguntas for a in com_selo)

@@ -355,7 +355,7 @@ conceitos_resultado:
     explicacao: "O limite de perda a partir do qual a continuidade da empresa fica ameaçada. Riscos acima disso são críticos e pedem ação imediata."
   - id: mapa_calor
     termo: "Mapa de calor"
-    explicacao: "Quadro de 3 × 3 que posiciona cada cenário pela chance de acontecer no ano (rara, possível ou provável) e pelo prejuízo num ano em que ele acontece (abaixo do apetite, entre o apetite e a tolerância, ou acima da tolerância). Verde: aceitável, basta acompanhar. Amarelo: atenção. Vermelho: agir primeiro."
+    explicacao: "Quadro de 3 × 3 que posiciona cada cenário pela chance de acontecer nos próximos 5 anos (rara, possível ou provável) e pelo prejuízo num ano em que ele acontece (abaixo do apetite, entre o apetite e a tolerância, ou acima da tolerância). Verde: aceitável, basta acompanhar. Amarelo: atenção. Vermelho: agir primeiro."
   - id: monte_carlo
     termo: "Simulação de Monte Carlo"
     explicacao: "Em vez de dar um único número, a ferramenta \"sorteia\" 10.000 anos possíveis para a sua empresa (em alguns nada acontece, em outros há um ou mais incidentes de tamanhos diferentes) e resume o resultado. É como jogar um dado milhares de vezes para entender quais resultados são comuns e quais são raros."
@@ -368,6 +368,9 @@ conceitos_resultado:
   - id: reducao_risco
     termo: "Redução de perda esperada"
     explicacao: "Quanto a perda esperada por ano cai se a empresa melhorar aquele ponto do questionário."
+  - id: periodo_ruim
+    termo: "Prejuízo num período ruim"
+    explicacao: "O prejuízo somado dos próximos 5 anos que só é ultrapassado em 1 de cada 10 simulações. No plano de ação, mostra quanto cada ação reduz esse valor: é a proteção contra os anos ruins, que a média esconde quando o problema é raro e caro."
   - id: limite_investimento
     termo: "Limite de investimento"
     explicacao: "Referência de quanto vale a pena investir em proteção. Pelo modelo de Gordon e Loeb, gastar mais do que cerca de um terço da perda esperada por ano raramente compensa, porque a proteção passa a custar mais do que evita."
