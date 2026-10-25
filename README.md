@@ -36,9 +36,31 @@ com controles priorizados, seguindo o processo da **ABNT NBR ISO/IEC 27005:2023*
 | RF09 Monte Carlo | `backend/src/riskpme/engine/simulacao.py` (comando `riskpme-catalogo simular`) |
 | RF10 Mapa de calor | matriz 3 × 3 com horizonte de 5 anos (`contexto.yaml`, bloco `matriz`; ADR-012) |
 | RF11 Plano de ação | `backend/src/riskpme/engine/plano.py` (ROSI, Gordon-Loeb, período ruim e preparação; ADR-013) |
-| RF12 Relatório | frontend e PDF (próximas etapas) |
+| RF12 Relatório | frontend e PDF (próximas etapas); dados prontos em `POST /simulacoes` |
 | RNF04 Linguagem acessível | `audit/glossario.yaml`, `ajuda` obrigatória, validador de linguagem (ADR-007) |
-| RNF01/RNF02 | Simulação sem estado; contribuição anonimizada só com consentimento (ADR-005) |
+| RNF01/RNF02 | API sem estado (`backend/src/riskpme/api`); contribuição anonimizada só com consentimento em `POST /contribuicoes` (ADR-005) |
+
+## API
+
+```bash
+cd backend && uvicorn riskpme.api.app:app --reload      # documentação interativa em http://localhost:8000/docs
+```
+
+| Rota | O que faz |
+|---|---|
+| `GET /saude` | status, versão do catálogo (hash dos YAML) e se a coleta anonimizada está ativa |
+| `GET /catalogo` | textos para as telas: instruções, aviso legal, escala, setores, portes, perguntas de contexto, matriz, cenários e glossário |
+| `POST /questionario` | `{setor, receita_operacional_bruta, usuarios_ti}` → porte, mensagem do porte e perguntas do perfil (sem recomendações) |
+| `POST /simulacoes` | `{perfil, respostas, semente?}` → resultado por cenário, células da matriz 3 × 3 e plano de ação. Não grava nada |
+| `POST /contribuicoes` | `{consentimento: true, setor, porte, respostas, comprovante}` → grava só setor, porte e respostas, com versão do catálogo e mês/ano (ADR-005). `comprovante` é o `comprovante_contribuicao` da simulação, válido por 2 h e só para as mesmas respostas |
+
+Variáveis de ambiente: `RISKPME_CORS` (origens do frontend, separadas por vírgula; padrão `http://localhost:5173`),
+`RISKPME_CONTRIBUICOES_DB` (caminho do SQLite; sem ela a coleta fica desativada e a rota responde 503) e
+`RISKPME_AUDIT_DIR` (pasta do catálogo, usada no Docker). Campos desconhecidos são recusados (422), o que impede
+que um dado financeiro entre na base de pesquisa por engano.
+
+Segurança (OWASP API Security Top 10, CVEs, configuração de produção): [`docs/seguranca.md`](docs/seguranca.md).
+Outras variáveis: `RISKPME_SEGREDO` (chave do comprovante) e `RISKPME_DOCS=0` (desliga `/docs` em produção).
 
 ## Rodando o validador do catálogo
 
