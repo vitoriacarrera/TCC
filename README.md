@@ -24,9 +24,9 @@ com controles priorizados, seguindo o processo da **ABNT NBR ISO/IEC 27005:2023*
 
 | Requisito | Onde |
 |---|---|
-| RF01 Perfil (setor/porte) | `audit/portes.yaml`, `audit/setores.yaml` |
+| RF01 Perfil (setor/porte) | `audit/portes.yaml` (porte pela receita bruta, ADR-010), `audit/setores.yaml` (ADR-011) |
 | RF02 Calibração financeira | `audit/contexto.yaml` |
-| RF03 Apetite e tolerância | `audit/contexto.yaml` (bloco `calibracao_risco`) |
+| RF03 Apetite e tolerância | `audit/contexto.yaml` (bloco `calibracao_risco`; matriz 3 × 3, ADR-012) |
 | RF04 Questionário NIST | `audit/perguntas.yaml` |
 | RF05 Mapeamento de ativos | `audit/contexto.yaml` (bloco `ativos`: ativo crítico, tipo de dado, nº de pessoas com dados, nº de usuários — ADR-009) |
 | RF06 Tradução → FAIR | meta-tag `cenarios` de cada pergunta; `backend/src/riskpme/engine` |

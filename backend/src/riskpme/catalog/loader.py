@@ -42,6 +42,7 @@ def carregar_catalogo(diretorio: str | Path | None = None) -> Catalogo:
         instrucoes=dados["perguntas"]["instrucoes"],
         funcoes=dados["perguntas"]["funcoes"],
         escala=dados["perguntas"]["escala"],
+        aviso_legal=dados["perguntas"]["aviso_legal"],
         glossario=dados["glossario"],
         custos=dados["custos"],
         perguntas=dados["perguntas"]["perguntas"],

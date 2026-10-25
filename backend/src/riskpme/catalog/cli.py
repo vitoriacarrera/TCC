@@ -34,6 +34,13 @@ def _cmd_validar(cat: Catalogo) -> int:
         )
         print(f"porte {porte}  {linha}")
 
+    if r.pendentes or r.julgamento:
+        print("\nParâmetros sem dado (vão para as Limitações do TCC)")
+        for x in r.pendentes:
+            print(f"  PENDENTE: {x}")
+        for x in r.julgamento:
+            print(f"  JULGAMENTO: {x}")
+
     for a in r.avisos:
         print(f"AVISO: {a}")
     for e in r.erros:
@@ -42,8 +49,8 @@ def _cmd_validar(cat: Catalogo) -> int:
     return 0 if r.ok else 1
 
 
-def _cmd_questionario(cat: Catalogo, porte: int, setor: str) -> int:
-    perguntas = cat.questionario(porte, setor)
+def _cmd_questionario(cat: Catalogo, porte: int, setor: str, usuarios: int | None = None) -> int:
+    perguntas = cat.questionario(porte, setor, usuarios)
     print(f"{cat.porte(porte).nome} · {cat.setor(setor).nome} — {len(perguntas)} perguntas\n")
     for p in perguntas:
         pesos = ", ".join(f"{c}:{w}" for c, w in p.cenarios.items())
@@ -84,6 +91,20 @@ def _cmd_revisao(cat: Catalogo, destino: Path) -> int:
                  f" · setores: {setores_txt} · pesos: {pesos}"),
                 "",
             ]
+            for v in p.variantes:
+                cond = []
+                if v.quando.portes:
+                    cond.append("portes " + ", ".join(map(str, v.quando.portes)))
+                if v.quando.usuarios_max is not None:
+                    cond.append(f"até {v.quando.usuarios_max} usuário(s)")
+                linhas.append(f"**Variante ({'; '.join(cond)}):**")
+                linhas.append("")
+                for campo in ("texto", "ajuda", "recomendacao"):
+                    if getattr(v, campo):
+                        linhas.append(f"- {campo}: {getattr(v, campo)}")
+                if v.cenarios:
+                    linhas.append("- pesos: " + ", ".join(f"{c} {w}" for c, w in v.cenarios.items()))
+                linhas.append("")
     destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_text("\n".join(linhas) + "\n", encoding="utf-8")
     print(f"escrito {destino}")
@@ -171,6 +192,7 @@ def main(argv: list[str] | None = None) -> int:
     q = sub.add_parser("questionario")
     q.add_argument("porte", type=int, choices=NIVEIS_PORTE)
     q.add_argument("setor")
+    q.add_argument("--usuarios", type=int, default=None, help="nº de usuários (ativa variantes, ex.: 1)")
     rv = sub.add_parser("revisao")
     rv.add_argument("destino", type=Path)
     cu = sub.add_parser("custos")
@@ -186,7 +208,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "validar":
         return _cmd_validar(cat)
     if args.cmd == "questionario":
-        return _cmd_questionario(cat, args.porte, args.setor)
+        return _cmd_questionario(cat, args.porte, args.setor, args.usuarios)
     if args.cmd == "custos":
         return _cmd_custos(cat, args.destino)
     return _cmd_revisao(cat, args.destino)

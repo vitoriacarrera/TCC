@@ -78,23 +78,22 @@ def test_prob_ao_menos_um_do_exemplo_do_tcc2():
 
 
 # ------------------------------------------------------------------ magnitude por cenário
-CTX = Contexto(faturamento_anual=2_500_000, custo_hora_parada=1_200, registros_pessoais=10_000, fator_tipo_dado=1.0)
+CTX = Contexto(faturamento_anual=2_500_000, custo_hora_parada=1_200, registros_pessoais=10_000)
 
 
 def test_pontos_primaria_ransomware(cat):
-    # RAN: horas [8,72,240] × 1.200 + pct [0,5%; 2%; 6%] × 2,5 mi + fixo [2 mil; 10 mil; 50 mil]
+    # RAN: horas [8,40,176] × 1.200 (Sophos 2025) + pct [0,5%; 2%; 6%] × 2,5 mi + fixo [2 mil; 10 mil; 50 mil]
     assert pontos_primaria(cat.cenario("RAN"), CTX) == pytest.approx((9_600 + 12_500 + 2_000,
-                                                                       86_400 + 50_000 + 10_000,
-                                                                       288_000 + 150_000 + 50_000))
+                                                                       48_000 + 50_000 + 10_000,
+                                                                       211_200 + 150_000 + 50_000))
 
 
-def test_pontos_secundaria_usa_setor_e_tipo_de_dado(cat):
+def test_pontos_secundaria_usa_setor_e_nao_o_tipo_de_dado(cat):
     vaz = cat.cenario("VAZ")
     med_varejo, _, _ = pontos_secundaria(vaz, CTX, cat.setor("varejo"))
     med_saude, _, _ = pontos_secundaria(vaz, CTX, cat.setor("saude"))
-    assert med_saude > med_varejo                           # saúde: custo por registro 1,59×
-    sensivel = Contexto(**{**CTX.__dict__, "fator_tipo_dado": 1.6})
-    assert pontos_secundaria(vaz, sensivel, cat.setor("varejo"))[0] > med_varejo
+    assert med_saude > med_varejo                           # saúde: custo por registro 1,59× (ibm2025)
+    assert not hasattr(CTX, "fator_tipo_dado")              # revisão C-DADO: tipo de dado vira selo
 
 
 def test_secundaria_ocorre_na_frequencia_declarada(cat, rng):

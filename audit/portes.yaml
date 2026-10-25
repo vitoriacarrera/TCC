@@ -1,36 +1,53 @@
-# Níveis de porte — TCC1, Tabela 3.1 (base: classificação BNDES / LC 123/2006).
+# Níveis de porte — classificação automática pela Receita Operacional Bruta (ROB) anual (ADR-010).
 #
-# multiplicador_tef: exposição relativa a ameaças (mais pessoas, contas, dispositivos e sistemas
-#   expostos => mais eventos de ameaça por ano). Crescimento sublinear. Referência = nível 3.
-#   Fonte: julgamento, ancorado em hiscox2025 (59% das PMEs atacadas/ano) — revisar na calibração.
-# Sem valores padrão por porte (revisão S3/S4, 12/10/2026): faturamento, nº de pessoas com dados guardados e
-# nº de usuários vêm sempre das respostas do gestor (audit/contexto.yaml).
+# rob_min / rob_max: limites da faixa (rob_min exclusivo, rob_max inclusivo), em R$.
+#   Nível 1: até o limite do MEI (LC 123/2006, art. 18-A) — faixa de RECEITA usada só para o perfil de risco,
+#            não para enquadramento tributário (aviso na tela).
+#   Nível 2: Microempresa (LC 123/2006, art. 3º, I) · Nível 3: EPP (art. 3º, II) · Nível 4: média (BNDES).
+#   Acima de R$ 300 mi: fora do escopo (grande empresa). Limites parametrizados (PLP 108/2021 pode mudar o MEI).
+# pessoas: só referência, faixas do Sebrae para comércio e serviços (a classificação é pela ROB).
+#
+# multiplicador_tef: exposição relativa a ameaças, referência = nível 3 (revisão S1).
+#   Fonte: UK Cyber Security Breaches Survey 2025/26 (csbs2026), % de empresas que identificaram ao menos um ataque
+#   em 12 meses — micro 42%, pequena 46%, média 65%. λ = −ln(1 − p), normalizado pela pequena empresa.
+#   Mapeamento: MEI e ME → micro; EPP → pequena; média → média.
+#   Sensibilidade (vítimas de crime cibernético): 0,68 / 0,68 / 1,00 / 1,92.
+# Sem valores padrão por porte (revisão S3/S4): receita, nº de pessoas com dados guardados e nº de usuários vêm
+# sempre das respostas do gestor (audit/contexto.yaml).
 
 portes:
   - nivel: 1
-    nome: "Autônomo / MEI"
+    nome: "Faixa de receita do MEI"
     pessoas: [1, 2]
-    receita_anual_max: 81000
-    multiplicador_tef: 0.30
-    fonte: julgamento
+    rob_min: 0
+    rob_max: 81000
+    multiplicador_tef: 0.88
+    calculo: "λ(42%) / λ(46%) = 0,545 / 0,616"
+    fonte: [lc123, csbs2026]
 
   - nivel: 2
     nome: "Microempresa (ME)"
-    pessoas: [3, 19]
-    receita_anual_max: 360000
-    multiplicador_tef: 0.60
-    fonte: julgamento
+    pessoas: [1, 9]
+    rob_min: 81000
+    rob_max: 360000
+    multiplicador_tef: 0.88
+    calculo: "λ(42%) / λ(46%) = 0,545 / 0,616"
+    fonte: [lc123, csbs2026]
 
   - nivel: 3
-    nome: "Pequena Empresa (EPP)"
-    pessoas: [20, 99]
-    receita_anual_max: 4800000
+    nome: "Empresa de Pequeno Porte (EPP)"
+    pessoas: [10, 49]
+    rob_min: 360000
+    rob_max: 4800000
     multiplicador_tef: 1.00
-    fonte: julgamento
+    calculo: "referência"
+    fonte: [lc123, csbs2026]
 
   - nivel: 4
     nome: "Média Empresa"
-    pessoas: [100, null]
-    receita_anual_max: 300000000
-    multiplicador_tef: 1.60
-    fonte: julgamento
+    pessoas: [50, 99]
+    rob_min: 4800000
+    rob_max: 300000000
+    multiplicador_tef: 1.70
+    calculo: "λ(65%) / λ(46%) = 1,050 / 0,616"
+    fonte: [bndes, csbs2026]

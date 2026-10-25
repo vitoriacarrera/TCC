@@ -24,11 +24,15 @@ fontes:
 
   - id: sophos2025
     titulo: "Sophos — The State of Ransomware 2025"
-    url: https://www.sophos.com/en-us/press/press-releases/2025/06/nearly-half-companies-opt-pay-ransom-sophos-report-finds
+    url: https://www.sophos.com/en-us/content/state-of-ransomware
     dados:
       - "Custo médio de recuperação US$ 1,53 mi; resgate mediano US$ 1 mi (empresas até US$ 250 mi de receita: demanda < US$ 350 mil)"
       - "Causa técnica principal: vulnerabilidade explorada; 40% tinham falha de segurança desconhecida"
       - "53% se recuperaram em até uma semana; 18% levaram mais de um mês; 54% usaram backup"
+      - "Tempo de recuperação: < 1 dia 16%, até 1 semana 37%, até 1 mês 28%, 1 a 3 meses 16%, 3 a 6 meses 2%"
+      - "100 a 500 funcionários: dados roubados em 22% dos ataques com criptografia; 100 a 250: extorsão sem criptografia 13%, credenciais comprometidas como causa principal 30%"
+      - "Causas técnicas: vulnerabilidade explorada 32%, credenciais 23%, e-mail malicioso 19%, phishing 18%"
+    limitacao: "Amostra só de vítimas (3.400 respondentes, 17 países, 100 a 5.000 funcionários)."
 
   - id: hiscox2025
     titulo: "Hiscox Cyber Readiness Report 2025"
@@ -143,3 +147,116 @@ fontes:
     url: https://www.gov.br/anpd/pt-br/centrais-de-conteudo/materiais-educativos-e-publicacoes/guia-orientativo-sobre-seguranca-da-informacao-para-agentes-de-tratamento-de-pequeno-porte
     dados:
       - "Medidas mínimas recomendadas pela ANPD para pequenos agentes de tratamento"
+
+  # ---------------------------------------------------------------- revisão da Etapa 1 (out. 2026)
+  - id: neutro
+    titulo: "Valor neutro (1,0) por ausência de dado"
+    url: null
+    dados:
+      - "Princípio \"dados antes de julgamento\" (P1): sem dado público para o parâmetro, usa-se 1,0 em vez de estimativa."
+
+  - id: csbs2026
+    titulo: "UK DSIT / Home Office — Cyber Security Breaches Survey 2025/26 (30 abr. 2026)"
+    url: https://www.gov.uk/government/collections/cyber-security-breaches-survey
+    dados:
+      - "Identificaram ao menos um ataque em 12 meses: 43% das empresas; micro 42%, pequenas 46%, médias 65%, grandes 69%"
+      - "Das que identificaram, 30% foram afetadas de alguma forma e 19% tiveram ao menos um resultado negativo"
+      - "Ransomware: 1% das empresas (3% em cada um dos dois anos anteriores); phishing 38%; personificação 12%"
+      - "Vítimas de crime cibernético: 19%; fraude facilitada por meio digital: 3% das empresas"
+    limitacao: "Reino Unido; conta só ataques identificados; não distingue MEI de microempresa."
+
+  - id: sophos2024
+    titulo: "Sophos — The State of Ransomware 2024 (abr. 2024)"
+    url: https://www.sophos.com/en-us/content/state-of-ransomware
+    dados:
+      - "Organizações atingidas por ransomware no ano: média 59%; saúde 67%; indústria 65%; tecnologia 55%; varejo 45%"
+    limitacao: "Taxa de serviços profissionais não localizada; organizações de 100 a 5.000 funcionários."
+
+  - id: sophos2024threat
+    titulo: "Sophos — 2024 Threat Report: Cybercrime on Main Street (mar. 2024)"
+    url: https://www.sophos.com/
+    dados:
+      - "Ransomware é a maior ameaça a PMEs; comprometimento de e-mail empresarial é o incidente mais comum depois dele"
+      - "Mais de 90% dos ataques envolvem roubo de dados ou de credenciais"
+
+  - id: lc123
+    titulo: "Brasil — Lei Complementar nº 123/2006 (Estatuto da Microempresa e da EPP), arts. 3º e 18-A"
+    url: https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp123.htm
+    dados:
+      - "Microempresa: receita bruta anual até R$ 360 mil; EPP: até R$ 4,8 mi; MEI: até R$ 81 mil"
+      - "Receita bruta = vendas de bens e serviços, sem vendas canceladas e descontos incondicionais (art. 3º, § 1º); anualização para empresa com menos de 12 meses (§ 2º)"
+
+  - id: bndes
+    titulo: "BNDES — Classificação de porte de empresa"
+    url: https://www.bndes.gov.br/wps/portal/site/home/financiamento/guia/quem-pode-ser-cliente
+    dados:
+      - "Média empresa: receita operacional bruta anual acima de R$ 4,8 mi e até R$ 300 mi"
+
+  - id: cisv8
+    titulo: "Center for Internet Security — CIS Critical Security Controls v8.1"
+    url: https://www.cisecurity.org/controls/v8-1
+    dados:
+      - "1.1 inventário revisado a cada seis meses; 5.1 inventário de contas revisado no mínimo a cada três meses; 6.2 processo de retirada de acesso"
+      - "11.2 backups automáticos semanais ou mais frequentes; 11.4 cópia isolada; 11.5 teste de recuperação trimestral; 7.6 varredura externa de vulnerabilidades"
+
+  - id: anpd2022
+    titulo: "ANPD — Resolução CD/ANPD nº 2/2022 (agentes de tratamento de pequeno porte)"
+    url: https://www.gov.br/anpd/pt-br
+    dados:
+      - "ME e EPP dispensadas de indicar encarregado, com canal de comunicação obrigatório; prazos em dobro; não vale para tratamento de alto risco"
+
+  - id: anpd2024
+    titulo: "ANPD — Resolução CD/ANPD nº 15/2024 (Regulamento de Comunicação de Incidente de Segurança)"
+    url: https://www.gov.br/anpd/pt-br
+    dados:
+      - "Comunicação à ANPD e aos titulares em 3 dias úteis quando houver risco ou dano relevante; registro de incidentes por 5 anos"
+
+  - id: cmn4893
+    titulo: "Conselho Monetário Nacional — Resolução CMN nº 4.893/2021 (política de segurança cibernética)"
+    url: https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolu%C3%A7%C3%A3o%20CMN&numero=4893
+    dados:
+      - "Conteúdo mínimo de política de segurança cibernética (art. 3º), usado só como referência de boa prática para PMEs"
+
+  - id: marcocivil
+    titulo: "Brasil — Lei nº 12.965/2014 (Marco Civil da Internet), art. 15"
+    url: https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2014/lei/l12965.htm
+    dados:
+      - "Provedores de aplicações com fins econômicos guardam registros de acesso por 6 meses"
+
+  - id: isa320
+    titulo: "IAASB — ISA 320 / CFC — NBC TA 320: Materialidade no planejamento e na execução da auditoria"
+    url: https://www.charteredaccountants.ie/chariotindex/text/apb_isa_320_2010/12.html
+    dados:
+      - "Exemplo de referência de materialidade: 1% da receita total"
+    limitacao: "Usada por analogia para o apetite padrão (\"não sei dizer\")."
+
+  - id: ibge-pac
+    titulo: "IBGE — Pesquisa Anual de Comércio 2023 (SIDRA, tabelas 1408 a 1413)"
+    url: https://sidra.ibge.gov.br/pesquisa/pac/tabelas
+    dados:
+      - "Varejo, empresas com 20 ou mais pessoas ocupadas: resultado antes do IR = 4,5% da receita"
+
+  - id: ibge-pas
+    titulo: "IBGE — Pesquisa Anual de Serviços 2023 (SIDRA, tabelas 2623 a 2641)"
+    url: https://sidra.ibge.gov.br/pesquisa/pas/tabelas
+    dados:
+      - "Serviços técnico-profissionais, 20+: 28,6% antes do IR; serviços de TI, 20+: 9,8% antes do IR"
+    limitacao: "A PAS não cobre a seção Q (saúde)."
+
+  - id: ibge-pia
+    titulo: "IBGE — Pesquisa Industrial Anual Empresa 2023 (SIDRA, tabela 1839)"
+    url: https://sidra.ibge.gov.br/pesquisa/pia-empresa/tabelas
+    dados:
+      - "Indústria de transformação, 30 a 49 pessoas: (receita total − custos e despesas) / receita total = 10,0%"
+
+  - id: rfb1700
+    titulo: "Receita Federal — Instrução Normativa RFB nº 1.700/2017, Anexo III (taxas de depreciação)"
+    url: https://jus.com.br/artigos/56528/irpj-lucro-real-e-as-taxas-anuais-de-depreciacao-admitidas-pela-rfb
+    dados:
+      - "NCM 8471, máquinas automáticas para processamento de dados: vida útil de 5 anos, 20% ao ano"
+
+  - id: corenba2024
+    titulo: "Coren-BA — Estudo Técnico Preliminar: link de internet redundante (mar. 2024)"
+    url: https://www.coren-ba.gov.br/wp-content/uploads/2024/06/ESTUDO-TECNICO-PRELIMINAR_Link-redundante.pdf
+    dados:
+      - "Link dedicado de fibra 100 Mbps, disponibilidade ≥ 99,5%; contratações de referência: IFSP R$ 1.070,00, IFMG R$ 999,90, CRC-MG R$ 1.064,00 por mês (média R$ 1.044,63)"
