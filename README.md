@@ -33,7 +33,10 @@ com controles priorizados, seguindo o processo da **ABNT NBR ISO/IEC 27005:2023*
 | RF07 TEF por setor | `audit/cenarios.yaml` × multiplicadores de `setores.yaml` e `portes.yaml` |
 | RF08 Beta-PERT | `perda_primaria` de `audit/cenarios.yaml`; `backend/src/riskpme/engine/distribuicoes.py` |
 | §3.6 Lognormal no Monte Carlo | `perda_secundaria` de `audit/cenarios.yaml` (ADR-002) |
-| RF09–RF12 | backend/frontend (próximas etapas) |
+| RF09 Monte Carlo | `backend/src/riskpme/engine/simulacao.py` (comando `riskpme-catalogo simular`) |
+| RF10 Mapa de calor | matriz 3 × 3 com horizonte de 5 anos (`contexto.yaml`, bloco `matriz`; ADR-012) |
+| RF11 Plano de ação | `backend/src/riskpme/engine/plano.py` (ROSI, Gordon-Loeb, período ruim e preparação; ADR-013) |
+| RF12 Relatório | frontend e PDF (próximas etapas) |
 | RNF04 Linguagem acessível | `audit/glossario.yaml`, `ajuda` obrigatória, validador de linguagem (ADR-007) |
 | RNF01/RNF02 | Simulação sem estado; contribuição anonimizada só com consentimento (ADR-005) |
 
@@ -46,5 +49,15 @@ pip install -e ".[dev]"
 riskpme-catalogo validar          # checa integridade do catálogo
 riskpme-catalogo questionario 3 saude   # mostra o questionário de um perfil
 riskpme-catalogo custos ../docs/memoria-custos.md   # memória de cálculo dos custos
+riskpme-catalogo simular ../docs/exemplos/clinica-epp.json --semente 42   # motor completo
 pytest
+```
+
+No Windows (cmd), troque as duas primeiras linhas por:
+
+```bat
+cd backend
+py -m venv .venv
+.venv\Scripts\activate
+pip install -e ".[dev]"
 ```

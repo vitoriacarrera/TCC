@@ -136,6 +136,14 @@ fontes:
     dados:
       - "O investimento ótimo em segurança não excede 1/e (≈ 36,8%) da perda esperada"
 
+  - id: nistcsf2
+    titulo: "NIST — The NIST Cybersecurity Framework (CSF) 2.0, NIST CSWP 29 (fev. 2024)"
+    url: https://doi.org/10.6028/NIST.CSWP.29
+    dados:
+      - "Funções Responder (RS) e Recuperar (RC): agir sobre um incidente detectado e restaurar ativos e operações afetados"
+      - "PR.DS-11: backups dos dados são criados, protegidos, mantidos e testados"
+      - "PR.IR-03: mecanismos implementados para atender aos requisitos de resiliência em situações normais e adversas"
+
   - id: cert2024cartilha
     titulo: "CERT.br — Cartilha de Segurança para Internet (fascículos)"
     url: https://cartilha.cert.br/fasciculos/

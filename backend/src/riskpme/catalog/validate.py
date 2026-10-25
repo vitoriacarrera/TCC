@@ -107,6 +107,21 @@ def _validar_contexto(cat: Catalogo, r: Relatorio) -> None:
     somas = sorted(x for c in m.get("cores", []) for x in c["soma"])
     if somas != [2, 3, 4, 5, 6]:
         r.erros.append(f"contexto.yaml: as cores da matriz devem cobrir as somas 2 a 6 (recebido {somas})")
+    h = m.get("horizonte_anos")
+    if not isinstance(h, int) or h < 1:
+        r.erros.append("contexto.yaml: matriz.horizonte_anos deve ser um inteiro ≥ 1 (revisão M1)")
+    elif h != cat.custos.parametros.vida_util_anos:
+        r.avisos.append(f"contexto.yaml: horizonte da matriz ({h} anos) diferente da vida útil dos controles "
+                        f"({cat.custos.parametros.vida_util_anos:g} anos em custos.yaml)")
+    sr = m.get("selo_ruptura", {})
+    prep = sr.get("preparacao", {})
+    if not sr.get("texto_preparacao"):
+        r.erros.append("contexto.yaml: matriz.selo_ruptura sem texto_preparacao (revisão M2)")
+    if prep.get("fonte") not in fontes:
+        r.erros.append(f"contexto.yaml: preparação da ruptura com fonte inexistente '{prep.get('fonte')}'")
+    for pref in prep.get("subcategorias", []):
+        if not any(q.subcategoria.startswith(pref) for q in cat.perguntas):
+            r.erros.append(f"contexto.yaml: subcategoria de preparação '{pref}' não casa com nenhuma pergunta")
 
 
 def _valor_secundaria(ponto, registros: float, faturamento: float) -> float:

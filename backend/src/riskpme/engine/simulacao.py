@@ -4,8 +4,9 @@ Para cada cenário c do perfil:
     LEF_c = TEF_c × V_c,  TEF_c = tef_base × mult_setor × mult_porte,  V_c pela maturidade (maturidade.py)
     N_c ~ Poisson(LEF_c) eventos no ano; cada evento custa Perda Primária (PERT) + Perda Secundária (Bernoulli ×
     Lognormal com teto) — magnitude.py.
-Saídas por cenário: chance no ano P(N ≥ 1) = 1 − e^(−LEF), perda esperada por ano, P90 da perda nos anos em que o
-cenário acontece (N ~ Poisson truncada em zero, para não sumir com cenários raros) e a célula da matriz.
+Saídas por cenário: chance no ano P(N ≥ 1) = 1 − e^(−LEF), chance no horizonte da matriz 1 − e^(−H × LEF)
+(H = 5 anos, revisão M1), perda esperada por ano, P90 da perda nos anos em que o cenário acontece (N ~ Poisson
+truncada em zero, para não sumir com cenários raros) e a célula da matriz (probabilidade pela chance no horizonte).
 Saída total: distribuição da perda anual somando os cenários (curva de excedência).
 """
 
@@ -32,6 +33,7 @@ class ResultadoCenario:
     vulnerabilidade: float
     lef: float                      # eventos de perda esperados por ano
     chance_ano: float               # P(≥ 1 evento no ano)
+    chance_horizonte: float         # P(≥ 1 evento nos próximos H anos): eixo de probabilidade da matriz (M1)
     perda_esperada: float           # R$/ano (Monte Carlo)
     p90_quando_ocorre: float        # R$ no ano, dado que ocorre ao menos um evento
     nivel_impacto: int
@@ -51,8 +53,10 @@ class Resultado:
     tolerancia_rs: float
     custo_hora_parada: float
     custo_hora_estimado: bool
+    horizonte_anos: int
     cenarios: list[ResultadoCenario]
     chance_algum_prejuizo: float
+    chance_algum_prejuizo_horizonte: float
     perda_esperada_total: float
     percentis_total: dict[int, float]
     nao_sei: list[str] = field(default_factory=list)
@@ -79,6 +83,16 @@ def poisson_truncada(rng: np.random.Generator, lam: float, n: int) -> np.ndarray
     p = np.exp(logp)
     p /= p.sum()
     return 1 + np.searchsorted(np.cumsum(p), rng.random(n), side="right").clip(max=kmax - 1)
+
+
+def horizonte(cat: Catalogo) -> int:
+    """Anos usados no eixo de probabilidade da matriz (contexto.yaml, matriz.horizonte_anos)."""
+    return int(cat.contexto["matriz"]["horizonte_anos"])
+
+
+def chance_em(lef: float, anos: float) -> float:
+    """P(≥ 1 evento em `anos` anos) para eventos Poisson com taxa `lef` por ano."""
+    return 1 - math.exp(-lef * anos)
 
 
 def _niveis(cat: Catalogo, p90: float, chance: float, res: PerfilResolvido) -> tuple[int, int, str, bool]:
@@ -114,6 +128,7 @@ def simular(cat: Catalogo, perfil: Perfil, respostas: Respostas, iteracoes: int 
     destaca = set(next(op for q in cat.contexto["ativos"] if q["id"] == "ativo_critico"
                        for op in q["opcoes"] if op["id"] == res.ativo_critico).get("destaca", []))
 
+    h = horizonte(cat)
     total = np.zeros(n)
     saidas: list[ResultadoCenario] = []
     for c in cat.cenarios:
@@ -131,18 +146,20 @@ def simular(cat: Catalogo, perfil: Perfil, respostas: Respostas, iteracoes: int 
         n_cond = poisson_truncada(rng, lam, n)
         prim, sec = amostrar_perdas_evento(rng, c, res.contexto, setor, cat.parametros_modelo, int(n_cond.sum()))
         p90 = float(np.percentile(_somar_por_ano(n_cond, prim + sec), cat.parametros_modelo.percentil_mapa_calor))
-        chance = 1 - math.exp(-lam)
-        imp, prob, cor, rup = _niveis(cat, p90, chance, res)
+        chance = chance_em(lam, 1)
+        chance_h = chance_em(lam, h)
+        imp, prob, cor, rup = _niveis(cat, p90, chance_h, res)
         saidas.append(ResultadoCenario(
             id=c.id, nome=c.nome, maturidade=mat[c.id], vulnerabilidade=vul[c.id], lef=lam, chance_ano=chance,
-            perda_esperada=float(anual.mean()), p90_quando_ocorre=p90, nivel_impacto=imp,
-            nivel_probabilidade=prob, cor=cor, ruptura=rup, destaque=c.id in destaca))
+            chance_horizonte=chance_h, perda_esperada=float(anual.mean()), p90_quando_ocorre=p90,
+            nivel_impacto=imp, nivel_probabilidade=prob, cor=cor, ruptura=rup, destaque=c.id in destaca))
 
     perguntas = cat.questionario(res.porte, res.setor, res.usuarios)
     return Resultado(
         porte=res.porte, setor=res.setor, iteracoes=n, semente=semente, apetite_rs=res.apetite_rs,
         tolerancia_rs=res.tolerancia_rs, custo_hora_parada=res.contexto.custo_hora_parada,
-        custo_hora_estimado=res.custo_hora_estimado, cenarios=saidas,
-        chance_algum_prejuizo=1 - math.exp(-sum(lef.values())), perda_esperada_total=float(total.mean()),
+        custo_hora_estimado=res.custo_hora_estimado, horizonte_anos=h, cenarios=saidas,
+        chance_algum_prejuizo=chance_em(sum(lef.values()), 1),
+        chance_algum_prejuizo_horizonte=chance_em(sum(lef.values()), h), perda_esperada_total=float(total.mean()),
         percentis_total={q: float(np.percentile(total, q)) for q in PERCENTIS_CURVA},
         nao_sei=nao_sei(perguntas, respostas))
