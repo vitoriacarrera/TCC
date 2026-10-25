@@ -4,6 +4,7 @@
     riskpme-catalogo questionario 3 saude       # perguntas de um perfil
     riskpme-catalogo revisao docs/revisao.md    # exporta o banco de perguntas para revisão
     riskpme-catalogo custos docs/custos.md      # memória de cálculo do custo dos controles
+    riskpme-catalogo simular perfil.json        # Monte Carlo + matriz 3 × 3 + plano de ação de um perfil
 """
 
 from __future__ import annotations
@@ -183,6 +184,39 @@ def _cmd_custos(cat: Catalogo, destino: Path) -> int:
     return 0
 
 
+def _cmd_simular(cat: Catalogo, arquivo: Path, semente: int | None) -> int:
+    import json
+
+    from ..engine.perfil import Perfil
+    from ..engine.plano import plano_de_acao
+    from ..engine.simulacao import simular
+
+    dados = json.loads(arquivo.read_text(encoding="utf-8"))
+    perfil = Perfil(**dados["perfil"])
+    respostas = dados.get("respostas", {})
+    r = simular(cat, perfil, respostas, semente=semente)
+    print(f"{cat.porte(r.porte).nome} · {cat.setor(r.setor).nome} · {r.iteracoes} anos simulados")
+    print(f"Apetite R$ {r.apetite_rs:,.0f} · tolerância R$ {r.tolerancia_rs:,.0f} · custo da hora parada "
+          f"R$ {r.custo_hora_parada:,.0f}{' (estimado)' if r.custo_hora_estimado else ''}")
+    print(f"Chance de algum prejuízo no ano: {r.chance_algum_prejuizo:.0%} · perda esperada R$ "
+          f"{r.perda_esperada_total:,.0f}/ano · P90 do total R$ {r.percentis_total[90]:,.0f}\n")
+    print(f"{'cenário':<8}{'maturid.':>9}{'chance/ano':>12}{'perda esp.':>13}{'P90 se ocorre':>15}  célula")
+    for c in r.cenarios:
+        selo = " · RISCO DE RUPTURA" if c.ruptura else ""
+        print(f"{c.id:<8}{c.maturidade:>9.0%}{c.chance_ano:>12.1%}{c.perda_esperada:>13,.0f}"
+              f"{c.p90_quando_ocorre:>15,.0f}  {c.cor} ({c.nivel_impacto},{c.nivel_probabilidade}){selo}")
+    if r.nao_sei:
+        print(f"\nRespostas \"Não sei\": {', '.join(r.nao_sei)}")
+    plano = plano_de_acao(cat, perfil, respostas, [c.id for c in r.cenarios if c.ruptura])
+    print(f"\nPlano de ação · limite de investimento (Gordon-Loeb) R$ {plano.limite_investimento:,.0f}/ano")
+    for a in plano.acoes:
+        rosi = "sem custo" if a.rosi is None else f"ROSI {a.rosi:+.0%}"
+        lim = " · acima do limite" if a.acima_do_limite else ""
+        print(f"{a.prioridade:>3}. {a.controle} {a.controle_nome}: reduz R$ {a.reducao_perda_anual:,.0f}/ano, "
+              f"custa R$ {a.custo_anual:,.0f}/ano, {rosi}{lim}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="riskpme-catalogo", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -195,6 +229,9 @@ def main(argv: list[str] | None = None) -> int:
     q.add_argument("--usuarios", type=int, default=None, help="nº de usuários (ativa variantes, ex.: 1)")
     rv = sub.add_parser("revisao")
     rv.add_argument("destino", type=Path)
+    si = sub.add_parser("simular")
+    si.add_argument("arquivo", type=Path)
+    si.add_argument("--semente", type=int, default=None)
     cu = sub.add_parser("custos")
     cu.add_argument("destino", type=Path)
     args = ap.parse_args(argv)
@@ -211,6 +248,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_questionario(cat, args.porte, args.setor, args.usuarios)
     if args.cmd == "custos":
         return _cmd_custos(cat, args.destino)
+    if args.cmd == "simular":
+        return _cmd_simular(cat, args.arquivo, args.semente)
     return _cmd_revisao(cat, args.destino)
 
 
