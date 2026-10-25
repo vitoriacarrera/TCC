@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"   # mesma versão da imagem de produção (requirements.lock)
       - run: pip install -e ".[dev]"
       - name: Lint
         run: ruff check src tests
@@ -23,3 +23,7 @@ jobs:
         run: riskpme-catalogo validar
       - name: Testes
         run: pytest -q
+      - name: Vulnerabilidades conhecidas nas dependências (CVE)
+        run: pip-audit -r requirements.lock
+      - name: Análise estática de segurança
+        run: bandit -q -r src
