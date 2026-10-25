@@ -68,6 +68,8 @@ def _textos_com_recomendacoes(cat: Catalogo):
         for i, v in enumerate(p.variantes):
             if v.recomendacao:
                 yield f"{p.id}.variante{i + 1}", "recomendacao", v.recomendacao
+    for c in cat.controles:
+        yield f"controle.{c.id}", "acao", c.acao
     for t in cat.glossario.termos:
         yield f"glossario.{t.id}", "termo", t.termo
         yield f"glossario.{t.id}", "explicacao", t.explicacao

@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+/* Identidade CiberDecide: sóbria, de consultoria. Marinho para contraste, marfim de fundo, verde petróleo nas
+   ações e dourado só em detalhes. Verde, âmbar e vermelho ficam reservados ao mapa de calor. */
+@theme {
+  --font-serif: "Source Serif 4", Georgia, serif;
+  --font-sans: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  --color-marinho: #13233f;
+  --color-marinho-claro: #1f3558;
+  --color-marfim: #f6f4ef;
+  --color-papel: #ffffff;
+  --color-linha: #dcd7cc;
+  --color-texto: #1c2430;
+  --color-suave: #5b6472;
+  --color-acao: #0e5e57;
+  --color-acao-escuro: #0a4742;
+  --color-dourado: #b08d57;
+  --color-risco-verde: #4f8a62;
+  --color-risco-amarelo: #d8a23b;
+  --color-risco-vermelho: #b4483b;
+}
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    @apply bg-marfim text-texto font-sans antialiased;
+    font-size: 17px;
+    line-height: 1.55;
+    overflow-x: hidden;
+  }
+  h1, h2, h3 { @apply font-serif text-marinho; }
+  :focus-visible { outline: 3px solid var(--color-dourado); outline-offset: 2px; }
+}
+
+/* faixa marinho de ponta a ponta dentro do conteúdo centralizado */
+.faixa-inteira { margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); }
+
+@media print {
+  .nao-imprimir { display: none !important; }
+  body { background: white; font-size: 12pt; }
+  .quebra-antes { break-before: page; }
+  details { display: block; }
+  details > summary { display: none; }
+}

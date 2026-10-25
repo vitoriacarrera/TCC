@@ -1,4 +1,4 @@
-# RiscoPME — Ferramenta de apoio à decisão em risco cibernético para PMEs
+# CiberDecide (pacote `riskpme`): ferramenta de apoio à decisão em risco cibernético para PMEs
 
 Trabalho de Conclusão de Curso — Engenharia de Sistemas / UFMG
 Autora: Vitória Medeiros Carrera de Oliveira · Orientador: Prof. Ramon Lacerda Marques
@@ -14,7 +14,7 @@ com controles priorizados, seguindo o processo da **ABNT NBR ISO/IEC 27005:2023*
 |---|---|
 | `audit/` | Catálogo de auditoria em YAML: portes, setores, cenários de risco, perguntas (com meta-tags FAIR), controles ISO/IEC 27002:2022, glossário, fontes. Editável sem mexer no código. |
 | `backend/` | Python (FastAPI + NumPy): carregamento/validação do catálogo, motor FAIR + Monte Carlo, API e relatório PDF. |
-| `frontend/` | React + TypeScript (Vite). |
+| `frontend/` | Interface CiberDecide: React + TypeScript (Vite, Tailwind). Ver `frontend/README.md`. |
 | `infra/` | Dockerfiles, docker-compose e configuração de deploy. |
 | `docs/adr/` | Registros de decisão de arquitetura (citáveis na monografia). |
 | `docs/referencias.bib` | Referências BibTeX de todas as fontes do catálogo (chaves = `fonte` nos YAML). |
@@ -36,7 +36,7 @@ com controles priorizados, seguindo o processo da **ABNT NBR ISO/IEC 27005:2023*
 | RF09 Monte Carlo | `backend/src/riskpme/engine/simulacao.py` (comando `riskpme-catalogo simular`) |
 | RF10 Mapa de calor | matriz 3 × 3 com horizonte de 5 anos (`contexto.yaml`, bloco `matriz`; ADR-012) |
 | RF11 Plano de ação | `backend/src/riskpme/engine/plano.py` (ROSI, Gordon-Loeb, período ruim e preparação; ADR-013) |
-| RF12 Relatório | frontend e PDF (próximas etapas); dados prontos em `POST /simulacoes` |
+| RF12 Relatório | `frontend/` (CiberDecide, ADR-015): mapa de calor, riscos, plano de ação; PDF pelo navegador |
 | RNF04 Linguagem acessível | `audit/glossario.yaml`, `ajuda` obrigatória, validador de linguagem (ADR-007) |
 | RNF01/RNF02 | API sem estado (`backend/src/riskpme/api`); contribuição anonimizada só com consentimento em `POST /contribuicoes` (ADR-005) |
 
