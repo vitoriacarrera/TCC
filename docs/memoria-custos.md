@@ -7,9 +7,9 @@ custo_anual = Σ licenças + (horas_implantação ÷ vida útil + horas_anuais +
 ## Parâmetros
 
 - Câmbio: US$ 1 = R$ 5.1408 (PTAX venda, [@bcb2026ptax])
-- Vida útil da implantação: 3 anos
-- Usuários por porte: 2, 10, 50, 150 ([@tcc1], Tabela 3.1)
-- Dados em backup (TB): 0.2, 1, 5, 20 (estimativa)
+- Vida útil da implantação: 5 anos
+- Usuários: informados pelo gestor (pergunta `usuarios_ti`); por isso cada custo é apresentado como **parte fixa + parte por usuário**
+- Volume de backup: usuários × 100 GB ÷ 1024 (estimativa declarada)
 
 | Portes | Perfil | Salário P50 | Encargos | Custo/hora | Fonte |
 |---|---|---|---|---|---|
@@ -28,46 +28,48 @@ custo_anual = Σ licenças + (horas_implantação ÷ vida útil + horas_anuais +
 | Backblaze B2 (armazenamento em nuvem para backup) | USD 6.95 | tb_mes | [@backblaze2026] |
 | Cloudflare Pro (proteção do site contra ataques e sobrecarga) | USD 20.00 | mes | [@cloudflare2026] |
 | Cloudflare Business | USD 200.00 | mes | [@cloudflare2026] |
-| Link de internet reserva (4G/5G ou fibra de 2ª operadora) | BRL 150.00 | mes | [@julgamento] |
+| Link dedicado de fibra reserva, 100 Mbps, disponibilidade ≥ 99,5% em contrato, de outra operadora (média de 3 contratações públicas) | BRL 1,044.63 | mes | [@corenba2024] |
 
-## Custo anual por controle (R$)
+## Custo anual por controle (R$): fixo + por usuário
+
+custo_anual = fixo + por_usuário × usuários
 
 | ISO 27002 | Controle | MEI | ME | EPP | Média |
 |---|---|---|---|---|---|
-| 5.1 | Políticas de segurança da informação | R$ 96 | R$ 191 | R$ 1.360 | R$ 2.493 |
-| 5.2 | Papéis e responsabilidades pela segurança da informação | R$ 0 | R$ 1.011 | R$ 8.273 | R$ 16.547 |
-| 5.9 | Inventário de informações e outros ativos associados | R$ 68 | R$ 219 | R$ 1.813 | R$ 4.533 |
-| 5.10 | Uso aceitável de informações e outros ativos associados | R$ 68 | R$ 137 | R$ 567 | R$ 1.133 |
-| 5.14 | Transferência de informações | R$ 55 | R$ 191 | R$ 1.133 | R$ 2.267 |
-| 5.15 | Controle de acesso | R$ 55 | R$ 219 | R$ 2.040 | R$ 5.100 |
-| 5.16 | Gestão de identidade | R$ 0 | R$ 137 | R$ 1.133 | R$ 3.173 |
-| 5.17 | Informações de autenticação | R$ 507 | R$ 2.604 | R$ 13.018 | R$ 38.374 |
-| 5.18 | Direitos de acesso | R$ 0 | R$ 109 | R$ 793 | R$ 2.267 |
-| 5.19 | Segurança da informação nas relações com fornecedores | R$ 0 | R$ 137 | R$ 1.133 | R$ 3.173 |
-| 5.23 | Segurança da informação para uso de serviços em nuvem | R$ 0 | R$ 137 | R$ 1.133 | R$ 2.493 |
-| 5.24 | Planejamento e preparação da gestão de incidentes de segurança da informação | R$ 68 | R$ 273 | R$ 1.360 | R$ 3.173 |
-| 5.30 | Prontidão de TIC para continuidade de negócios | R$ 68 | R$ 273 | R$ 2.267 | R$ 5.667 |
-| 5.31 | Requisitos legais, estatutários, regulamentares e contratuais | R$ 14 | R$ 68 | R$ 283 | R$ 567 |
-| 5.34 | Privacidade e proteção de dados pessoais | R$ 137 | R$ 547 | R$ 3.740 | R$ 8.500 |
-| 6.3 | Conscientização, educação e treinamento em segurança da informação | R$ 150 | R$ 547 | R$ 4.817 | R$ 13.883 |
-| 8.1 | Dispositivos endpoint do usuário | R$ 14 | R$ 68 | R$ 25.243 | R$ 75.388 |
-| 8.2 | Direitos de acessos privilegiados | R$ 14 | R$ 137 | R$ 1.133 | R$ 2.493 |
-| 8.5 | Autenticação segura | R$ 14 | R$ 68 | R$ 567 | R$ 1.133 |
-| 8.7 | Proteção contra malware | R$ 14 | R$ 1.960 | R$ 10.160 | R$ 30.254 |
-| 8.8 | Gestão de vulnerabilidades técnicas | R$ 96 | R$ 547 | R$ 4.533 | R$ 11.333 |
-| 8.9 | Gestão de configuração | R$ 0 | R$ 68 | R$ 1.133 | R$ 2.493 |
-| 8.10 | Exclusão de informações | R$ 55 | R$ 109 | R$ 567 | R$ 1.360 |
-| 8.12 | Prevenção de vazamento de dados | R$ 0 | R$ 0 | R$ 1.133 | R$ 77.201 |
-| 8.13 | Backup das informações | R$ 195 | R$ 729 | R$ 4.637 | R$ 13.562 |
-| 8.14 | Redundância dos recursos de tratamento de informações | R$ 0 | R$ 1.937 | R$ 2.933 | R$ 4.293 |
-| 8.15 | Registros (logs) | R$ 0 | R$ 0 | R$ 907 | R$ 2.720 |
-| 8.16 | Atividades de monitoramento | R$ 0 | R$ 519 | R$ 9.293 | R$ 36.493 |
-| 8.20 | Segurança de redes | R$ 14 | R$ 137 | R$ 2.367 | R$ 14.831 |
-| 8.22 | Segregação de redes | R$ 0 | R$ 191 | R$ 1.360 | R$ 3.060 |
-| 8.23 | Filtragem da web | R$ 0 | R$ 1.288 | R$ 6.622 | R$ 19.414 |
-| 8.24 | Uso de criptografia | R$ 14 | R$ 68 | R$ 397 | R$ 793 |
-| 8.28 | Codificação segura | R$ 0 | R$ 1.203 | R$ 9.293 | R$ 22.667 |
-| | **Total (todos os controles)** | **R$ 1.714** | **R$ 15.830** | **R$ 127.144** | **R$ 432.832** |
+| 5.1 | Políticas de segurança da informação | R$ 74 | R$ 148 | R$ 1.088 | R$ 2.040 |
+| 5.2 | Papéis e responsabilidades pela segurança da informação | R$ 0 | R$ 1.000 | R$ 8.228 | R$ 16.456 |
+| 5.9 | Inventário de informações e outros ativos associados | R$ 57 | R$ 197 | R$ 1.632 | R$ 4.080 |
+| 5.10 | Uso aceitável de informações e outros ativos associados | R$ 57 | R$ 115 | R$ 476 | R$ 952 |
+| 5.14 | Transferência de informações | R$ 49 | R$ 180 | R$ 1.088 | R$ 2.176 |
+| 5.15 | Controle de acesso | R$ 49 | R$ 197 | R$ 1.768 | R$ 4.420 |
+| 5.16 | Gestão de identidade | R$ 0 | R$ 115 | R$ 952 | R$ 2.720 |
+| 5.17 | Informações de autenticação | R$ 8 + R$ 247/usuário | R$ 115 + R$ 247/usuário | R$ 544 + R$ 247/usuário | R$ 1.088 + R$ 247/usuário |
+| 5.18 | Direitos de acesso | R$ 0 | R$ 98 | R$ 748 | R$ 2.176 |
+| 5.19 | Segurança da informação nas relações com fornecedores | R$ 0 | R$ 115 | R$ 952 | R$ 2.720 |
+| 5.23 | Segurança da informação para uso de serviços em nuvem | R$ 0 | R$ 115 | R$ 952 | R$ 2.040 |
+| 5.24 | Planejamento e preparação da gestão de incidentes de segurança da informação | R$ 57 | R$ 230 | R$ 1.088 | R$ 2.720 |
+| 5.30 | Prontidão de TIC para continuidade de negócios | R$ 57 | R$ 230 | R$ 1.904 | R$ 4.760 |
+| 5.31 | Requisitos legais, estatutários, regulamentares e contratuais | R$ 8 | R$ 57 | R$ 238 | R$ 476 |
+| 5.34 | Privacidade e proteção de dados pessoais | R$ 115 | R$ 459 | R$ 3.060 | R$ 7.140 |
+| 6.3 | Conscientização, educação e treinamento em segurança da informação | R$ 57 + R$ 41/usuário | R$ 115 + R$ 41/usuário | R$ 476 + R$ 85/usuário | R$ 952 + R$ 85/usuário |
+| 8.1 | Dispositivos endpoint do usuário | R$ 8 | R$ 57 | R$ 476 + R$ 494/usuário | R$ 1.088 + R$ 494/usuário |
+| 8.2 | Direitos de acessos privilegiados | R$ 8 | R$ 115 | R$ 952 | R$ 2.040 |
+| 8.5 | Autenticação segura | R$ 8 | R$ 57 | R$ 476 | R$ 952 |
+| 8.7 | Proteção contra malware | R$ 8 | R$ 98 + R$ 185/usuário | R$ 816 + R$ 185/usuário | R$ 2.312 + R$ 185/usuário |
+| 8.8 | Gestão de vulnerabilidades técnicas | R$ 90 | R$ 525 | R$ 4.352 | R$ 10.880 |
+| 8.9 | Gestão de configuração | R$ 0 | R$ 57 | R$ 952 | R$ 2.040 |
+| 8.10 | Exclusão de informações | R$ 49 | R$ 98 | R$ 476 | R$ 1.088 |
+| 8.12 | Prevenção de vazamento de dados | R$ 0 | R$ 0 | R$ 952 | R$ 2.720 + R$ 494/usuário |
+| 8.13 | Backup das informações | R$ 98 + R$ 42/usuário | R$ 279 + R$ 42/usuário | R$ 2.312 + R$ 42/usuário | R$ 4.624 + R$ 42/usuário |
+| 8.14 | Redundância dos recursos de tratamento de informações | R$ 0 | R$ 115 | R$ 952 | R$ 14.576 |
+| 8.15 | Registros (logs) | R$ 0 | R$ 0 | R$ 816 | R$ 2.448 |
+| 8.16 | Atividades de monitoramento | R$ 0 | R$ 508 | R$ 9.112 | R$ 36.040 |
+| 8.20 | Segurança de redes | R$ 8 | R$ 115 | R$ 2.186 | R$ 14.378 |
+| 8.22 | Segregação de redes | R$ 0 | R$ 148 | R$ 1.088 | R$ 2.380 |
+| 8.23 | Filtragem da web | R$ 0 | R$ 49 + R$ 123/usuário | R$ 408 + R$ 123/usuário | R$ 816 + R$ 123/usuário |
+| 8.28 | Codificação segura | R$ 0 | R$ 1.115 | R$ 8.840 | R$ 21.760 |
+| | **Total (todos os controles)** | **R$ 869 + R$ 330/usuário** | **R$ 6.822 + R$ 638/usuário** | **R$ 60.360 + R$ 1.176/usuário** | **R$ 177.057 + R$ 1.669/usuário** |
+| | Total com o nº de empregados do limite do Tier CIS | R$ 4.165 (10 usuários) | R$ 13.203 (10 usuários) | R$ 177.919 (100 usuários) | R$ 1.844.498 (999 usuários) |
 | | Teto CIS IG1 – ferramentas [@cis2025cost] | R$ 195.988 | R$ 195.988 | R$ 909.721 | R$ 7.434.558 |
 
 ## Detalhamento
@@ -128,7 +130,7 @@ custo_anual = Σ licenças + (horas_implantação ÷ vida útil + horas_anuais +
 - licença: Backblaze B2 (armazenamento em nuvem para backup), portes [1, 2, 3, 4]
 
 **8.14 Redundância dos recursos de tratamento de informações** — horas de implantação [0.0, 4.0, 16.0, 40.0], horas/ano [0.0, 2.0, 8.0, 16.0]
-- licença: Link de internet reserva (4G/5G ou fibra de 2ª operadora), portes [2, 3, 4]
+- licença: Link dedicado de fibra reserva, 100 Mbps, disponibilidade ≥ 99,5% em contrato, de outra operadora (média de 3 contratações públicas), portes [4]
 
 **8.15 Registros (logs)** — horas de implantação [0.0, 0.0, 8.0, 24.0], horas/ano [0.0, 0.0, 8.0, 24.0]
 
@@ -142,8 +144,6 @@ custo_anual = Σ licenças + (horas_implantação ÷ vida útil + horas_anuais +
 
 **8.23 Filtragem da web** — horas de implantação [0.0, 1.0, 4.0, 8.0], horas/ano [0.0, 1.0, 4.0, 8.0]
 - licença: Microsoft Defender for Office 365 Plano 1 (filtro avançado de e-mail), portes [2, 3, 4]
-
-**8.24 Uso de criptografia** — horas de implantação [1.0, 2.0, 8.0, 16.0], horas/ano [0.0, 1.0, 2.0, 4.0]
 
 **8.28 Codificação segura** — horas de implantação [0.0, 16.0, 40.0, 80.0], horas/ano [0.0, 24.0, 96.0, 240.0]
 

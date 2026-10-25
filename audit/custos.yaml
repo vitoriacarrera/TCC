@@ -3,22 +3,27 @@
 # Substitui os valores fixos por uma MEMÓRIA DE CÁLCULO auditável (ENISA, 2012 — custo da solução inclui
 # licenças + implantação + operação):
 #
-#   custo_anual(controle, porte) = Σ licenças(porte)
+#   custo_anual(controle, porte, usuarios) = Σ licenças(porte, usuarios)
 #                                + (horas_implantacao[porte] / vida_util_anos + horas_anuais[porte]
-#                                   + horas_por_usuario_ano × usuarios[porte]) × custo_hora[porte]
+#                                   + horas_por_usuario_ano × usuarios) × custo_hora[porte]
+#
+#   usuarios = resposta do gestor à pergunta `usuarios_ti` (audit/contexto.yaml) — revisão S4, 12/10/2026.
+#   Quantidade das licenças: usuario_mes → usuarios; tb_mes → usuarios × gb_por_usuario ÷ 1024; mes → 1.
 #
 # O que tem fonte pública: preços de licença (listas oficiais dos fabricantes), câmbio (BCB) e custo da hora
 # (Guia Salarial Robert Half 2026 + encargos trabalhistas). O que continua sendo estimativa: as HORAS de esforço
-# e o volume de dados por porte — declaradas aqui de forma explícita para revisão por especialista.
+# e o volume de dados por usuário — declaradas aqui de forma explícita para revisão por especialista.
 # Chaves BibTeX em docs/referencias.bib.
 
 parametros:
   cambio_usd_brl: 5.1408          # PTAX venda 23/09/2026 — bcb2026ptax
-  vida_util_anos: 3               # implantação amortizada em 3 anos (julgamento; ciclo usual de revisão de políticas)
-  usuarios: [2, 10, 50, 150]      # ponto representativo das faixas da Tabela 3.1 do TCC1 (1–2, 3–19, 20–99, 100+)
-  dados_tb: [0.2, 1, 5, 20]       # volume a proteger em backup, em TB (julgamento)
+  vida_util_anos: 5               # implantação amortizada em 5 anos, por analogia à vida útil fiscal de computadores
+                                  #   (IN RFB nº 1.700/2017, Anexo III, NCM 8471: 20% a.a.) — rfb1700 (revisão K1)
+  gb_por_usuario: 100             # volume a proteger em backup por usuário, em GB. JULGAMENTO (inventário J8):
+                                  #   mesma razão implícita na versão anterior (0,2 TB / 2 usuários … 5 TB / 50);
+                                  #   sem fonte pública recente encontrada — coberto pela análise de sensibilidade
   custo_hora: [41, 41, 85, 85]    # R$/h — ver bloco `mao_de_obra`
-  fonte: [bcb2026ptax, tcc1, julgamento]
+  fonte: [bcb2026ptax, rfb1700, julgamento]
 
 # Custo da hora = salário mensal P50 × (1 + encargos) / 220 h (jornada mensal CLT)
 mao_de_obra:
@@ -45,7 +50,7 @@ precos:
   - { id: backblaze_b2,        descricao: "Backblaze B2 (armazenamento em nuvem para backup)", valor: 6.95, moeda: USD, unidade: tb_mes, fonte: backblaze2026 }
   - { id: cloudflare_pro,      descricao: "Cloudflare Pro (proteção do site contra ataques e sobrecarga)", valor: 20.00, moeda: USD, unidade: mes, fonte: cloudflare2026 }
   - { id: cloudflare_business, descricao: "Cloudflare Business", valor: 200.00, moeda: USD, unidade: mes, fonte: cloudflare2026 }
-  - { id: link_reserva,        descricao: "Link de internet reserva (4G/5G ou fibra de 2ª operadora)", valor: 150.00, moeda: BRL, unidade: mes, fonte: julgamento }
+  - { id: link_reserva,        descricao: "Link dedicado de fibra reserva, 100 Mbps, disponibilidade ≥ 99,5% em contrato, de outra operadora (média de 3 contratações públicas)", valor: 1044.63, moeda: BRL, unidade: mes, fonte: corenba2024 }
 
 # Composição por controle. horas_* por porte [1, 2, 3, 4]. licencas: preço aplicado nos portes listados.
 # Ferramentas gratuitas citadas (sem custo de licença): MFA nativo (security defaults / verificação em duas
@@ -98,7 +103,7 @@ controles:
   "8.14":
     horas_implantacao: [0, 4, 16, 40]
     horas_anuais: [0, 2, 8, 16]
-    licencas: [{ preco: link_reserva, portes: [2, 3, 4] }]
+    licencas: [{ preco: link_reserva, portes: [4] }]                                        # só média: PR-21 tem porte_min 4 (K2)
   "8.15": { horas_implantacao: [0, 0, 8, 24],    horas_anuais: [0, 0, 8, 24] }
   "8.16": { horas_implantacao: [0, 2, 16, 40],   horas_anuais: [0, 12, 104, 416] }        # 0 / 15 min / 2 h / 8 h por semana
   "8.20":
@@ -110,11 +115,12 @@ controles:
     horas_implantacao: [0, 1, 4, 8]
     horas_anuais: [0, 1, 4, 8]
     licencas: [{ preco: defender_office_p1, portes: [2, 3, 4] }]
-  "8.24": { horas_implantacao: [1, 2, 8, 16],    horas_anuais: [0, 1, 2, 4] }
   "8.28": { horas_implantacao: [0, 16, 40, 80],  horas_anuais: [0, 24, 96, 240] }          # ferramentas livres (ex.: Semgrep CE)
 
 # Verificação de razoabilidade (cis2025cost): custo anual de FERRAMENTAS para o CIS IG1, modelo on-premises.
 # Tier 1 (1–10 empregados): US$ 0–38.124; Tier 2 (10–100): US$ 0–176.961; Tier 3 (100–999): US$ 0–1.446.187.
 # CIS recomenda que as ferramentas de IG1 fiquem abaixo de 20% do orçamento de TI.
-# Mapeamento pelo nº de empregados representativo: portes 1–2 → Tier 1; porte 3 → Tier 2; porte 4 → Tier 3.
+# Mapeamento: portes 1–2 → Tier 1; porte 3 → Tier 2; porte 4 → Tier 3.
+# A checagem usa o nº de empregados do LIMITE SUPERIOR de cada Tier como usuários (pior caso, mesma fonte).
 referencia_cis_ig1_usd: [38124, 38124, 176961, 1446187]
+referencia_cis_ig1_empregados: [10, 10, 100, 999]

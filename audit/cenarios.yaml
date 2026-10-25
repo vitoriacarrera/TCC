@@ -20,15 +20,30 @@
 #     Nem sempre ocorre  =>  Bernoulli(probabilidade)  (SLEF da ontologia FAIR)
 #     Cauda longa        =>  Lognormal(μ, σ), truncada em teto_pct_faturamento × faturamento  (TCC1 §3.6, item 3)
 #     Parametrizada por dois pontos intuitivos, cada um soma de:
-#        por_registro    × registros_pessoais × setor.multiplicador_custo_registro × fator_tipo_dado
+#        por_registro    × registros_pessoais × setor.multiplicador_custo_registro
 #        pct_faturamento × faturamento_anual
 #        fixo            (R$)
 #     μ = ln(mediana);  σ = [ln(p95) − ln(mediana)] / 1,645
 #
-# Calibração: tef_base referido ao nível 3 (EPP) com multiplicador de setor 1,0, de modo que uma empresa com
-# maturidade média (0,5) tenha P(≥1 evento de perda/ano) ≈ 45–50% e uma sem controles ≈ 70%, coerente com os 59%
-# de PMEs atacadas/ano de hiscox2025. Magnitudes: julgamento, com ordens de grandeza de sophos2025, dbir2025,
-# ibm2025 e lgpd (teto de multa = 2% do faturamento por infração).
+# Entradas do gestor (audit/contexto.yaml), todas obrigatórias e SEM valor padrão por porte (revisão S3/S4):
+#   receita_operacional_bruta (= faturamento_anual no motor), custo_hora_parada (fórmula a partir da receita, se
+#   não souber) e registros_pessoais (faixa). O tipo de dado não multiplica o prejuízo (revisão C-DADO): vira
+#   sinalização nas recomendações de privacidade.
+# A checagem de sanidade da lognormal (validate.py) percorre PERFIS DE TESTE: limites de faturamento de cada
+# porte (portes.yaml) × todas as faixas de registros_pessoais (contexto.yaml).
+#
+# Calibração da frequência (revisão CJ1): tef_base referido ao nível 3 (EPP), setor neutro, pela frequência de
+# EVENTOS DE PERDA observada no UK Cyber Security Breaches Survey 2025/26 (csbs2026), e não de ataques:
+#   total:      43% identificaram ataque × 30% foram afetados  => 12,9% das empresas com perda no ano
+#   ransomware: 1% das empresas (3% nos dois anos anteriores: sensibilidade)
+#   fraude facilitada por meio digital: 3% das empresas
+#   λ = −ln(1 − p) × 1,096 (λ(46%)/λ(43%): o total do Reino Unido é dominado por microempresas; referência = EPP)
+#   tef_base = λ / V(maturidade 0,5) = λ / 0,185   (maturidade de referência 0,5: premissa declarada)
+#   VAZ, IND, TER e IA: o restante do total, repartido na proporção 0,7 : 0,5 : 0,4 : 0,3 (julgamento declarado).
+# Resultado na EPP: P(≥1 evento de perda/ano) ≈ 25% sem controles, 14% com maturidade média, 1,6% com maturidade
+# máxima. Magnitudes: RAN horas de parada e probabilidade da secundária pela Sophos 2025 (CJ2, CJ3); demais,
+# julgamento declarado com ordens de grandeza de sophos2025, dbir2025, ibm2025 e lgpd (teto de multa = 2% do
+# faturamento por infração), cobertos pela análise de sensibilidade (CJ4).
 
 parametros_modelo:
   vulnerabilidade_min: 0.02     # maturidade máxima
@@ -45,24 +60,24 @@ cenarios:
     descricao: "Um vírus tranca os computadores e arquivos da empresa e os criminosos pedem um resgate para devolvê-los. Às vezes eles também copiam os dados e ameaçam divulgá-los."
     ameaca: "Grupos criminosos com motivação financeira"
     efeito: [disponibilidade, confidencialidade]
-    tef_base: 0.6
+    tef_base: 0.060       # λ(1%) × 1,096 / 0,185 — csbs2026
     perda_primaria:                          # parada, técnicos, recuperação, eventual resgate
-      horas_parada:    [8, 72, 240]
+      horas_parada:    [8, 40, 176]          # 1 dia, 1 semana, 1 mês úteis (sophos2025: tempo de recuperação)
       pct_faturamento: [0.005, 0.02, 0.06]
       fixo:            [2000, 10000, 50000]
     perda_secundaria:                        # dados divulgados (dupla extorsão): titulares, clientes, ANPD
-      probabilidade: 0.3
+      probabilidade: 0.22   # dados roubados em 22% dos ataques com criptografia, 100–500 func. (sophos2025)
       mediana: { por_registro: 5,  pct_faturamento: 0.005 }
       p95:     { por_registro: 60, pct_faturamento: 0.05 }
       teto_pct_faturamento: 1.0
-    fonte: [dbir2025, sophos2025, julgamento]
+    fonte: [csbs2026, sophos2025, dbir2025, julgamento]
 
   - id: VAZ
     nome: "Vazamento de dados de clientes ou sigilosos"
-    descricao: "Alguém de fora consegue acesso a dados de pessoas ou a informações sigilosas — por uma senha roubada, uma configuração errada ou uma falha no sistema — e copia ou divulga esses dados."
+    descricao: "Alguém de fora consegue acesso a dados de pessoas ou a informações sigilosas, por uma senha roubada, uma configuração errada ou uma falha no sistema, e copia ou divulga esses dados."
     ameaca: "Criminosos externos; eventualmente ex-colaboradores"
     efeito: [confidencialidade]
-    tef_base: 0.7
+    tef_base: 0.213       # parcela do total csbs2026 (proporção 0,7/1,9: julgamento)
     perda_primaria:                          # investigação, contenção, assessoria jurídica
       pct_faturamento: [0.001, 0.003, 0.01]
       fixo:            [500, 3000, 15000]
@@ -71,14 +86,14 @@ cenarios:
       mediana: { por_registro: 15,  pct_faturamento: 0.003 }
       p95:     { por_registro: 100, pct_faturamento: 0.03 }
       teto_pct_faturamento: 1.0
-    fonte: [ibm2025, lgpd, julgamento]
+    fonte: [csbs2026, ibm2025, lgpd, julgamento]
 
   - id: FRA
     nome: "Golpe financeiro (boleto falso, PIX, falso fornecedor)"
-    descricao: "Alguém se passa por fornecedor, cliente ou sócio — por e-mail, WhatsApp ou telefone — e convence a empresa a pagar um boleto falso, fazer um PIX ou trocar a conta bancária de um fornecedor."
+    descricao: "Alguém se passa por fornecedor, cliente ou sócio, por e-mail, WhatsApp ou telefone, e convence a empresa a pagar um boleto falso, fazer um PIX ou trocar a conta bancária de um fornecedor."
     ameaca: "Golpistas (Business Email Compromise, pretexting)"
     efeito: [integridade]
-    tef_base: 0.8
+    tef_base: 0.180       # λ(3%) × 1,096 / 0,185 — csbs2026 (fraude facilitada por meio digital)
     perda_primaria:                          # valor desviado
       pct_faturamento: [0.002, 0.01, 0.05]
       fixo:            [1000, 5000, 20000]
@@ -87,14 +102,14 @@ cenarios:
       mediana: { pct_faturamento: 0.002, fixo: 2000 }
       p95:     { pct_faturamento: 0.02,  fixo: 20000 }
       teto_pct_faturamento: 0.5
-    fonte: [ic3_2024, dbir2025, julgamento]
+    fonte: [csbs2026, ic3_2024, dbir2025, julgamento]
 
   - id: IND
     nome: "Sistemas fora do ar"
     descricao: "O sistema de vendas, o site, a agenda ou a produção param por um ataque de sobrecarga, uma pane ou uma falha de TI (sem sequestro de dados)."
     ameaca: "Ataques de sobrecarga (DDoS), falhas de infraestrutura, erros operacionais"
     efeito: [disponibilidade]
-    tef_base: 0.5
+    tef_base: 0.152       # parcela do total csbs2026 (proporção 0,5/1,9: julgamento)
     perda_primaria:
       horas_parada:    [2, 16, 96]
       pct_faturamento: [0, 0.002, 0.01]
@@ -104,14 +119,14 @@ cenarios:
       mediana: { pct_faturamento: 0.002 }
       p95:     { pct_faturamento: 0.02 }
       teto_pct_faturamento: 0.5
-    fonte: [julgamento]
+    fonte: [csbs2026, julgamento]
 
   - id: TER
     nome: "Problema num fornecedor"
     descricao: "Um fornecedor que guarda seus dados ou cuida dos seus sistemas (nuvem, contador, sistema de gestão, empresa de TI) sofre um incidente que atinge a sua empresa."
     ameaca: "Ataques à cadeia de suprimentos"
     efeito: [confidencialidade, disponibilidade]
-    tef_base: 0.4
+    tef_base: 0.122       # parcela do total csbs2026 (proporção 0,4/1,9: julgamento)
     perda_primaria:
       horas_parada:    [4, 24, 120]
       pct_faturamento: [0.001, 0.003, 0.01]
@@ -121,14 +136,14 @@ cenarios:
       mediana: { por_registro: 5,  pct_faturamento: 0.002 }
       p95:     { por_registro: 50, pct_faturamento: 0.02 }
       teto_pct_faturamento: 1.0
-    fonte: [dbir2025, ibm2025, julgamento]
+    fonte: [csbs2026, dbir2025, ibm2025, julgamento]
 
   - id: IA
     nome: "Exposição de dados pelo uso de Inteligência Artificial"
     descricao: "Alguém da equipe cola dados de clientes, contratos ou documentos sigilosos numa ferramenta de IA sem controle, e essa informação acaba exposta ou usada indevidamente."
     ameaca: "Uso não governado de IA generativa; vazamento acidental"
     efeito: [confidencialidade]
-    tef_base: 0.3
+    tef_base: 0.091       # parcela do total csbs2026 (proporção 0,3/1,9: julgamento)
     perda_primaria:
       pct_faturamento: [0.001, 0.003, 0.01]
       fixo:            [500, 3000, 15000]
@@ -137,4 +152,4 @@ cenarios:
       mediana: { por_registro: 3,  pct_faturamento: 0.002 }
       p95:     { por_registro: 30, pct_faturamento: 0.02 }
       teto_pct_faturamento: 1.0
-    fonte: [ibm2025, julgamento]
+    fonte: [csbs2026, ibm2025, julgamento]

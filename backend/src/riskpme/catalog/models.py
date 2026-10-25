@@ -6,6 +6,7 @@ A validação cruzada (referências entre arquivos) fica em `Catalogo`, de modo 
 
 from __future__ import annotations
 
+import itertools
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -36,18 +37,16 @@ class Fonte(_Base):
 
 
 # --------------------------------------------------------------------------- perfil
-class PadroesPorte(_Base):
-    faturamento_anual: float = Field(gt=0)
-    registros_pessoais: int = Field(ge=0)
-
-
 class Porte(_Base):
+    """Nível de porte, classificado pela Receita Operacional Bruta anual (ADR-010)."""
+
     nivel: int
     nome: str
-    pessoas: tuple[int, int | None]
-    receita_anual_max: float = Field(gt=0)
+    pessoas: tuple[int, int | None]      # só referência (Sebrae); a classificação é pela ROB
+    rob_min: float = Field(ge=0)         # exclusivo (o nível 1 começa em 0, inclusivo)
+    rob_max: float = Field(gt=0)         # inclusivo
     multiplicador_tef: float = Field(gt=0)
-    padroes: PadroesPorte
+    calculo: str | None = None
     fonte: list[str]
 
     _fonte = field_validator("fonte", mode="before")(_lista)
@@ -60,24 +59,29 @@ class Porte(_Base):
         return v
 
 
+class Multiplicador(_Base):
+    """Parâmetro rastreável (revisão S5): valor + fonte + cálculo; `pendente` marca neutro à espera de dado."""
+
+    valor: float = Field(gt=0)
+    fonte: str
+    calculo: str | None = None
+    pendente: bool = False
+
+
 class Setor(_Base):
     id: str
     nome: str
     exemplos: str
-    multiplicador_tef: dict[str, float] = {}
-    multiplicador_custo_registro: float = Field(gt=0)
-    justificativa: str
-    fonte: list[str]
+    multiplicador_tef: dict[str, Multiplicador] = {}
+    multiplicador_custo_registro: Multiplicador
 
-    _fonte = field_validator("fonte", mode="before")(_lista)
+    def mult_tef(self, cenario_id: str) -> float:
+        m = self.multiplicador_tef.get(cenario_id)
+        return m.valor if m else 1.0
 
-    @field_validator("multiplicador_tef")
-    @classmethod
-    def _positivos(cls, v: dict[str, float]) -> dict[str, float]:
-        for k, m in v.items():
-            if m <= 0:
-                raise ValueError(f"multiplicador de TEF de {k} deve ser > 0")
-        return v
+    @property
+    def custo_registro(self) -> float:
+        return self.multiplicador_custo_registro.valor
 
 
 # --------------------------------------------------------------------------- cenários (FAIR)
@@ -207,6 +211,27 @@ class OpcaoEscala(_Base):
     rotulo: str
 
 
+class CondicaoVariante(_Base):
+    portes: list[int] | None = None          # níveis em que a variante vale (None = todos)
+    usuarios_max: int | None = None          # vale só se usuarios_ti <= este número (ex.: 1 = quem trabalha sozinho)
+
+
+class Variante(_Base):
+    """Texto alternativo da pergunta para um perfil (revisão Q-SOLO, Q-RSMEI, Q-GV04)."""
+
+    quando: CondicaoVariante
+    texto: str | None = None
+    ajuda: str | None = None
+    recomendacao: str | None = None
+    cenarios: dict[str, int] | None = None
+
+    def vale_para(self, porte: int, usuarios: int | None) -> bool:
+        q = self.quando
+        if q.portes is not None and porte not in q.portes:
+            return False
+        return not (q.usuarios_max is not None and (usuarios is None or usuarios > q.usuarios_max))
+
+
 class Pergunta(_Base):
     id: str
     funcao: Literal["GV", "ID", "PR", "DE", "RS", "RC"]
@@ -218,6 +243,7 @@ class Pergunta(_Base):
     cenarios: dict[str, int]
     controle: str
     recomendacao: str
+    variantes: list[Variante] = []
 
     @field_validator("cenarios")
     @classmethod
@@ -238,6 +264,15 @@ class Pergunta(_Base):
     def aplica_a(self, porte: int, setor: str) -> bool:
         return porte >= self.porte_min and (self.setores is None or setor in self.setores)
 
+    def para_perfil(self, porte: int, usuarios: int | None = None) -> Pergunta:
+        """A pergunta como o gestor deste perfil a vê: a primeira variante que vale substitui os campos dela."""
+        for v in self.variantes:
+            if v.vale_para(porte, usuarios):
+                troca = {k: getattr(v, k) for k in ("texto", "ajuda", "recomendacao", "cenarios")
+                         if getattr(v, k) is not None}
+                return self.model_copy(update=troca | {"variantes": []})
+        return self
+
 
 # --------------------------------------------------------------------------- catálogo completo
 class Catalogo(_Base):
@@ -250,6 +285,7 @@ class Catalogo(_Base):
     instrucoes: Instrucoes
     funcoes: dict[Literal["GV", "ID", "PR", "DE", "RS", "RC"], FuncaoCSF]
     escala: list[OpcaoEscala]
+    aviso_legal: str = Field(min_length=40)    # revisão Q-AVISO: tela inicial e relatório
     perguntas: list[Pergunta]
     glossario: Glossario
     custos: ModeloCusto
@@ -268,21 +304,31 @@ class Catalogo(_Base):
     def controle(self, controle_id: str) -> Controle:
         return _unico(self.controles, lambda c: c.id == controle_id, f"controle '{controle_id}'")
 
-    def custo_controle(self, controle_id: str, porte: int) -> CustoDetalhado:
-        """Custo anual (R$) de implantar e manter um controle numa empresa do porte dado."""
-        self.controle(controle_id)
-        return custo_controle(self.custos, controle_id, porte)
+    def classificar_porte(self, rob: float) -> int:
+        """Nível de porte pela Receita Operacional Bruta anual (ADR-010). Acima do teto: fora do escopo."""
+        if rob < 0:
+            raise ValueError("receita operacional bruta não pode ser negativa")
+        for p in sorted(self.portes, key=lambda x: x.nivel):
+            if rob <= p.rob_max:
+                return p.nivel
+        raise ValueError(f"receita de R$ {rob:,.0f} acima do limite da média empresa: fora do escopo da ferramenta")
 
-    def questionario(self, porte: int, setor: str) -> list[Pergunta]:
-        """Perguntas aplicáveis a um perfil (RF01 + RF04), na ordem do catálogo."""
+    def custo_controle(self, controle_id: str, porte: int, usuarios: int) -> CustoDetalhado:
+        """Custo anual (R$) de implantar e manter um controle numa empresa do porte dado, com `usuarios`
+        pessoas usando TI (resposta à pergunta `usuarios_ti`)."""
+        self.controle(controle_id)
+        return custo_controle(self.custos, controle_id, porte, usuarios)
+
+    def questionario(self, porte: int, setor: str, usuarios: int | None = None) -> list[Pergunta]:
+        """Perguntas aplicáveis a um perfil (RF01 + RF04), na ordem do catálogo, já com as variantes do perfil."""
         self.porte(porte)
         self.setor(setor)
-        return [p for p in self.perguntas if p.aplica_a(porte, setor)]
+        return [p.para_perfil(porte, usuarios) for p in self.perguntas if p.aplica_a(porte, setor)]
 
     def tef(self, cenario_id: str, porte: int, setor: str) -> float:
         """TEF do perfil = tef_base × multiplicador do setor × multiplicador do porte (RF07, ADR-006)."""
         c = self.cenario(cenario_id)
-        return c.tef_base * self.setor(setor).multiplicador_tef.get(cenario_id, 1.0) * self.porte(porte).multiplicador_tef
+        return c.tef_base * self.setor(setor).mult_tef(cenario_id) * self.porte(porte).multiplicador_tef
 
     # ---- integridade referencial ---------------------------------------------------------------------------
     @model_validator(mode="after")
@@ -311,17 +357,28 @@ class Catalogo(_Base):
         setores = {s.id for s in self.setores}
         controles = {c.id for c in self.controles}
 
-        for grupo in (self.portes, self.setores, self.cenarios):
+        for grupo in (self.portes, self.cenarios):
             for it in grupo:
                 for f in it.fonte:
                     if f not in fontes:
                         erros.append(f"{type(it).__name__} {getattr(it, 'id', getattr(it, 'nivel', '?'))}: fonte '{f}' inexistente")
         for s in self.setores:
-            for c in s.multiplicador_tef:
+            for c, m in s.multiplicador_tef.items():
                 if c not in cenarios:
                     erros.append(f"setor {s.id}: multiplicador para cenário inexistente '{c}'")
+                if m.fonte not in fontes:
+                    erros.append(f"setor {s.id}.{c}: fonte '{m.fonte}' inexistente")
+            if s.multiplicador_custo_registro.fonte not in fontes:
+                erros.append(f"setor {s.id}: fonte '{s.multiplicador_custo_registro.fonte}' do custo por registro inexistente")
+
+        niveis = sorted(self.portes, key=lambda x: x.nivel)
+        if niveis and niveis[0].rob_min != 0:
+            erros.append("portes: o nível 1 deve começar em ROB 0")
+        for a, b in itertools.pairwise(niveis):
+            if a.rob_max != b.rob_min:
+                erros.append(f"portes: faixas de ROB descontínuas entre os níveis {a.nivel} e {b.nivel}")
         for p in self.perguntas:
-            for c in p.cenarios:
+            for c in list(p.cenarios) + [c for v in p.variantes for c in (v.cenarios or {})]:
                 if c not in cenarios:
                     erros.append(f"pergunta {p.id}: cenário inexistente '{c}'")
             if p.controle not in controles:

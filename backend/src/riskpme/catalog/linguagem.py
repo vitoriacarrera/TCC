@@ -37,16 +37,52 @@ def _textos_exibidos(cat: Catalogo):
     for p in cat.perguntas:
         yield p.id, "texto", p.texto
         yield p.id, "ajuda", p.ajuda
+        for i, v in enumerate(p.variantes):
+            for campo in ("texto", "ajuda"):
+                if getattr(v, campo):
+                    yield f"{p.id}.variante{i + 1}", campo, getattr(v, campo)
     for bloco in ("financeiro", "ativos", "calibracao_risco"):
         for q in cat.contexto.get(bloco, []):
-            yield q["id"], "texto", q["texto"]
-            if q.get("ajuda"):
-                yield q["id"], "ajuda", q["ajuda"]
+            for campo in ("texto", "ajuda", "como_calcular", "onde_encontrar", "mensagem_porte", "mensagem_padrao"):
+                if q.get(campo):
+                    yield q["id"], campo, q[campo]
             for op in q.get("opcoes", []):
                 yield f"{q['id']}.{op['id']}", "rotulo", op["rotulo"]
     for c in cat.cenarios:
         yield c.id, "descricao", c.descricao
         yield c.id, "nome", c.nome
+
+
+TRAVESSAO = "\u2014"
+
+
+def _textos_com_recomendacoes(cat: Catalogo):
+    """Tudo o que o gestor lê, inclusive recomendações, glossário, selos e aviso legal."""
+    yield from _textos_exibidos(cat)
+    yield "instrucoes", "texto", cat.instrucoes.texto
+    yield "aviso_legal", "texto", cat.aviso_legal
+    for o in cat.escala:
+        yield "escala", "rotulo", o.rotulo
+    for p in cat.perguntas:
+        yield p.id, "recomendacao", p.recomendacao
+        for i, v in enumerate(p.variantes):
+            if v.recomendacao:
+                yield f"{p.id}.variante{i + 1}", "recomendacao", v.recomendacao
+    for t in cat.glossario.termos:
+        yield f"glossario.{t.id}", "termo", t.termo
+        yield f"glossario.{t.id}", "explicacao", t.explicacao
+        if t.exemplo:
+            yield f"glossario.{t.id}", "exemplo", t.exemplo
+    for c in cat.glossario.conceitos_resultado:
+        yield f"glossario.{c.id}", "explicacao", c.explicacao
+    for q in cat.contexto.get("ativos", []):
+        for op in q.get("opcoes", []):
+            if op.get("selo"):
+                yield f"{q['id']}.{op['id']}", "selo", op["selo"]
+    selo = cat.contexto.get("matriz", {}).get("selo_ruptura", {})
+    for campo in ("texto", "transferencia"):
+        if selo.get(campo):
+            yield "matriz.selo_ruptura", campo, selo[campo]
 
 
 def verificar_linguagem(cat: Catalogo) -> tuple[list[str], list[str]]:
@@ -65,6 +101,11 @@ def verificar_linguagem(cat: Catalogo) -> tuple[list[str], list[str]]:
         for termo in g.evitar_no_texto:
             if contem(texto, termo):
                 erros.append(f"{origem}.{campo}: usa '{termo}' — troque por linguagem simples (RNF04)")
+
+    # 2b. Sem travessão em nada que o gestor lê (revisão Q-TRAVESSAO): soa artificial e é pouco usual.
+    for origem, campo, texto in _textos_com_recomendacoes(cat):
+        if TRAVESSAO in texto:
+            erros.append(f"{origem}.{campo}: usa travessão (—); reescreva com vírgula, dois-pontos ou parênteses")
 
     # 3. Tamanho: perguntas e ajudas curtas, legíveis no celular.
     for p in cat.perguntas:

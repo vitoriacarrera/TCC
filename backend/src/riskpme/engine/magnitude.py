@@ -18,16 +18,15 @@ from .distribuicoes import amostrar_lognormal, amostrar_pert, lognormal_parametr
 class Contexto:
     """Dados da empresa coletados no Módulo de Entrada (RF02, RF05)."""
 
-    faturamento_anual: float
+    faturamento_anual: float        # Receita Operacional Bruta anual (pergunta `receita_operacional_bruta`)
     custo_hora_parada: float
     registros_pessoais: int
-    fator_tipo_dado: float = 1.0
 
     def __post_init__(self) -> None:
         if self.faturamento_anual <= 0:
             raise ValueError("faturamento_anual deve ser positivo")
-        if self.custo_hora_parada < 0 or self.registros_pessoais < 0 or self.fator_tipo_dado <= 0:
-            raise ValueError("contexto com valores negativos ou fator de tipo de dado inválido")
+        if self.custo_hora_parada < 0 or self.registros_pessoais < 0:
+            raise ValueError("contexto com valores negativos")
 
 
 def pontos_primaria(cen: Cenario, ctx: Contexto) -> tuple[float, float, float]:
@@ -42,7 +41,7 @@ def pontos_primaria(cen: Cenario, ctx: Contexto) -> tuple[float, float, float]:
 def pontos_secundaria(cen: Cenario, ctx: Contexto, setor: Setor) -> tuple[float, float, float]:
     """(mediana, p95, teto) da perda secundária em R$, dado que ela ocorre."""
     ps = cen.perda_secundaria
-    custo_registro = ctx.registros_pessoais * setor.multiplicador_custo_registro * ctx.fator_tipo_dado
+    custo_registro = ctx.registros_pessoais * setor.custo_registro   # tipo de dado não pesa (revisão C-DADO)
 
     def valor(ponto) -> float:
         return ponto.por_registro * custo_registro + ponto.pct_faturamento * ctx.faturamento_anual + ponto.fixo

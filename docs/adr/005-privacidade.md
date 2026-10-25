@@ -14,7 +14,7 @@ analisar como PMEs de diferentes setores e portes responderam ao questionário.
    "Autorizo o uso anônimo das minhas respostas para pesquisa acadêmica". Só então é gravado, por um endpoint
    separado (`POST /contribuicoes`):
    - setor, nível de porte (1–4), respostas 0–4/"não sei" por id de pergunta, versão do catálogo, mês/ano;
-   - **não** são gravados: faturamento ou outros valores financeiros, nº de registros, ativo crítico, IP,
+   - **não** são gravados: faturamento ou outros valores financeiros, nº de registros, nº de usuários, ativo crítico, IP,
      user-agent, horário exato, texto livre, qualquer id que ligue a contribuição à sessão.
 3. **Minimização contra reidentificação:** análises publicadas só por agregados com n ≥ 5 por célula
    setor × porte; células menores são agrupadas.

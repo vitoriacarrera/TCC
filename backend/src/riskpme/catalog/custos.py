@@ -2,7 +2,9 @@
 
 custo_anual = Σ licenças + (horas_implantacao / vida_util + horas_anuais + horas_por_usuario × usuarios) × custo_hora
 
-Preços de licença, câmbio e custo da hora têm fonte pública; as horas de esforço são estimativas declaradas.
+`usuarios` é informado pelo gestor (pergunta `usuarios_ti` de audit/contexto.yaml); não há mais valor por porte.
+Preços de licença, câmbio e custo da hora têm fonte pública; as horas de esforço e o volume de dados por usuário
+são estimativas declaradas.
 """
 
 from __future__ import annotations
@@ -24,8 +26,7 @@ class _Base(BaseModel):
 class ParametrosCusto(_Base):
     cambio_usd_brl: Positivo
     vida_util_anos: Positivo
-    usuarios: tuple[int, int, int, int]
-    dados_tb: PorPorte
+    gb_por_usuario: Positivo
     custo_hora: PorPorte
     fonte: list[str]
 
@@ -73,6 +74,7 @@ class ModeloCusto(_Base):
     precos: list[Preco]
     controles: dict[str, ComposicaoControle]
     referencia_cis_ig1_usd: PorPorte
+    referencia_cis_ig1_empregados: tuple[int, int, int, int]
 
     @model_validator(mode="after")
     def _consistencia(self) -> ModeloCusto:
@@ -100,6 +102,7 @@ class ModeloCusto(_Base):
 class CustoDetalhado:
     controle: str
     porte: int
+    usuarios: int
     licencas: float
     mao_de_obra: float
     horas_ano: float
@@ -110,18 +113,28 @@ class CustoDetalhado:
         return self.licencas + self.mao_de_obra
 
 
-def custo_licenca_anual(modelo: ModeloCusto, preco: Preco, porte: int) -> float:
+def volume_backup_tb(modelo: ModeloCusto, usuarios: int) -> float:
+    """Volume a proteger em backup (TB) = usuários × GB por usuário ÷ 1024."""
+    return usuarios * modelo.parametros.gb_por_usuario / 1024
+
+
+def custo_licenca_anual(modelo: ModeloCusto, preco: Preco, usuarios: int) -> float:
     par = modelo.parametros
     fator_moeda = par.cambio_usd_brl if preco.moeda == "USD" else 1.0
     quantidade = {
-        "usuario_mes": par.usuarios[porte - 1],
-        "tb_mes": par.dados_tb[porte - 1],
+        "usuario_mes": usuarios,
+        "tb_mes": volume_backup_tb(modelo, usuarios),
         "mes": 1,
     }[preco.unidade]
     return preco.valor * fator_moeda * quantidade * 12
 
 
-def custo_controle(modelo: ModeloCusto, controle_id: str, porte: int) -> CustoDetalhado:
+def custo_controle(modelo: ModeloCusto, controle_id: str, porte: int, usuarios: int) -> CustoDetalhado:
+    """Custo anual (R$) de um controle para uma empresa do `porte` com `usuarios` pessoas usando TI."""
+    if porte not in (1, 2, 3, 4):
+        raise ValueError(f"porte deve ser 1 a 4, recebido {porte}")
+    if usuarios < 1:
+        raise ValueError(f"usuarios deve ser ≥ 1, recebido {usuarios}")
     if controle_id not in modelo.controles:
         raise KeyError(f"controle {controle_id} sem composição de custo em custos.yaml")
     comp = modelo.controles[controle_id]
@@ -132,14 +145,26 @@ def custo_controle(modelo: ModeloCusto, controle_id: str, porte: int) -> CustoDe
     for lic in comp.licencas:
         if porte in lic.portes:
             preco = modelo.preco(lic.preco)
-            itens.append((preco.descricao, custo_licenca_anual(modelo, preco, porte)))
+            itens.append((preco.descricao, custo_licenca_anual(modelo, preco, usuarios)))
     horas = (comp.horas_implantacao[i] / par.vida_util_anos + comp.horas_anuais[i]
-             + comp.horas_por_usuario_ano * par.usuarios[i])
+             + comp.horas_por_usuario_ano * usuarios)
     return CustoDetalhado(
         controle=controle_id,
         porte=porte,
+        usuarios=usuarios,
         licencas=sum(v for _, v in itens),
         mao_de_obra=horas * par.custo_hora[i],
         horas_ano=horas,
         itens=tuple(itens),
     )
+
+
+def custo_fixo_e_por_usuario(modelo: ModeloCusto, controle_id: str, porte: int) -> tuple[float, float]:
+    """Decompõe o custo (linear em usuários) em parte fixa + parte por usuário — usado na memória de cálculo.
+
+    custo(u) = fixo + por_usuario × u  ⇒  por_usuario = custo(2) − custo(1);  fixo = custo(1) − por_usuario.
+    """
+    c1 = custo_controle(modelo, controle_id, porte, 1).total
+    c2 = custo_controle(modelo, controle_id, porte, 2).total
+    por_usuario = c2 - c1
+    return c1 - por_usuario, por_usuario

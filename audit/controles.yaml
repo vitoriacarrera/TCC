@@ -36,5 +36,4 @@ controles:
   - { id: "8.20", nome: "Segurança de redes",                                tipo: preventivo, esforco: medio }
   - { id: "8.22", nome: "Segregação de redes",                               tipo: preventivo, esforco: medio }
   - { id: "8.23", nome: "Filtragem da web",                                  tipo: preventivo, esforco: baixo }
-  - { id: "8.24", nome: "Uso de criptografia",                               tipo: preventivo, esforco: baixo }
   - { id: "8.28", nome: "Codificação segura",                                tipo: preventivo, esforco: medio }

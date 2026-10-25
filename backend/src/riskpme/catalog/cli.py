@@ -12,6 +12,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from .custos import custo_fixo_e_por_usuario
 from .loader import carregar_catalogo
 from .models import NIVEIS_PORTE, Catalogo
 from .validate import validar
@@ -33,6 +34,13 @@ def _cmd_validar(cat: Catalogo) -> int:
         )
         print(f"porte {porte}  {linha}")
 
+    if r.pendentes or r.julgamento:
+        print("\nParâmetros sem dado (vão para as Limitações do TCC)")
+        for x in r.pendentes:
+            print(f"  PENDENTE: {x}")
+        for x in r.julgamento:
+            print(f"  JULGAMENTO: {x}")
+
     for a in r.avisos:
         print(f"AVISO: {a}")
     for e in r.erros:
@@ -41,8 +49,8 @@ def _cmd_validar(cat: Catalogo) -> int:
     return 0 if r.ok else 1
 
 
-def _cmd_questionario(cat: Catalogo, porte: int, setor: str) -> int:
-    perguntas = cat.questionario(porte, setor)
+def _cmd_questionario(cat: Catalogo, porte: int, setor: str, usuarios: int | None = None) -> int:
+    perguntas = cat.questionario(porte, setor, usuarios)
     print(f"{cat.porte(porte).nome} · {cat.setor(setor).nome} — {len(perguntas)} perguntas\n")
     for p in perguntas:
         pesos = ", ".join(f"{c}:{w}" for c, w in p.cenarios.items())
@@ -83,6 +91,20 @@ def _cmd_revisao(cat: Catalogo, destino: Path) -> int:
                  f" · setores: {setores_txt} · pesos: {pesos}"),
                 "",
             ]
+            for v in p.variantes:
+                cond = []
+                if v.quando.portes:
+                    cond.append("portes " + ", ".join(map(str, v.quando.portes)))
+                if v.quando.usuarios_max is not None:
+                    cond.append(f"até {v.quando.usuarios_max} usuário(s)")
+                linhas.append(f"**Variante ({'; '.join(cond)}):**")
+                linhas.append("")
+                for campo in ("texto", "ajuda", "recomendacao"):
+                    if getattr(v, campo):
+                        linhas.append(f"- {campo}: {getattr(v, campo)}")
+                if v.cenarios:
+                    linhas.append("- pesos: " + ", ".join(f"{c} {w}" for c, w in v.cenarios.items()))
+                linhas.append("")
     destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_text("\n".join(linhas) + "\n", encoding="utf-8")
     print(f"escrito {destino}")
@@ -91,6 +113,12 @@ def _cmd_revisao(cat: Catalogo, destino: Path) -> int:
 
 def _brl(v: float) -> str:
     return f"R$ {v:,.0f}".replace(",", ".")
+
+
+def _fixo_mais_usuario(fixo: float, por_usuario: float) -> str:
+    if por_usuario < 0.5:
+        return _brl(fixo)
+    return f"{_brl(fixo)} + {_brl(por_usuario)}/usuário"
 
 
 def _cmd_custos(cat: Catalogo, destino: Path) -> int:
@@ -108,8 +136,9 @@ def _cmd_custos(cat: Catalogo, destino: Path) -> int:
         "",
         f"- Câmbio: US$ 1 = R$ {par.cambio_usd_brl:.4f} (PTAX venda, [@bcb2026ptax])",
         f"- Vida útil da implantação: {par.vida_util_anos:g} anos",
-        f"- Usuários por porte: {', '.join(str(u) for u in par.usuarios)} ([@tcc1], Tabela 3.1)",
-        f"- Dados em backup (TB): {', '.join(f'{d:g}' for d in par.dados_tb)} (estimativa)",
+        ("- Usuários: informados pelo gestor (pergunta `usuarios_ti`); por isso cada custo é apresentado como"
+         " **parte fixa + parte por usuário**"),
+        f"- Volume de backup: usuários × {par.gb_por_usuario:g} GB ÷ 1024 (estimativa declarada)",
         "",
         "| Portes | Perfil | Salário P50 | Encargos | Custo/hora | Fonte |",
         "|---|---|---|---|---|---|",
@@ -121,14 +150,22 @@ def _cmd_custos(cat: Catalogo, destino: Path) -> int:
     L += ["", "## Preços de licença", "", "| Item | Preço | Unidade | Fonte |", "|---|---|---|---|"]
     for p in m.precos:
         L.append(f"| {p.descricao} | {p.moeda} {p.valor:,.2f} | {p.unidade} | [@{p.fonte}] |")
-    L += ["", "## Custo anual por controle (R$)", "",
+    L += ["", "## Custo anual por controle (R$): fixo + por usuário", "",
+          "custo_anual = fixo + por_usuário × usuários", "",
           "| ISO 27002 | Controle | MEI | ME | EPP | Média |", "|---|---|---|---|---|---|"]
-    totais = [0.0] * 4
+    fixos = [0.0] * 4
+    por_u = [0.0] * 4
     for c in cat.controles:
-        vals = [cat.custo_controle(c.id, p).total for p in NIVEIS_PORTE]
-        totais = [a + b for a, b in zip(totais, vals)]
-        L.append(f"| {c.id} | {c.nome} | " + " | ".join(_brl(v) for v in vals) + " |")
-    L.append("| | **Total (todos os controles)** | " + " | ".join(f"**{_brl(v)}**" for v in totais) + " |")
+        partes = [custo_fixo_e_por_usuario(m, c.id, p) for p in NIVEIS_PORTE]
+        fixos = [a + f for a, (f, _) in zip(fixos, partes)]
+        por_u = [a + u for a, (_, u) in zip(por_u, partes)]
+        L.append(f"| {c.id} | {c.nome} | " + " | ".join(_fixo_mais_usuario(f, u) for f, u in partes) + " |")
+    L.append("| | **Total (todos os controles)** | "
+             + " | ".join(f"**{_fixo_mais_usuario(f, u)}**" for f, u in zip(fixos, por_u)) + " |")
+    emp = m.referencia_cis_ig1_empregados
+    tot_ref = [f + u * e for f, u, e in zip(fixos, por_u, emp)]
+    L.append("| | Total com o nº de empregados do limite do Tier CIS | "
+             + " | ".join(f"{_brl(t)} ({e} usuários)" for t, e in zip(tot_ref, emp)) + " |")
     cis = [v * par.cambio_usd_brl for v in m.referencia_cis_ig1_usd]
     L.append("| | Teto CIS IG1 – ferramentas [@cis2025cost] | " + " | ".join(_brl(v) for v in cis) + " |")
     L += ["", "## Detalhamento", ""]
@@ -155,6 +192,7 @@ def main(argv: list[str] | None = None) -> int:
     q = sub.add_parser("questionario")
     q.add_argument("porte", type=int, choices=NIVEIS_PORTE)
     q.add_argument("setor")
+    q.add_argument("--usuarios", type=int, default=None, help="nº de usuários (ativa variantes, ex.: 1)")
     rv = sub.add_parser("revisao")
     rv.add_argument("destino", type=Path)
     cu = sub.add_parser("custos")
@@ -170,7 +208,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "validar":
         return _cmd_validar(cat)
     if args.cmd == "questionario":
-        return _cmd_questionario(cat, args.porte, args.setor)
+        return _cmd_questionario(cat, args.porte, args.setor, args.usuarios)
     if args.cmd == "custos":
         return _cmd_custos(cat, args.destino)
     return _cmd_revisao(cat, args.destino)

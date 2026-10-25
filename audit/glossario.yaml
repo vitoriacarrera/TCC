@@ -24,6 +24,8 @@ evitar_no_texto:
   - PCI DSS
   - endpoint
   - MFA
+  - MDM
+  - SLA
   - 2FA
   - 3-2-1
 
@@ -32,13 +34,13 @@ termos:
   - id: ransomware
     termo: "Ransomware (sequestro de dados)"
     aliases: [ransomware, "sequestro de dados"]
-    explicacao: "Tipo de vírus que tranca (criptografa) os arquivos e sistemas da empresa e exige um pagamento — o \"resgate\" — para devolvê-los. Muitas vezes os criminosos também copiam os dados e ameaçam divulgá-los."
+    explicacao: "Tipo de vírus que tranca (criptografa) os arquivos e sistemas da empresa e exige um pagamento, o \"resgate\", para devolvê-los. Muitas vezes os criminosos também copiam os dados e ameaçam divulgá-los."
     exemplo: "Numa segunda-feira, todos os computadores mostram uma mensagem pedindo pagamento em criptomoeda, e nenhum arquivo abre."
 
   - id: golpe_digital
     termo: "Golpe digital (phishing e engenharia social)"
     aliases: [phishing, "engenharia social", golpe, golpes, "e-mail falso", pretexting]
-    explicacao: "Mensagem falsa (e-mail, WhatsApp, SMS, ligação) que se passa por alguém de confiança — banco, fornecedor, chefe — para fazer a pessoa clicar num link, informar uma senha ou fazer um pagamento."
+    explicacao: "Mensagem falsa (e-mail, WhatsApp, SMS, ligação) que se passa por alguém de confiança, como banco, fornecedor ou chefe, para fazer a pessoa clicar num link, informar uma senha ou fazer um pagamento."
     exemplo: "Um \"fornecedor\" avisa por e-mail que mudou de banco e manda um boleto novo. O boleto é do golpista."
 
   - id: ddos
@@ -75,7 +77,7 @@ termos:
   - id: duas_etapas
     termo: "Verificação em duas etapas"
     aliases: ["duas etapas", "dois fatores", MFA, 2FA, "autenticação multifator"]
-    explicacao: "Além da senha, o sistema pede uma segunda confirmação — um código no celular, um aplicativo autenticador ou uma chave física. Mesmo que um criminoso descubra a senha, ele não entra sem o seu celular."
+    explicacao: "Além da senha, o sistema pede uma segunda confirmação: um código no celular, um aplicativo autenticador ou uma chave física. Mesmo que um criminoso descubra a senha, ele não entra sem o seu celular."
     exemplo: "Ao entrar no e-mail num computador novo, chega um código por aplicativo que você precisa digitar."
 
   - id: gerenciador_senhas
@@ -100,7 +102,7 @@ termos:
     termo: "Teste de restauração"
     aliases: [restaurar, restauração, "recuperar arquivos", "recuperação"]
     explicacao: "Usar de fato o backup para recuperar arquivos, para ter certeza de que ele funciona e saber quanto tempo leva. Muitos backups só se revelam incompletos no dia em que são necessários."
-    exemplo: "Uma vez por semestre, a empresa recupera uma pasta antiga do backup e confere se os arquivos abrem."
+    exemplo: "A cada três meses, a empresa recupera alguns arquivos do backup e confere se abrem; uma vez por ano, recupera uma pasta inteira."
 
   - id: atualizacao
     termo: "Atualização de segurança"
@@ -195,14 +197,14 @@ termos:
   - id: politica
     termo: "Política de segurança"
     aliases: ["regras escritas", política]
-    explicacao: "Um documento curto com as regras da empresa para usar computadores, senhas, e-mail e dados. Não precisa ser longo: uma ou duas páginas que todos leram e assinaram já ajudam."
+    explicacao: "Um documento curto com as regras da empresa para usar computadores, senhas, e-mail e dados. Não precisa ser longo: poucas páginas que todos leram e assinaram já ajudam."
     exemplo: "\"Não é permitido usar pendrive pessoal; senhas não podem ser anotadas em papel.\""
 
   - id: plano_resposta
     termo: "Plano de resposta a incidentes"
     aliases: ["plano de resposta", "o que fazer e quem chamar"]
     explicacao: "Um roteiro combinado antes do problema: quem avisar, o que desligar, quem chamar (TI, banco, advogado, polícia) e como falar com clientes. Na hora do susto, economiza horas e dinheiro."
-    exemplo: "Uma folha impressa na parede: \"1. Tire o cabo de rede. 2. Ligue para o técnico (número). 3. Avise o sócio.\""
+    exemplo: "Uma folha guardada na pasta da empresa e com o responsável, fora dos computadores: \"1. Tire o cabo de rede. 2. Ligue para o técnico (número). 3. Avise o sócio.\""
 
   - id: simulacao
     termo: "Simulação (exercício)"
@@ -239,12 +241,12 @@ termos:
     termo: "ANPD"
     aliases: [ANPD]
     explicacao: "Autoridade Nacional de Proteção de Dados: o órgão do governo que fiscaliza a LGPD e deve ser avisado quando um vazamento pode causar dano às pessoas."
-    exemplo: "Após um vazamento de dados de pacientes, a clínica tem prazo para comunicar a ANPD."
+    exemplo: "Após um vazamento de dados de pacientes, a clínica tem 3 dias úteis (o dobro para micro e pequenas empresas) para comunicar a ANPD."
 
   - id: encarregado
     termo: "Encarregado de dados (DPO)"
     aliases: [encarregado, DPO]
-    explicacao: "Pessoa indicada pela empresa como ponto de contato sobre dados pessoais, com clientes e com a ANPD. Pequenas empresas têm regras simplificadas e, em muitos casos, são dispensadas."
+    explicacao: "Pessoa ou serviço indicado pela empresa como ponto de contato sobre dados pessoais, com clientes e com a ANPD. Microempresas e empresas de pequeno porte são dispensadas de indicar, mas precisam ter um canal de contato para os clientes; médias empresas precisam indicar."
     exemplo: "\"Dúvidas sobre seus dados: privacidade@suaempresa.com.br\" no site."
 
   - id: dado_pessoal
@@ -266,7 +268,7 @@ termos:
     exemplo: "Pagamentos pela maquininha do adquirente ou pelo checkout da plataforma de e-commerce."
 
   - id: med
-    termo: "MED — Mecanismo Especial de Devolução do PIX"
+    termo: "MED: Mecanismo Especial de Devolução do PIX"
     aliases: [MED, PIX]
     explicacao: "Procedimento do Banco Central que permite ao banco bloquear e tentar devolver um PIX feito por golpe. Quanto mais rápido o banco é avisado, maior a chance de recuperar o dinheiro."
     exemplo: "Ao perceber o golpe, ligar imediatamente para o banco e pedir a abertura do MED."
@@ -290,11 +292,49 @@ termos:
     explicacao: "Conferência, feita por pessoas e por ferramentas automáticas, para encontrar falhas de segurança no programa antes de ele ser entregue ao cliente."
     exemplo: "Toda alteração no código passa por outro desenvolvedor e por uma ferramenta que procura falhas conhecidas."
 
+
+  # ---------------------------------------------------------------- revisão da Etapa 1 (G3)
+  - id: receita_bruta
+    termo: "Receita bruta (ROB)"
+    aliases: ["receita bruta", ROB, "receita operacional bruta"]
+    explicacao: "Tudo o que a empresa recebeu com vendas e serviços no ano, antes de descontar impostos, custos e despesas. É o valor usado no Simples Nacional e, aqui, para identificar o porte da empresa."
+    exemplo: "Soma das notas fiscais de venda e de serviço dos últimos 12 meses, menos as vendas canceladas."
+
+  - id: varredura
+    termo: "Varredura de vulnerabilidades"
+    aliases: ["varredura de vulnerabilidades", "teste de invasão", pentest]
+    explicacao: "Verificação feita por um especialista, com ferramentas, para encontrar falhas de segurança já conhecidas no site e nos sistemas acessíveis pela internet, sem invadir nada. É diferente do teste de invasão, em que o especialista tenta de fato entrar, que é mais caro."
+    exemplo: "Um relatório trimestral mostra que o sistema da loja virtual está numa versão com falha grave e indica a correção."
+
+  - id: gestao_dispositivos
+    termo: "Gestão de dispositivos (MDM)"
+    aliases: [MDM, "gestão de dispositivos", "apagar os dados à distância"]
+    explicacao: "Ferramenta que permite à empresa configurar e proteger notebooks e celulares de trabalho à distância: exigir senha, ativar a criptografia e apagar os dados se o aparelho for perdido ou roubado."
+    exemplo: "Um vendedor perde o celular da empresa no ônibus e o técnico apaga os dados do aparelho no mesmo dia."
+
+  - id: classificacao_alertas
+    termo: "Classificação de alertas por gravidade"
+    aliases: [gravidade, "prazo de atendimento", criticidade, SLA]
+    explicacao: "Regra combinada com um especialista que separa os alertas de segurança em níveis (por exemplo, crítico, alto, médio e baixo) e define em quanto tempo cada nível precisa ser atendido. Assim a equipe cuida primeiro do que importa, sem ficar sobrecarregada."
+    exemplo: "Vírus ativo num computador: atender em até 1 hora. Aviso de senha fraca: atender na semana."
+
+  - id: acesso_remoto
+    termo: "Acesso remoto"
+    aliases: ["acesso remoto", AnyDesk, TeamViewer]
+    explicacao: "Programa que permite a alguém usar um computador da empresa a distância, pela internet. É útil para o suporte técnico, mas, se fica sempre ligado ou com senha compartilhada, vira uma porta de entrada para criminosos."
+    exemplo: "O técnico usa um programa de acesso remoto para consertar o computador da recepção sem sair do escritório dele."
+
+  - id: anonimizar
+    termo: "Anonimizar dados"
+    aliases: [anonimizar, anonimização, anonimizado, anonimize]
+    explicacao: "Retirar de um dado tudo o que permite identificar a pessoa, de forma que não seja possível voltar atrás. Dado anonimizado deixa de ser dado pessoal pela LGPD."
+    exemplo: "Manter só \"cliente de Belo Horizonte, 35 anos, comprou em março\", sem nome, CPF ou contato."
+
 # Conceitos exibidos na tela de resultados e no relatório (RF10, RF11, RF12).
 conceitos_resultado:
   - id: cenario_risco
     termo: "Cenário de risco"
-    explicacao: "Uma história do que pode dar errado — por exemplo, \"um vírus tranca os computadores\". A ferramenta estima, para cada cenário, com que frequência ele pode acontecer e quanto custaria."
+    explicacao: "Uma história do que pode dar errado, por exemplo \"um vírus tranca os computadores\". A ferramenta estima, para cada cenário, com que frequência ele pode acontecer e quanto custaria."
   - id: maturidade
     termo: "Maturidade de segurança"
     explicacao: "Uma nota de 0% a 100% calculada a partir das suas respostas: quanto mais proteções a empresa já tem, maior a maturidade e menor a chance de um ataque dar certo."
@@ -306,7 +346,7 @@ conceitos_resultado:
     explicacao: "A média do prejuízo anual considerando todos os anos simulados, inclusive aqueles em que nada acontece. Serve para comparar com o custo de se proteger."
   - id: p90
     termo: "Perda num ano ruim (P90)"
-    explicacao: "O valor de prejuízo que só é ultrapassado em 1 de cada 10 anos. É o \"pior cenário razoável\" usado para colorir o mapa de calor: não é o pior caso possível, mas um ano ruim realista."
+    explicacao: "O valor de prejuízo que só é ultrapassado em 1 de cada 10 anos em que o problema acontece. É o \"pior cenário razoável\" usado no mapa de calor: não é o pior caso possível, mas um resultado ruim e realista."
   - id: apetite
     termo: "Apetite ao risco"
     explicacao: "Quanto a empresa aceita perder num ano ruim sem mudar os planos. Riscos abaixo disso podem ser apenas acompanhados."
@@ -315,19 +355,22 @@ conceitos_resultado:
     explicacao: "O limite de perda a partir do qual a continuidade da empresa fica ameaçada. Riscos acima disso são críticos e pedem ação imediata."
   - id: mapa_calor
     termo: "Mapa de calor"
-    explicacao: "Quadro que posiciona cada cenário pela chance de acontecer (eixo horizontal) e pelo prejuízo num ano ruim (eixo vertical). Verde: aceitável; amarelo: atenção; laranja: acima do apetite; vermelho: acima da tolerância."
+    explicacao: "Quadro de 3 × 3 que posiciona cada cenário pela chance de acontecer no ano (rara, possível ou provável) e pelo prejuízo num ano em que ele acontece (abaixo do apetite, entre o apetite e a tolerância, ou acima da tolerância). Verde: aceitável, basta acompanhar. Amarelo: atenção. Vermelho: agir primeiro."
   - id: monte_carlo
     termo: "Simulação de Monte Carlo"
-    explicacao: "Em vez de dar um único número, a ferramenta \"sorteia\" 10.000 anos possíveis para a sua empresa — em alguns nada acontece, em outros há um ou mais incidentes de tamanhos diferentes — e resume o resultado. É como jogar um dado milhares de vezes para entender quais resultados são comuns e quais são raros."
+    explicacao: "Em vez de dar um único número, a ferramenta \"sorteia\" 10.000 anos possíveis para a sua empresa (em alguns nada acontece, em outros há um ou mais incidentes de tamanhos diferentes) e resume o resultado. É como jogar um dado milhares de vezes para entender quais resultados são comuns e quais são raros."
   - id: perda_primaria
     termo: "Prejuízo direto"
     explicacao: "O que a própria empresa gasta ou deixa de ganhar com o incidente: horas paradas, técnico, recuperação de sistemas, dinheiro desviado."
   - id: perda_secundaria
     termo: "Prejuízo com terceiros"
-    explicacao: "O que vem da reação de outras pessoas ao incidente: clientes que vão embora, indenizações, multas da ANPD, comunicação aos afetados. Nem sempre acontece, mas quando acontece pode ser muito alto — por isso é simulado separadamente."
+    explicacao: "O que vem da reação de outras pessoas ao incidente: clientes que vão embora, indenizações, multas da ANPD, comunicação aos afetados. Nem sempre acontece, mas quando acontece pode ser muito alto, por isso é simulado separadamente."
   - id: reducao_risco
     termo: "Redução de perda esperada"
     explicacao: "Quanto a perda esperada por ano cai se a empresa melhorar aquele ponto do questionário."
+  - id: limite_investimento
+    termo: "Limite de investimento"
+    explicacao: "Referência de quanto vale a pena investir em proteção. Pelo modelo de Gordon e Loeb, gastar mais do que cerca de um terço da perda esperada por ano raramente compensa, porque a proteção passa a custar mais do que evita."
   - id: retorno_investimento
     termo: "Retorno sobre o investimento (ROI)"
     explicacao: "Compara quanto a proteção economiza por ano com quanto ela custa por ano. ROI de 200% quer dizer que cada R$ 1 investido evita, em média, R$ 3 de perda (R$ 1 de volta + R$ 2 de ganho)."
