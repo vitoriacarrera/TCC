@@ -6,6 +6,7 @@ fontes:
     titulo: "IBM Security — Cost of a Data Breach Report 2025 (recorte Brasil)"
     url: https://brasil.newsroom.ibm.com/2025-07-30-Relatorio-da-IBM-Custo-medio-de-uma-violacao-de-dados-no-Brasil-atinge-R-7,19-milhoes
     dados:
+      - "Global: ciclo de vida médio de 241 dias; ciclo < 200 dias US$ 3,61 mi × > 200 dias US$ 5,49 mi (−34,2%; valor de fonte secundária, conferir no PDF antes de citar)"
       - "Custo médio de violação no Brasil: R$ 7,19 mi (2024: R$ 6,75 mi)"
       - "Por setor no Brasil: saúde R$ 11,43 mi; financeiro R$ 8,92 mi; serviços R$ 8,51 mi"
       - "Vetores: phishing 18% (R$ 7,18 mi); terceiros/cadeia de suprimentos 15% (R$ 8,98 mi); exploração de vulnerabilidade 13% (R$ 7,61 mi)"
@@ -44,6 +45,7 @@ fontes:
     titulo: "FBI IC3 — Internet Crime Report 2024"
     url: https://www.ic3.gov/AnnualReport/Reports/2024_IC3Report.pdf
     dados:
+      - "Recovery Asset Team: US$ 561,6 mi congelados em 3.020 casos, cerca de dois terços do valor-alvo (sensibilidade da redução na fraude)"
       - "Business Email Compromise (BEC): ~US$ 2,8 bi em perdas reportadas em 2024, segunda maior categoria"
 
   - id: lgpd
@@ -143,6 +145,53 @@ fontes:
       - "Funções Responder (RS) e Recuperar (RC): agir sobre um incidente detectado e restaurar ativos e operações afetados"
       - "PR.DS-11: backups dos dados são criados, protegidos, mantidos e testados"
       - "PR.IR-03: mecanismos implementados para atender aos requisitos de resiliência em situações normais e adversas"
+
+  - id: faircam2025
+    titulo: "FAIR Institute — FAIR Controls Analytics Model (FAIR-CAM) Standard v1.0 (jan. 2025)"
+    url: https://www.fairinstitute.org/hubfs/Standards%20Artifacts/FAIR%20Controls%20Analytics%20Model%20(FAIR-CAM)%20Standard%20V1.0%20(January%202025).pdf
+    dados:
+      - "Controles de evento de perda em três funções: Prevenção (evitar, dissuadir, resistir), Detecção (visibilidade, monitoramento, reconhecimento) e Resposta (contenção, resiliência, redução de perda)"
+      - "Detecção e Resposta reduzem a magnitude da perda quando um evento ocorre (An Overview of FAIR-CAM, FAIR Institute, 2023)"
+
+  - id: sophos2023
+    titulo: "Sophos — The State of Ransomware 2023"
+    url: https://www.sophos.com/en-us/content/state-of-ransomware
+    dados:
+      - "Custo de recuperação: US$ 375 mil para quem usou backup × US$ 750 mil para quem pagou o resgate"
+      - "Recuperação em até uma semana: 45% (backup) × 39% (pagou resgate)"
+      - "3.000 líderes de TI/segurança, empresas de 100 a 5.000 funcionários, 14 países, jan.–mar. 2023 (Vanson Bourne)"
+    limitacao: "Comparação entre grupos, não experimento; empresas que recuperam por backup tendem a ser mais maduras."
+
+  - id: sophos2024backups
+    titulo: "Sophos — The Impact of Compromised Backups on Ransomware Outcomes (mar. 2024)"
+    url: https://assets.sophos.com/X24WTUEQ/at/539j6fwcmx6wk6whnhxc47/sophos-the-impact-of-compromised-backups-on-ransomware-outcomes-wp.pdf
+    dados:
+      - "Custo mediano de recuperação: US$ 375 mil com backups intactos × US$ 3 mi com backups comprometidos"
+      - "Recuperação em até uma semana: 46% × 26%; pagaram resgate: 36% × 67%"
+      - "2.974 respondentes atingidos por ransomware, 14 países, jan.–fev. 2024 (Vanson Bourne)"
+
+  - id: ibm2024
+    titulo: "IBM — Cost of a Data Breach Report 2024"
+    url: https://www.ibm.com/reports/data-breach
+    dados:
+      - "Violação identificada pela própria equipe de segurança: US$ 4,55 mi; revelada pelo atacante: US$ 5,53 mi"
+      - "Ciclo de vida acima de 200 dias: US$ 5,46 mi"
+    limitacao: "Amostra de grandes organizações; usamos só a razão entre grupos."
+
+  - id: bcbmed2025
+    titulo: "Banco Central do Brasil (via Economic News Brasil, 14/12/2025) — Mecanismo Especial de Devolução (MED) do Pix"
+    url: https://economicnewsbrasil.com.br/2025/12/14/fraude-no-pix-contestacoes-devolucao/
+    dados:
+      - "Valor devolvido: 9,2% do contestado (média mensal jan.–ago. 2025); 7,1% em nov. 2025"
+      - "Cerca de 80% das negativas por saldo insuficiente na conta do fraudador"
+    limitacao: "Dado do Banco Central reportado pela imprensa; substituir pela publicação oficial do BCB se disponível."
+
+  - id: anpd2023dosimetria
+    titulo: "ANPD — Resolução CD/ANPD nº 4/2023 (Regulamento de Dosimetria e Aplicação de Sanções Administrativas)"
+    url: https://www.gov.br/anpd/pt-br
+    dados:
+      - "Atenuantes: política de boas práticas e governança (20%); mecanismos internos para minimizar o dano (20%); reversão ou mitigação dos efeitos antes (20%) ou depois (10%) da decisão de 1ª instância; cooperação e boa-fé (5%); cessação da infração (75%, 50% ou 30%, conforme o momento)"
+    limitacao: "Uso qualitativo (pergunta RS-02): o modelo não separa a parcela da perda secundária que é multa."
 
   - id: cert2024cartilha
     titulo: "CERT.br — Cartilha de Segurança para Internet (fascículos)"

@@ -3,7 +3,8 @@
 Para cada cenário c do perfil:
     LEF_c = TEF_c × V_c,  TEF_c = tef_base × mult_setor × mult_porte,  V_c pela maturidade (maturidade.py)
     N_c ~ Poisson(LEF_c) eventos no ano; cada evento custa Perda Primária (PERT) + Perda Secundária (Bernoulli ×
-    Lognormal com teto) — magnitude.py.
+    Lognormal com teto) — magnitude.py —, multiplicadas pelos fatores de preparação (revisão MAG, ADR-014).
+A maturidade de PREVENÇÃO define V; a de RESPOSTA define os fatores de magnitude.
 Saídas por cenário: chance no ano P(N ≥ 1) = 1 − e^(−LEF), chance no horizonte da matriz 1 − e^(−H × LEF)
 (H = 5 anos, revisão M1), perda esperada por ano, P90 da perda nos anos em que o cenário acontece (N ~ Poisson
 truncada em zero, para não sumir com cenários raros) e a célula da matriz (probabilidade pela chance no horizonte).
@@ -18,7 +19,7 @@ from dataclasses import asdict, dataclass, field
 import numpy as np
 
 from ..catalog.models import Catalogo
-from .magnitude import amostrar_perdas_evento
+from .magnitude import amostrar_perdas_evento, fatores_magnitude
 from .maturidade import Respostas, maturidade_por_cenario, nao_sei, vulnerabilidade
 from .perfil import Perfil, PerfilResolvido, resolver
 
@@ -29,8 +30,11 @@ PERCENTIS_CURVA = (50, 75, 90, 95, 99)
 class ResultadoCenario:
     id: str
     nome: str
-    maturidade: float
+    maturidade: float               # de prevenção (define a vulnerabilidade)
+    maturidade_resposta: float      # de detecção e resposta (define a redução do prejuízo)
     vulnerabilidade: float
+    fator_primaria: float           # multiplicador da perda primária pela preparação (1 = sem redução)
+    fator_secundaria: float
     lef: float                      # eventos de perda esperados por ano
     chance_ano: float               # P(≥ 1 evento no ano)
     chance_horizonte: float         # P(≥ 1 evento nos próximos H anos): eixo de probabilidade da matriz (M1)
@@ -118,6 +122,15 @@ def lef_por_cenario(cat: Catalogo, res: PerfilResolvido, respostas: Respostas) -
     return mat, vul, lef
 
 
+def fatores_por_cenario(cat: Catalogo, res: PerfilResolvido,
+                        respostas: Respostas) -> tuple[dict[str, float], dict[str, tuple[float, float]]]:
+    """(maturidade de resposta, (fator primária, fator secundária)) por cenário."""
+    perguntas = cat.questionario(res.porte, res.setor, res.usuarios)
+    mat = maturidade_por_cenario(cat, perguntas, respostas, "magnitude")
+    fat = {c.id: fatores_magnitude(c, res.contexto, cat.parametros_modelo, mat[c.id]) for c in cat.cenarios}
+    return mat, fat
+
+
 def simular(cat: Catalogo, perfil: Perfil, respostas: Respostas, iteracoes: int | None = None,
             semente: int | None = None) -> Resultado:
     res = resolver(cat, perfil)
@@ -125,6 +138,7 @@ def simular(cat: Catalogo, perfil: Perfil, respostas: Respostas, iteracoes: int 
     rng = np.random.default_rng(semente)
     setor = cat.setor(res.setor)
     mat, vul, lef = lef_por_cenario(cat, res, respostas)
+    mat_resp, fat = fatores_por_cenario(cat, res, respostas)
     destaca = set(next(op for q in cat.contexto["ativos"] if q["id"] == "ativo_critico"
                        for op in q["opcoes"] if op["id"] == res.ativo_critico).get("destaca", []))
 
@@ -137,20 +151,23 @@ def simular(cat: Catalogo, perfil: Perfil, respostas: Respostas, iteracoes: int 
         n_ano = rng.poisson(lam, n)
         k = int(n_ano.sum())
         if k:
-            prim, sec = amostrar_perdas_evento(rng, c, res.contexto, setor, cat.parametros_modelo, k)
+            prim, sec = amostrar_perdas_evento(rng, c, res.contexto, setor, cat.parametros_modelo, k, fat[c.id])
             anual = _somar_por_ano(n_ano, prim + sec)
         else:
             anual = np.zeros(n)
         total += anual
         # anos em que o cenário acontece (P90 do impacto)
         n_cond = poisson_truncada(rng, lam, n)
-        prim, sec = amostrar_perdas_evento(rng, c, res.contexto, setor, cat.parametros_modelo, int(n_cond.sum()))
+        prim, sec = amostrar_perdas_evento(rng, c, res.contexto, setor, cat.parametros_modelo, int(n_cond.sum()),
+                                           fat[c.id])
         p90 = float(np.percentile(_somar_por_ano(n_cond, prim + sec), cat.parametros_modelo.percentil_mapa_calor))
         chance = chance_em(lam, 1)
         chance_h = chance_em(lam, h)
         imp, prob, cor, rup = _niveis(cat, p90, chance_h, res)
         saidas.append(ResultadoCenario(
-            id=c.id, nome=c.nome, maturidade=mat[c.id], vulnerabilidade=vul[c.id], lef=lam, chance_ano=chance,
+            id=c.id, nome=c.nome, maturidade=mat[c.id], maturidade_resposta=mat_resp[c.id],
+            vulnerabilidade=vul[c.id], fator_primaria=fat[c.id][0], fator_secundaria=fat[c.id][1],
+            lef=lam, chance_ano=chance,
             chance_horizonte=chance_h, perda_esperada=float(anual.mean()), p90_quando_ocorre=p90,
             nivel_impacto=imp, nivel_probabilidade=prob, cor=cor, ruptura=rup, destaque=c.id in destaca))
 

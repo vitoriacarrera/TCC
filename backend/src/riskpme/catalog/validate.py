@@ -113,15 +113,28 @@ def _validar_contexto(cat: Catalogo, r: Relatorio) -> None:
     elif h != cat.custos.parametros.vida_util_anos:
         r.avisos.append(f"contexto.yaml: horizonte da matriz ({h} anos) diferente da vida útil dos controles "
                         f"({cat.custos.parametros.vida_util_anos:g} anos em custos.yaml)")
-    sr = m.get("selo_ruptura", {})
-    prep = sr.get("preparacao", {})
-    if not sr.get("texto_preparacao"):
+    if not m.get("selo_ruptura", {}).get("texto_preparacao"):
         r.erros.append("contexto.yaml: matriz.selo_ruptura sem texto_preparacao (revisão M2)")
-    if prep.get("fonte") not in fontes:
-        r.erros.append(f"contexto.yaml: preparação da ruptura com fonte inexistente '{prep.get('fonte')}'")
-    for pref in prep.get("subcategorias", []):
+
+
+def _validar_magnitude(cat: Catalogo, r: Relatorio) -> None:
+    """Revisão MAG: prefixos casam com perguntas e nenhum cenário fica sem pergunta de prevenção em nenhum perfil."""
+    pm = cat.parametros_modelo
+    for pref in pm.efeito_magnitude.subcategorias:
         if not any(q.subcategoria.startswith(pref) for q in cat.perguntas):
-            r.erros.append(f"contexto.yaml: subcategoria de preparação '{pref}' não casa com nenhuma pergunta")
+            r.erros.append(f"cenarios.yaml: subcategoria de magnitude '{pref}' não casa com nenhuma pergunta")
+    for porte in NIVEIS_PORTE:
+        for setor in (s.id for s in cat.setores):
+            for usuarios in ((None, 1) if porte == 1 else (None,)):
+                prev = {c for q in cat.questionario(porte, setor, usuarios)
+                        if not pm.reduz_magnitude(q.subcategoria) for c in q.cenarios}
+                for c in cat.cenarios:
+                    if c.id not in prev:
+                        r.erros.append(f"perfil porte {porte} · {setor}: cenário {c.id} sem pergunta de prevenção")
+    for c in cat.cenarios:
+        rm = c.reducao_magnitude
+        if rm.sensibilidade < rm.maxima:
+            r.avisos.append(f"cenário {c.id}: sensibilidade da redução ({rm.sensibilidade}) menor que o valor-base")
 
 
 def _valor_secundaria(ponto, registros: float, faturamento: float) -> float:
@@ -156,6 +169,9 @@ def parametros_sem_dado(cat: Catalogo) -> tuple[list[str], list[str]]:
     for c in cat.cenarios:
         if "julgamento" in c.fonte:
             julg.append(f"cenário {c.id}: parte das magnitudes e/ou da frequência")
+        if c.reducao_magnitude.fonte == "julgamento":
+            julg.append(f"cenário {c.id}: redução do prejuízo pela preparação ({c.reducao_magnitude.maxima:.0%}; "
+                        f"sensibilidade {c.reducao_magnitude.sensibilidade:.1%})")
     if "julgamento" in cat.custos.parametros.fonte:
         julg.append("custos: horas de esforço por controle e GB por usuário em backup")
     return julg, pend
@@ -164,6 +180,7 @@ def parametros_sem_dado(cat: Catalogo) -> tuple[list[str], list[str]]:
 def validar(cat: Catalogo) -> Relatorio:
     r = Relatorio()
     _validar_contexto(cat, r)
+    _validar_magnitude(cat, r)
     erros_ling, avisos_ling = verificar_linguagem(cat)
     r.erros += erros_ling
     r.avisos += avisos_ling

@@ -202,13 +202,16 @@ def _cmd_simular(cat: Catalogo, arquivo: Path, semente: int | None) -> int:
     print(f"Chance de algum prejuízo: {r.chance_algum_prejuizo:.0%} no ano, {r.chance_algum_prejuizo_horizonte:.0%} "
           f"em {h} anos · perda esperada R$ {r.perda_esperada_total:,.0f}/ano · P90 do ano R$ "
           f"{r.percentis_total[90]:,.0f}\n")
-    print(f"{'cenário':<8}{'maturid.':>9}{'chance/ano':>12}{f'em {h} anos':>12}{'perda esp.':>13}"
-          f"{'P90 se ocorre':>15}  célula (impacto, probabilidade)")
+    print(f"{'cenário':<8}{'prev.':>6}{'resp.':>6}{'red.prej.':>10}{'chance/ano':>11}{f'em {h} anos':>11}"
+          f"{'perda esp.':>12}{'P90 se ocorre':>15}  célula (impacto, probabilidade)")
     for c in r.cenarios:
         selo = " · RISCO DE RUPTURA" if c.ruptura else ""
-        print(f"{c.id:<8}{c.maturidade:>9.0%}{c.chance_ano:>12.1%}{c.chance_horizonte:>12.1%}"
-              f"{c.perda_esperada:>13,.0f}{c.p90_quando_ocorre:>15,.0f}  {c.cor} ({c.nivel_impacto},"
-              f"{c.nivel_probabilidade}){selo}")
+        red = 1 - min(c.fator_primaria, c.fator_secundaria)
+        print(f"{c.id:<8}{c.maturidade:>6.0%}{c.maturidade_resposta:>6.0%}{red:>10.0%}{c.chance_ano:>11.1%}"
+              f"{c.chance_horizonte:>11.1%}{c.perda_esperada:>12,.0f}{c.p90_quando_ocorre:>15,.0f}  {c.cor} "
+              f"({c.nivel_impacto},{c.nivel_probabilidade}){selo}")
+    print("prev. = maturidade de prevenção (chance); resp. = maturidade de resposta (prejuízo); red.prej. = redução "
+          "do prejuízo pela preparação")
     if r.nao_sei:
         print(f"\nRespostas \"Não sei\": {', '.join(r.nao_sei)}")
     plano = plano_de_acao(cat, perfil, respostas, [c.id for c in r.cenarios if c.ruptura])
@@ -217,13 +220,17 @@ def _cmd_simular(cat: Catalogo, arquivo: Path, semente: int | None) -> int:
     for a in plano.acoes:
         rosi = "sem custo" if a.rosi is None else f"ROSI {a.rosi:+.0%}"
         lim = " · acima do limite" if a.acima_do_limite else ""
-        rup = f" · protege contra ruptura ({', '.join(a.protege_ruptura)})" if a.protege_ruptura else ""
+        rup = (" · protege contra ruptura (" + ", ".join(f"{c}: impacto R$ {v:,.0f}" for c, v in a.impacto_ruptura.items())
+               + ")") if a.protege_ruptura else ""
         print(f"{a.prioridade:>3}. {a.controle} {a.controle_nome}: reduz R$ {a.reducao_perda_anual:,.0f}/ano "
               f"(período ruim: −R$ {a.reducao_periodo_ruim:,.0f}), custa R$ {a.custo_anual:,.0f}/ano, "
               f"{rosi}{lim}{rup}")
     for x in plano.ruptura:
         prep = ", ".join(x["preparacao"]) or "nenhuma ação de preparação pendente"
-        print(f"\nRisco de ruptura {x['cenario']}: preparação {prep}; transferência: seguro (cotação com corretor)")
+        sai = "sai da faixa acima da tolerância" if x["sai_da_ruptura"] else "continua acima da tolerância"
+        print(f"\nRisco de ruptura {x['cenario']}: impacto R$ {x['impacto_atual']:,.0f} → R$ "
+              f"{x['impacto_com_preparacao']:,.0f} com a preparação ({prep}); tolerância R$ {x['tolerancia']:,.0f}: "
+              f"{sai}. Transferência: seguro (cotação com corretor)")
     return 0
 
 

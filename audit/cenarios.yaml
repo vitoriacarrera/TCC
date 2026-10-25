@@ -8,6 +8,8 @@
 #   Vulnerabilidade = v_min + (v_max − v_min) × (1 − maturidade)                  (TCC1 §3.6, item 1)
 #
 # Magnitude por evento = Perda Primária + Perda Secundária (decomposição da ontologia FAIR — ADR-002)
+# Redução pela preparação (revisão MAG, ADR-014): componente × (1 − maxima × maturidade de resposta do cenário),
+# maturidade calculada só com as perguntas de `parametros_modelo.efeito_magnitude`, pelos pesos que já existem.
 #
 #   PERDA PRIMÁRIA — custos diretos da própria empresa (parada, recuperação, valor desviado).
 #     Limitada e estimável em três pontos  =>  Beta-PERT(mín, mais provável, máx; λ)            (RF08)
@@ -53,6 +55,12 @@ parametros_modelo:
   resposta_nao_sei: 1           # ADR-006: conservador
   percentil_mapa_calor: 90      # "pior cenário razoável" (TCC1 §3.6, item 3)
   z_p95: 1.6448536              # quantil 95% da normal padrão, para derivar σ da lognormal
+  # Revisão MAG (FAIR-CAM): perguntas de Detecção (DE), Resposta (RS), Recuperação (RC), backup (PR.DS-11) e
+  # resiliência (PR.IR-03) reduzem o PREJUÍZO quando o evento acontece, não a chance; as demais reduzem a chance.
+  # Cada pergunta conta uma vez só. Ver `reducao_magnitude` em cada cenário.
+  efeito_magnitude:
+    subcategorias: ["DE.", "RS.", "RC.", "PR.DS-11", "PR.IR-03"]
+    fonte: faircam2025
 
 cenarios:
   - id: RAN
@@ -70,6 +78,13 @@ cenarios:
       mediana: { por_registro: 5,  pct_faturamento: 0.005 }
       p95:     { por_registro: 60, pct_faturamento: 0.05 }
       teto_pct_faturamento: 1.0
+    reducao_magnitude:                       # MAG1: backup intacto e recuperação reduzem parada e custo de recuperação
+      componente: primaria
+      maxima: 0.50
+      fonte: sophos2023
+      calculo: "Custo de recuperação com backup US$ 375 mil × pagando resgate US$ 750 mil: 1 − 375/750 = 50%"
+      sensibilidade: 0.875
+      fonte_sensibilidade: sophos2024backups
     fonte: [csbs2026, sophos2025, dbir2025, julgamento]
 
   - id: VAZ
@@ -86,6 +101,13 @@ cenarios:
       mediana: { por_registro: 15,  pct_faturamento: 0.003 }
       p95:     { por_registro: 100, pct_faturamento: 0.03 }
       teto_pct_faturamento: 1.0
+    reducao_magnitude:                       # MAG2: detectar e responder cedo reduz a reação de terceiros
+      componente: secundaria
+      maxima: 0.177
+      fonte: ibm2024
+      calculo: "Violação identificada pela própria equipe US$ 4,55 mi × revelada pelo atacante US$ 5,53 mi: 1 − 4,55/5,53 = 17,7%"
+      sensibilidade: 0.342
+      fonte_sensibilidade: ibm2025
     fonte: [csbs2026, ibm2025, lgpd, julgamento]
 
   - id: FRA
@@ -102,6 +124,13 @@ cenarios:
       mediana: { pct_faturamento: 0.002, fixo: 2000 }
       p95:     { pct_faturamento: 0.02,  fixo: 20000 }
       teto_pct_faturamento: 0.5
+    reducao_magnitude:                       # MAG3: reagir rápido recupera pouco no Brasil (MED do Pix)
+      componente: primaria
+      maxima: 0.092
+      fonte: bcbmed2025
+      calculo: "MED do Pix devolveu 9,2% do valor contestado (média jan. a ago. de 2025)"
+      sensibilidade: 0.66
+      fonte_sensibilidade: ic3_2024
     fonte: [csbs2026, ic3_2024, dbir2025, julgamento]
 
   - id: IND
@@ -119,6 +148,13 @@ cenarios:
       mediana: { pct_faturamento: 0.002 }
       p95:     { pct_faturamento: 0.02 }
       teto_pct_faturamento: 0.5
+    reducao_magnitude:                       # MAG4: continuidade preserva a receita da parada, não o custo do conserto
+      componente: horas_parada
+      maxima: 0.50
+      fonte: julgamento
+      calculo: "Analogia ao ransomware (sophos2023, 50%), aplicada só às horas paradas × custo da hora (receita perdida). Sensibilidade: 1 − mínimo/média PERT das horas = 1 − 2/27 = 92,6% (empresa preparada para só o mínimo do cenário)"
+      sensibilidade: 0.926
+      fonte_sensibilidade: julgamento
     fonte: [csbs2026, julgamento]
 
   - id: TER
@@ -136,6 +172,13 @@ cenarios:
       mediana: { por_registro: 5,  pct_faturamento: 0.002 }
       p95:     { por_registro: 50, pct_faturamento: 0.02 }
       teto_pct_faturamento: 1.0
+    reducao_magnitude:                       # MAG2 (mesma base do vazamento)
+      componente: secundaria
+      maxima: 0.177
+      fonte: ibm2024
+      calculo: "Violação identificada pela própria equipe US$ 4,55 mi × revelada pelo atacante US$ 5,53 mi: 1 − 4,55/5,53 = 17,7%"
+      sensibilidade: 0.342
+      fonte_sensibilidade: ibm2025
     fonte: [csbs2026, dbir2025, ibm2025, julgamento]
 
   - id: IA
@@ -152,4 +195,11 @@ cenarios:
       mediana: { por_registro: 3,  pct_faturamento: 0.002 }
       p95:     { por_registro: 30, pct_faturamento: 0.02 }
       teto_pct_faturamento: 1.0
+    reducao_magnitude:                       # MAG2 (mesma base do vazamento)
+      componente: secundaria
+      maxima: 0.177
+      fonte: ibm2024
+      calculo: "Violação identificada pela própria equipe US$ 4,55 mi × revelada pelo atacante US$ 5,53 mi: 1 − 4,55/5,53 = 17,7%"
+      sensibilidade: 0.342
+      fonte_sensibilidade: ibm2025
     fonte: [csbs2026, ibm2025, julgamento]

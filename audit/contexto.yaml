@@ -134,10 +134,7 @@ matriz:
     quando: { impacto: 3, probabilidade: 1 }
     texto: "Risco de ruptura: é raro, mas se acontecer pode ameaçar a continuidade da empresa. Aqui, mais do que reduzir a chance, vale estar preparado para o impacto: backup isolado e testado, plano de contingência e, se fizer sentido, um seguro cibernético que cubra parte do prejuízo."
     transferencia: "Seguro cibernético: solicite cotação a um corretor de seguros. O custo não entra no cálculo de retorno do investimento, porque o preço depende da análise de cada seguradora."
-    # Revisão M2 (c): nos riscos de ruptura, destacar as ações que limitam o impacto mesmo com retorno médio
-    # negativo. São as ligadas às funções Responder (RS) e Recuperar (RC) do NIST CSF 2.0, ao backup (PR.DS-11) e
-    # à resiliência (PR.IR-03). Prefixo da subcategoria da pergunta.
-    preparacao:
-      subcategorias: ["RS.", "RC.", "PR.DS-11", "PR.IR-03"]
-      fonte: nistcsf2
+    # Revisão M2 (c) e MAG: nos riscos de ruptura, destacar as ações que reduzem o prejuízo (perguntas de
+    # `parametros_modelo.efeito_magnitude` em cenarios.yaml: Detecção, Resposta, Recuperação, backup e resiliência),
+    # mesmo com retorno médio negativo.
     texto_preparacao: "Esta ação ajuda a empresa a aguentar o impacto se o problema acontecer. Mesmo que o retorno médio pareça baixo, ela funciona como um seguro contra um prejuízo acima do que a empresa suporta."
