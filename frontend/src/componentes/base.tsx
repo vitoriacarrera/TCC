@@ -64,7 +64,7 @@ export function Cabecalho({ aoInicio }: { aoInicio?: () => void }) {
             <span className="hidden text-sm text-marfim/70 sm:block">{MARCA.subtitulo}</span>
           </span>
         </button>
-        <span className="hidden text-sm text-marfim/70 md:block">Nada do que você digita é guardado</span>
+        <span className="hidden text-sm text-marfim/70 md:block">Sem cadastro e sem identificação</span>
       </div>
       <div className="h-1 bg-dourado/70" />
     </header>

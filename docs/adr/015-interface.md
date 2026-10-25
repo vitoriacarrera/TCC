@@ -17,6 +17,9 @@
 5. **Privacidade (ADR-005):** fontes empacotadas no próprio site (sem Google Fonts, que receberia o IP do
    visitante); estado só em `sessionStorage` da aba, apagado ao fechar ou em "Apagar tudo"; nenhum rastreador;
    `referrer` desligado; contribuição com caixa desmarcada por padrão e texto do que é e do que não é enviado.
+   Os textos de privacidade (início, cabeçalho e rodapé) dizem as duas coisas: valores financeiros e dados da
+   empresa nunca são guardados, e as respostas do questionário (com setor e porte) só são guardadas, sem
+   identificação, se o gestor autorizar no final. Nenhum texto afirma que "nada é guardado".
 6. **Celular e computador:** escala de respostas em lista no celular e em 5 colunas no computador; explicação do
    glossário como painel fixo na base da tela do celular.
 7. **Relatório:** "Salvar em PDF ou imprimir" pelo navegador, com estilo de impressão; o PDF próprio fica para o

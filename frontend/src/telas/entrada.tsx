@@ -45,8 +45,10 @@ export function Inicio({ cat, comecar, temSessao, continuar }:
       <div className="mx-auto mt-6 flex max-w-5xl items-start gap-3 rounded-lg border border-linha bg-papel p-5 text-[15px] text-suave">
         <Escudo className="mt-0.5 h-6 w-6 shrink-0 [&_path:first-child]:stroke-marinho [&_path:last-child]:stroke-acao" />
         <p>
-          <strong className="text-texto">Sua privacidade:</strong> nada é gravado. Os números que você digita servem só para
-          o cálculo e somem quando você fecha esta aba. Não pedimos nome, CNPJ nem e-mail.
+          <strong className="text-texto">Sua privacidade:</strong> não pedimos nome, CNPJ nem e-mail. A receita e os outros
+          valores servem só para o cálculo e somem quando você fecha esta aba. No final, você pode autorizar que as respostas
+          do questionário sejam guardadas sem identificação, junto com o setor e o porte, para a pesquisa do trabalho. Sem
+          a sua autorização, nada é guardado.
         </p>
       </div>
       <p className="mx-auto mt-6 max-w-5xl text-sm text-suave">{cat.aviso_legal}</p>
