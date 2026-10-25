@@ -137,6 +137,21 @@ class PerdaSecundaria(_Base):
         return self
 
 
+class ReducaoMagnitude(_Base):
+    """Quanto as perguntas de Detecção e Resposta reduzem o prejuízo do cenário (FAIR-CAM, revisão MAG).
+
+    componente: "primaria" (toda a perda primária), "horas_parada" (só horas × custo da hora: receita perdida)
+    ou "secundaria". Fator aplicado = 1 − maxima × maturidade de resposta do cenário.
+    """
+
+    componente: Literal["primaria", "horas_parada", "secundaria"]
+    maxima: float = Field(ge=0, le=1)
+    fonte: str
+    calculo: str
+    sensibilidade: float = Field(ge=0, le=1)        # valor alternativo para a análise de sensibilidade
+    fonte_sensibilidade: str
+
+
 class Cenario(_Base):
     id: str
     nome: str
@@ -146,9 +161,17 @@ class Cenario(_Base):
     tef_base: float = Field(gt=0)
     perda_primaria: PerdaPrimaria
     perda_secundaria: PerdaSecundaria
+    reducao_magnitude: ReducaoMagnitude
     fonte: list[str]
 
     _fonte = field_validator("fonte", mode="before")(_lista)
+
+
+class EfeitoMagnitude(_Base):
+    """Perguntas cuja subcategoria do NIST CSF começa com um destes prefixos reduzem o prejuízo, não a chance."""
+
+    subcategorias: list[str] = Field(min_length=1)
+    fonte: str
 
 
 class ParametrosModelo(_Base):
@@ -159,6 +182,10 @@ class ParametrosModelo(_Base):
     resposta_nao_sei: int = Field(ge=0, le=4)
     percentil_mapa_calor: float = Field(gt=50, lt=100)
     z_p95: float = Field(gt=1.6, lt=1.7)
+    efeito_magnitude: EfeitoMagnitude
+
+    def reduz_magnitude(self, subcategoria: str) -> bool:
+        return subcategoria.startswith(tuple(self.efeito_magnitude.subcategorias))
 
     @model_validator(mode="after")
     def _faixa(self) -> ParametrosModelo:
@@ -362,6 +389,13 @@ class Catalogo(_Base):
                 for f in it.fonte:
                     if f not in fontes:
                         erros.append(f"{type(it).__name__} {getattr(it, 'id', getattr(it, 'nivel', '?'))}: fonte '{f}' inexistente")
+        for c in self.cenarios:
+            for f in (c.reducao_magnitude.fonte, c.reducao_magnitude.fonte_sensibilidade):
+                if f not in fontes:
+                    erros.append(f"cenário {c.id}: fonte '{f}' da redução de magnitude inexistente")
+        if self.parametros_modelo.efeito_magnitude.fonte not in fontes:
+            erros.append(f"parametros_modelo.efeito_magnitude: fonte '{self.parametros_modelo.efeito_magnitude.fonte}' "
+                         "inexistente")
         for s in self.setores:
             for c, m in s.multiplicador_tef.items():
                 if c not in cenarios:

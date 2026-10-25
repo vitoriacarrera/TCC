@@ -18,3 +18,4 @@ Cada ADR registra uma decisão, o contexto e as alternativas descartadas. Status
 | [011](011-calibracao-por-dados-publicos.md) | Calibração por dados públicos: setores, frequência, ransomware, apetite/tolerância e custos | Aceita |
 | [012](012-matriz-3x3.md) | Avaliação de riscos em matriz 3 × 3 com selo de risco de ruptura | Aceita |
 | [013](013-plano-duas-lentes.md) | Plano de ação com duas lentes: ROSI e redução do prejuízo num período ruim; preparação nos riscos de ruptura | Aceita |
+| [014](014-magnitude-pela-preparacao.md) | Perguntas de detecção e resposta reduzem o prejuízo (FAIR-CAM); fatores por cenário com fonte | Aceita |

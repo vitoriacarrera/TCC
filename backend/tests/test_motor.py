@@ -229,14 +229,14 @@ def test_m2_ruptura_destaca_acoes_de_preparacao(cat):
     p = perfil()
     resp = respostas(cat, p, 1)
     plano = plano_de_acao(cat, p, resp, cenarios_ruptura=["RAN"])
-    prep = tuple(cat.contexto["matriz"]["selo_ruptura"]["preparacao"]["subcategorias"])
+    pm = cat.parametros_modelo
     marcadas = [a for a in plano.acoes if a.protege_ruptura]
     assert marcadas, "backup e plano de incidentes devem proteger contra ruptura de ransomware"
     assert "8.13" in {a.controle for a in marcadas}
     for a in marcadas:
         assert a.protege_ruptura == ["RAN"]
         subcats = {q.id: q.subcategoria for q in cat.perguntas}
-        assert any(subcats[pid].startswith(prep) for pid in a.perguntas)
+        assert any(pm.reduz_magnitude(subcats[pid]) for pid in a.perguntas)
     assert plano.ruptura[0]["preparacao"] == [a.controle for a in marcadas]
     assert plano.ruptura[0]["texto_preparacao"]
     assert all(not a.protege_ruptura for a in plano_de_acao(cat, p, resp).acoes)   # sem ruptura, sem marca
@@ -247,3 +247,83 @@ def test_m3_mei_fora_da_saude_ve_o_selo_de_privacidade(cat):
     plano = plano_de_acao(cat, p, respostas(cat, p, 0))
     com_selo = [a for a in plano.acoes if a.selo]
     assert com_selo and any("ID-02" in a.perguntas for a in com_selo)
+
+
+# ------------------------------------------------------------------ revisão MAG (FAIR-CAM): resposta reduz o prejuízo
+def test_mag_cada_pergunta_em_um_so_efeito(cat):
+    pm = cat.parametros_modelo
+    mag = {q.id for q in cat.perguntas if pm.reduz_magnitude(q.subcategoria)}
+    assert mag == {"DE-01", "DE-02", "DE-03", "DE-04", "DE-05", "RS-01", "RS-02", "RS-03", "RS-04",
+                   "RC-01", "RC-02", "PR-10", "PR-11", "PR-12", "PR-21"}
+
+
+def test_mag_fatores_nos_extremos(cat):
+    from riskpme.engine.simulacao import fatores_por_cenario
+    p = perfil(receita_operacional_bruta=10_000_000)              # média empresa: tem perguntas de IA de detecção
+    res = resolver(cat, p)
+    _, nada = fatores_por_cenario(cat, res, respostas(cat, p, 0))
+    assert all(f == (1.0, 1.0) for f in nada.values())
+    _, tudo = fatores_por_cenario(cat, res, respostas(cat, p, 4))
+    assert tudo["RAN"] == pytest.approx((0.5, 1.0))
+    assert tudo["FRA"] == pytest.approx((1 - 0.092, 1.0))
+    for c in ("VAZ", "TER", "IA"):
+        assert tudo[c] == pytest.approx((1.0, 1 - 0.177))
+    assert 0.5 < tudo["IND"][0] < 1.0 and tudo["IND"][1] == 1.0   # só a parte das horas
+
+
+def test_mag_horas_parada_preserva_a_media(cat):
+    from riskpme.engine.distribuicoes import pert_media
+    from riskpme.engine.magnitude import fatores_magnitude
+    res = resolver(cat, perfil())
+    ind = cat.cenario("IND")
+    lam = cat.parametros_modelo.pert_lambda
+    fp, _ = fatores_magnitude(ind, res.contexto, cat.parametros_modelo, 1.0)
+    from riskpme.engine.magnitude import pontos_primaria
+    media = pert_media(*pontos_primaria(ind, res.contexto), lam)
+    h = [x * res.contexto.custo_hora_parada for x in ind.perda_primaria.horas_parada]
+    assert fp * media == pytest.approx(media - 0.5 * pert_media(*h, lam))
+
+
+def test_mag_ia_sem_deteccao_nos_portes_menores(cat):
+    from riskpme.engine.simulacao import fatores_por_cenario
+    p = perfil()                                                   # EPP
+    _, fat = fatores_por_cenario(cat, resolver(cat, p), respostas(cat, p, 4))
+    assert fat["IA"] == (1.0, 1.0)
+
+
+def test_mag_backup_reduz_prejuizo_e_nao_chance(cat):
+    from riskpme.engine.simulacao import lef_por_cenario
+    p = perfil()
+    res = resolver(cat, p)
+    base = respostas(cat, p, 1)
+    melhor = base | {"PR-10": 4, "PR-11": 4, "PR-12": 4}
+    assert lef_por_cenario(cat, res, base)[2] == lef_por_cenario(cat, res, melhor)[2]
+    el = perda_esperada_analitica(cat, res, base)
+    el2 = perda_esperada_analitica(cat, res, melhor)
+    assert el2["RAN"] < el["RAN"] and el2["IND"] < el["IND"]
+    assert el2["FRA"] == pytest.approx(el["FRA"])
+
+
+def test_mag_simulacao_reflete_fatores(cat):
+    p = perfil()
+    r0 = simular(cat, p, respostas(cat, p, 0), iteracoes=20_000, semente=4)
+    resp = respostas(cat, p, 0) | {"PR-10": 4, "PR-11": 4, "PR-12": 4, "RC-01": 4, "RC-02": 4, "RS-01": 4, "RS-03": 4,
+                                   "DE-01": 4}
+    r1 = simular(cat, p, {k: v for k, v in resp.items() if k in respostas(cat, p, 0)}, iteracoes=20_000, semente=4)
+    assert r1.cenario("RAN").lef == pytest.approx(r0.cenario("RAN").lef)
+    assert r1.cenario("RAN").fator_primaria < 1
+    assert r1.cenario("RAN").p90_quando_ocorre < r0.cenario("RAN").p90_quando_ocorre
+
+
+def test_mag_ruptura_mostra_impacto_antes_e_depois(cat):
+    p = perfil()
+    resp = respostas(cat, p, 1)
+    plano = plano_de_acao(cat, p, resp, cenarios_ruptura=["RAN"])
+    x = plano.ruptura[0]
+    assert x["impacto_com_preparacao"] < x["impacto_atual"]
+    assert x["sai_da_ruptura"] == (x["impacto_com_preparacao"] < x["tolerancia"])
+    for a in plano.acoes:
+        if a.protege_ruptura:
+            assert x["impacto_com_preparacao"] <= a.impacto_ruptura["RAN"] <= x["impacto_atual"]
+        else:
+            assert a.impacto_ruptura == {}

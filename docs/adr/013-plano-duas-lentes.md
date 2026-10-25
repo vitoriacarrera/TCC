@@ -1,6 +1,6 @@
 # ADR-013 — Plano de ação com duas lentes: retorno médio e proteção contra o período ruim
 
-**Status:** Aceita (25/10/2026 — revisão M2)
+**Status:** Aceita (25/10/2026 — revisão M2; item 3 atualizado pelo ADR-014)
 
 ## Contexto
 O plano priorizava só pelo ROSI sobre a perda esperada (ENISA, 2012) com o limite de Gordon e Loeb (2002). No
@@ -25,8 +25,7 @@ supõe decisor neutro ao risco; uma PME é avessa ao risco, porque um ano ruim p
 - `Acao.reducao_periodo_ruim` e `Acao.protege_ruptura`; `Plano.perda_periodo_ruim_atual`, `Plano.horizonte_anos`
   e a lista `preparacao` em cada risco de ruptura. Conceito `periodo_ruim` no glossário.
 - Custo computacional: uma avaliação vetorizada por ação (< 0,5 s para a clínica).
-- **Limitação a declarar no TCC:** no modelo, as respostas só alteram a vulnerabilidade (frequência), não a
-  magnitude. Backup e plano de incidentes, na realidade, reduzem sobretudo o impacto; aqui eles reduzem a chance
-  e são destacados por classificação (NIST CSF), não por um efeito de magnitude modelado. Um fator de redução de
-  magnitude por controle fica como trabalho futuro.
+- A limitação original (respostas só alteravam a frequência) foi resolvida pelo ADR-014: as perguntas de
+  detecção e resposta passaram a reduzir o prejuízo, e a lista de preparação passou a ser
+  `parametros_modelo.efeito_magnitude` em `cenarios.yaml`.
 - No texto do TCC: discutir os limites da perda esperada para decisores avessos ao risco (Resultados e Conclusão).
