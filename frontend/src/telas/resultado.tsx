@@ -31,7 +31,7 @@ export function Resultado({ cat, e, mudar, refazer, recomecar }: Props) {
               nota={`${pct(r.chance_algum_prejuizo)} a cada ano`} />
             <Numero titulo="Perda média esperada por ano" valor={reais(r.perda_esperada_total)}
               nota="Soma de todos os riscos, considerando a chance de cada um" />
-            <Numero titulo={`Prejuízo num período ruim de ${h} anos`} valor={reaisCurto(s.plano.perda_periodo_ruim_atual)}
+            <Numero titulo={`Prejuízo em um período ruim de ${h} anos`} valor={reaisCurto(s.plano.perda_periodo_ruim_atual)}
               nota="Só é ultrapassado em 1 de cada 10 cenários simulados" />
           </div>
           <p className="mt-6 text-[15px] text-marfim/70">
@@ -159,14 +159,14 @@ function CenarioCartao({ c, cat, s, descricao }: { c: ResultadoCenario; cat: Cat
         <p className="mt-1 text-[15px] text-suave">{descricao}</p>
         <dl className="mt-4 grid gap-3 text-[15px] sm:grid-cols-3">
           <div><dt className="text-suave">Chance em {s.resultado.horizonte_anos} anos</dt><dd className="text-lg font-semibold">{pct(c.chance_horizonte)}</dd></div>
-          <div><dt className="text-suave">Prejuízo num ano em que acontece</dt><dd className="text-lg font-semibold">até {reais(c.p90_quando_ocorre)}</dd></div>
+          <div><dt className="text-suave">Prejuízo em um ano em que acontece</dt><dd className="text-lg font-semibold">até {reais(c.p90_quando_ocorre)}</dd></div>
           <div><dt className="text-suave">Perda média por ano</dt><dd className="text-lg font-semibold">{reais(c.perda_esperada)}</dd></div>
         </dl>
         {rup && (
           <div className="mt-4 rounded-md border-l-4 border-risco-vermelho bg-risco-vermelho/5 p-4 text-[15px]">
             <p><Texto>{rup.texto}</Texto></p>
             <p className="mt-2">
-              Com as medidas de preparação, o prejuízo num ano em que isso acontece cai de <strong>{reais(rup.impacto_atual)}</strong> para{' '}
+              Com as medidas de preparação, o prejuízo em um ano em que isso acontece cai de <strong>{reais(rup.impacto_atual)}</strong> para{' '}
               <strong>{reais(rup.impacto_com_preparacao)}</strong>.{' '}
               {rup.sai_da_ruptura
                 ? 'Isso fica abaixo do limite que a empresa aguenta.'
@@ -263,7 +263,7 @@ function AcaoCartao({ a, nomeCen, h, recolhida }: { a: Acao; nomeCen: Record<str
       </ul>
       <p className="mt-4 text-[15px]">
         Reduz a perda média em <strong>{reais(a.reducao_perda_anual)} por ano</strong>
-        {a.reducao_periodo_ruim > 0 && <> e o prejuízo num período ruim de {h} anos em <strong>{reais(a.reducao_periodo_ruim)}</strong></>}.
+        {a.reducao_periodo_ruim > 0 && <> e o prejuízo em um período ruim de {h} anos em <strong>{reais(a.reducao_periodo_ruim)}</strong></>}.
         {' '}Custo estimado: <strong>{a.custo_anual === 0 ? 'sem custo' : `${reais(a.custo_anual)} por ano`}</strong>.
       </p>
       <ParaOTecnico>

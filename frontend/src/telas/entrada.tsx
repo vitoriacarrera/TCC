@@ -35,8 +35,8 @@ export function Inicio({ cat, comecar, temSessao, continuar }:
       </section>
       <div className="mx-auto mt-10 grid max-w-5xl gap-4 sm:grid-cols-3">
         {[
-          ['1. Conte sobre a empresa', 'Setor, receita aproximada e quanto a empresa aguenta perder num ano ruim.'],
-          ['2. Responda como é hoje', 'Perguntas simples sobre senhas, cópias de segurança, fornecedores e o que fazer num problema.'],
+          ['1. Conte sobre a empresa', 'Setor, receita aproximada e quanto a empresa aguenta perder em um ano ruim.'],
+          ['2. Responda como é hoje', 'Perguntas simples sobre senhas, cópias de segurança, fornecedores e o que fazer em um problema.'],
           ['3. Receba o plano', 'Mapa dos riscos, prejuízo estimado em reais e as medidas que mais compensam para o seu caso.'],
         ].map(([t, d]) => (
           <Cartao key={t}><h2 className="text-xl">{t}</h2><p className="mt-2 text-suave">{d}</p></Cartao>

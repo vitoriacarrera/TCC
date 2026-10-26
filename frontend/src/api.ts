@@ -1,6 +1,7 @@
 // Cliente da API (backend/src/riskpme/api). Tipos espelham as respostas das rotas.
 
-const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:8000'
+// Sem VITE_API_URL, usa /api, que o Vite repassa para a API local (vite.config.ts).
+const BASE = ((import.meta.env.VITE_API_URL as string | undefined) || '/api').replace(/\/$/, '')
 
 export type Opcao = { id: string; rotulo: string; valor?: number; selo?: string; valor_por_setor?: boolean }
 export type PerguntaContexto = {
@@ -146,6 +147,7 @@ function mensagemDeErro(status: number, corpo: unknown): string {
   const d = (corpo as { detail?: unknown })?.detail
   if (typeof d === 'string') return d
   if (Array.isArray(d)) return 'Algum campo ficou com um valor que não conseguimos usar. Confira as respostas.'
+  if (status === 502 || status === 503 || status === 504) return 'O servidor de cálculo não respondeu. Confira se a API está rodando e tente de novo.'
   return 'Não foi possível falar com o servidor. Tente de novo em instantes.'
 }
 

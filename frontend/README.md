@@ -23,7 +23,9 @@ Em outro terminal, a API: `cd backend`, ative o ambiente virtual e rode `uvicorn
 | `npm run lint` | análise do código (oxlint) |
 | `npm audit` | vulnerabilidades conhecidas nas dependências |
 
-`VITE_API_URL` define o endereço da API (padrão `http://localhost:8000`); veja `.env.example`.
+Em desenvolvimento, o site chama `/api` e o Vite repassa para a API em `http://127.0.0.1:8000`, sem CORS. Se
+aparecer "O servidor de cálculo não respondeu", a API não está rodando no outro terminal. Em produção,
+`VITE_API_URL` aponta para o endereço público da API (veja `.env.example`).
 
 ## Onde mexer
 
