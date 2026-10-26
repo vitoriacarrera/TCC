@@ -180,7 +180,7 @@ perguntas:
   - id: PR-03
     funcao: PR
     subcategoria: PR.AA-01
-    texto: "As senhas são longas, diferentes para cada serviço e guardadas num gerenciador de senhas (e não em papel, planilha ou anotações do celular)?"
+    texto: "As senhas são longas, diferentes para cada serviço e guardadas em um gerenciador de senhas (e não em papel, planilha ou anotações do celular)?"
     ajuda: "Quando uma mesma senha é usada em vários lugares, basta um site vazar para o criminoso testar a mesma senha no seu e-mail e no seu banco. Um gerenciador de senhas cria e lembra senhas fortes por você."
     porte_min: 1
     cenarios: { VAZ: 2, RAN: 1, FRA: 1 }
@@ -211,7 +211,7 @@ perguntas:
     funcao: PR
     subcategoria: PR.AA-05
     texto: "As contas de administrador (as que podem instalar programas e mudar configurações) são poucas, usadas só quando necessário e protegidas com verificação em duas etapas?"
-    ajuda: "Se a pessoa usa no dia a dia uma conta de administrador e clica num link malicioso, o vírus ganha o mesmo poder de instalar e apagar tudo. Com uma conta comum, o estrago costuma ficar limitado."
+    ajuda: "Se a pessoa usa no dia a dia uma conta de administrador e clica em um link malicioso, o vírus ganha o mesmo poder de instalar e apagar tudo. Com uma conta comum, o estrago costuma ficar limitado."
     porte_min: 3
     cenarios: { RAN: 3, VAZ: 1 }
     controle: "8.2"
@@ -267,7 +267,7 @@ perguntas:
   - id: PR-11
     funcao: PR
     subcategoria: PR.DS-11
-    texto: "Pelo menos uma cópia do backup fica num lugar que um vírus não alcança, como um HD desligado ou uma nuvem que não deixa apagar as cópias?"
+    texto: "Pelo menos uma cópia do backup fica em um lugar que um vírus não alcança, como um HD desligado ou uma nuvem que não deixa apagar as cópias?"
     ajuda: "O sequestro de dados costuma procurar e trancar também os backups que estão conectados à rede. Uma cópia isolada é o que garante que a empresa consiga se recuperar sem pagar resgate."
     porte_min: 2
     cenarios: { RAN: 3 }
@@ -291,11 +291,11 @@ perguntas:
     funcao: PR
     subcategoria: PR.DS-01
     texto: "Os notebooks e celulares da empresa pedem senha para desbloquear e têm os dados protegidos por criptografia?"
-    ajuda: "Se um notebook é roubado no carro ou esquecido num táxi, a criptografia impede que o ladrão leia os arquivos. No Windows ela se chama BitLocker e no Mac, FileVault. Nos celulares modernos, basta ter senha de bloqueio."
+    ajuda: "Se um notebook é roubado no carro ou esquecido em um táxi, a criptografia impede que o ladrão leia os arquivos. No Windows ela se chama BitLocker e no Mac, FileVault. Nos celulares modernos, basta ter senha de bloqueio."
     porte_min: 4
     cenarios: { VAZ: 2 }
     controle: "8.1"
-    recomendacao: "Ative a criptografia de disco em todos os notebooks. Ela já vem no Windows (BitLocker, nas versões Pro) e no Mac (FileVault) e faz com que quem roubar ou achar o equipamento não consiga ler os dados. Guarde a chave de recuperação num lugar seguro fora do notebook, como a conta de administrador da empresa, senão os dados se perdem junto com a senha. Nos celulares, exija senha ou biometria para desbloquear, o que nos aparelhos atuais já liga a criptografia. Configure o bloqueio automático da tela após poucos minutos sem uso e, se possível, use uma ferramenta de gestão de dispositivos que permite apagar os dados à distância em caso de perda ou roubo (para o técnico: MDM)."
+    recomendacao: "Ative a criptografia de disco em todos os notebooks. Ela já vem no Windows (BitLocker, nas versões Pro) e no Mac (FileVault) e faz com que quem roubar ou achar o equipamento não consiga ler os dados. Guarde a chave de recuperação em um lugar seguro fora do notebook, como a conta de administrador da empresa, senão os dados se perdem junto com a senha. Nos celulares, exija senha ou biometria para desbloquear, o que nos aparelhos atuais já liga a criptografia. Configure o bloqueio automático da tela após poucos minutos sem uso e, se possível, use uma ferramenta de gestão de dispositivos que permite apagar os dados à distância em caso de perda ou roubo (para o técnico: MDM)."
 
   - id: PR-15
     funcao: PR
@@ -390,7 +390,7 @@ perguntas:
     porte_min: 4
     cenarios: { VAZ: 1, TER: 1 }
     controle: "8.15"
-    recomendacao: "Ative e guarde por pelo menos 6 meses os registros de acesso (quem entrou, quando e de onde) do e-mail, da nuvem e dos sistemas importantes. Muitos serviços guardam esses registros por pouco tempo no plano básico: confira o prazo e, se for menor, peça ao técnico para copiá-los automaticamente para um local protegido, que só o responsável pela segurança acesse. Esses registros são o que permite descobrir o que aconteceu num incidente. Se a empresa oferece site ou aplicativo com fins comerciais, guardar os registros de acesso por 6 meses é obrigação do Marco Civil da Internet (Lei nº 12.965/2014, art. 15). Esta é uma orientação geral, não um parecer jurídico: para confirmar as obrigações da sua empresa, consulte um advogado."
+    recomendacao: "Ative e guarde por pelo menos 6 meses os registros de acesso (quem entrou, quando e de onde) do e-mail, da nuvem e dos sistemas importantes. Muitos serviços guardam esses registros por pouco tempo no plano básico: confira o prazo e, se for menor, peça ao técnico para copiá-los automaticamente para um local protegido, que só o responsável pela segurança acesse. Esses registros são o que permite descobrir o que aconteceu em um incidente. Se a empresa oferece site ou aplicativo com fins comerciais, guardar os registros de acesso por 6 meses é obrigação do Marco Civil da Internet (Lei nº 12.965/2014, art. 15). Esta é uma orientação geral, não um parecer jurídico: para confirmar as obrigações da sua empresa, consulte um advogado."
 
   - id: DE-03
     funcao: DE
@@ -428,11 +428,11 @@ perguntas:
     funcao: RS
     subcategoria: RS.MA-01
     texto: "Se um ataque acontecesse hoje, as pessoas saberiam o que fazer e quem chamar?"
-    ajuda: "Um plano de resposta pode caber numa folha: quem avisar, o que desligar primeiro, telefone do técnico, do banco e do advogado. Nas primeiras horas de um incidente, cada minuto de indecisão aumenta o prejuízo."
+    ajuda: "Um plano de resposta pode caber em uma folha: quem avisar, o que desligar primeiro, telefone do técnico, do banco e do advogado. Nas primeiras horas de um incidente, cada minuto de indecisão aumenta o prejuízo."
     porte_min: 1
     cenarios: { RAN: 2, VAZ: 2, FRA: 1, IND: 1, TER: 1 }
     controle: "5.24"
-    recomendacao: "Escreva um plano de resposta de uma página: quem avisar, o que desligar primeiro e quem chamar. Guarde-o numa pasta compartilhada da empresa e mantenha uma cópia fora dos sistemas da empresa, com o dono ou sócio responsável ou num celular da empresa, porque se um vírus travar os computadores a pasta pode ficar fora do ar. Divulgue para a equipe um número de emergência do responsável (dono, sócio ou técnico de TI contratado). Se a equipe trabalha presencialmente, deixe também uma cópia impressa."
+    recomendacao: "Escreva um plano de resposta de uma página: quem avisar, o que desligar primeiro e quem chamar. Guarde-o em uma pasta compartilhada da empresa e mantenha uma cópia fora dos sistemas da empresa, com o dono ou sócio responsável ou em um celular da empresa, porque se um vírus travar os computadores a pasta pode ficar fora do ar. Divulgue para a equipe um número de emergência do responsável (dono, sócio ou técnico de TI contratado). Se a equipe trabalha presencialmente, deixe também uma cópia impressa."
     variantes:
       - quando: { portes: [1] }
         texto: "Se acontecesse um ataque ou golpe hoje, você saberia o que fazer primeiro e teria à mão os contatos do banco, de um técnico de TI e da polícia?"
@@ -490,7 +490,7 @@ perguntas:
     porte_min: 1
     cenarios: { IND: 2, RAN: 1 }
     controle: "5.30"
-    recomendacao: "Liste as atividades sem as quais a empresa para (por exemplo: vender, atender clientes, receber pagamentos, entregar). Para cada uma, defina um jeito de continuar sem os sistemas, mesmo que mais devagar: anotar pedidos num formulário, receber pela maquininha, atender por telefone, consultar uma cópia da agenda guardada fora do sistema. Combine com a equipe quando usar esse modo e como lançar no sistema, depois, o que foi feito durante a parada."
+    recomendacao: "Liste as atividades sem as quais a empresa para (por exemplo: vender, atender clientes, receber pagamentos, entregar). Para cada uma, defina um jeito de continuar sem os sistemas, mesmo que mais devagar: anotar pedidos em um formulário, receber pela maquininha, atender por telefone, consultar uma cópia da agenda guardada fora do sistema. Combine com a equipe quando usar esse modo e como lançar no sistema, depois, o que foi feito durante a parada."
 
   # ================================================================== Específicas por setor
 
@@ -509,12 +509,12 @@ perguntas:
     funcao: PR
     subcategoria: PR.IR-01
     setores: [saude]
-    texto: "Os equipamentos de saúde ligados à rede (raio-x, laboratório, monitores) ficam numa rede separada dos computadores da recepção e do administrativo?"
+    texto: "Os equipamentos de saúde ligados à rede (raio-x, laboratório, monitores) ficam em uma rede separada dos computadores da recepção e do administrativo?"
     ajuda: "Equipamentos médicos costumam usar programas antigos que não podem ser atualizados. Mantê-los em redes separadas impede que um vírus que entrou por um e-mail da recepção chegue até eles e pare os atendimentos."
     porte_min: 3
     cenarios: { RAN: 2, IND: 2 }
     controle: "8.22"
-    recomendacao: "Coloque os equipamentos de saúde conectados numa rede separada da rede administrativa."
+    recomendacao: "Coloque os equipamentos de saúde conectados em uma rede separada da rede administrativa."
 
   - id: VAR-01
     funcao: GV
@@ -531,7 +531,7 @@ perguntas:
     funcao: PR
     subcategoria: PR.IR-01
     setores: [varejo]
-    texto: "A loja virtual está numa plataforma atualizada e tem proteção contra ataques que tentam derrubar ou invadir o site?"
+    texto: "A loja virtual está em uma plataforma atualizada e tem proteção contra ataques que tentam derrubar ou invadir o site?"
     ajuda: "Lojas virtuais são alvo de robôs que testam falhas conhecidas e de ataques de sobrecarga que tiram o site do ar em datas de muita venda. Muitas plataformas já incluem essa proteção; em sites próprios, ela precisa ser contratada."
     porte_min: 2
     cenarios: { IND: 2, VAZ: 2 }
@@ -542,7 +542,7 @@ perguntas:
     funcao: PR
     subcategoria: PR.IR-01
     setores: [industria]
-    texto: "Os computadores e controladores que comandam as máquinas ficam numa rede separada da rede do escritório e sem acesso direto pela internet?"
+    texto: "Os computadores e controladores que comandam as máquinas ficam em uma rede separada da rede do escritório e sem acesso direto pela internet?"
     ajuda: "Se a rede de automação industrial está ligada à rede do escritório, um vírus que chega por e-mail pode alcançar as máquinas e parar a produção. Separar as redes funciona como uma porta corta-fogo."
     porte_min: 2
     cenarios: { RAN: 3, IND: 2 }
@@ -586,23 +586,23 @@ perguntas:
     funcao: PR
     subcategoria: PR.AA-05
     setores: [tecnologia]
-    texto: "As senhas e acessos que vocês têm aos sistemas dos clientes ficam num cofre de senhas, com verificação em duas etapas, e são revisados de tempos em tempos?"
+    texto: "As senhas e acessos que vocês têm aos sistemas dos clientes ficam em um cofre de senhas, com verificação em duas etapas, e são revisados de tempos em tempos?"
     ajuda: "Empresas de tecnologia costumam ter as \"chaves\" de vários clientes. Um único ataque à sua empresa pode alcançar todos eles, o que transforma um incidente seu em vários incidentes dos clientes."
     porte_min: 2
     cenarios: { TER: 3, VAZ: 2 }
     controle: "8.2"
-    recomendacao: "Guarde os acessos dos clientes num cofre de senhas com verificação em duas etapas e revise a cada três meses quem tem acesso a cada cliente."
+    recomendacao: "Guarde os acessos dos clientes em um cofre de senhas com verificação em duas etapas e revise a cada três meses quem tem acesso a cada cliente."
 
   - id: SER-01
     funcao: PR
     subcategoria: PR.DS-01
     setores: [servicos]
-    texto: "Os documentos dos clientes (contratos, processos, declarações) ficam num local com acesso restrito, e não espalhados em e-mails e pastas pessoais?"
+    texto: "Os documentos dos clientes (contratos, processos, declarações) ficam em um local com acesso restrito, e não espalhados em e-mails e pastas pessoais?"
     ajuda: "Escritórios guardam documentos muito sensíveis dos clientes. Quando eles estão espalhados no e-mail e no computador de cada um, é difícil controlar quem vê e impossível garantir o backup."
     porte_min: 1
     cenarios: { VAZ: 2, IA: 1 }
     controle: "5.15"
-    recomendacao: "Centralize os documentos de clientes num repositório da empresa, com acesso restrito por cliente ou equipe."
+    recomendacao: "Centralize os documentos de clientes em um repositório da empresa, com acesso restrito por cliente ou equipe."
 
   - id: SER-02
     funcao: PR

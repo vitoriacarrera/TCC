@@ -158,7 +158,7 @@ cenarios:
     fonte: [csbs2026, julgamento]
 
   - id: TER
-    nome: "Problema num fornecedor"
+    nome: "Incidente de segurança em fornecedor"
     descricao: "Um fornecedor que guarda seus dados ou cuida dos seus sistemas (nuvem, contador, sistema de gestão, empresa de TI) sofre um incidente que atinge a sua empresa."
     ameaca: "Ataques à cadeia de suprimentos"
     efeito: [confidencialidade, disponibilidade]
@@ -183,7 +183,7 @@ cenarios:
 
   - id: IA
     nome: "Exposição de dados pelo uso de Inteligência Artificial"
-    descricao: "Alguém da equipe cola dados de clientes, contratos ou documentos sigilosos numa ferramenta de IA sem controle, e essa informação acaba exposta ou usada indevidamente."
+    descricao: "Alguém da equipe cola dados de clientes, contratos ou documentos sigilosos em uma ferramenta de IA sem controle, e essa informação acaba exposta ou usada indevidamente."
     ameaca: "Uso não governado de IA generativa; vazamento acidental"
     efeito: [confidencialidade]
     tef_base: 0.091       # parcela do total csbs2026 (proporção 0,3/1,9: julgamento)
