@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import os
+import socket
 import sqlite3
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -71,13 +72,34 @@ def _postgres(d: str) -> bool:
     return d.startswith(("postgres://", "postgresql://"))
 
 
+def _parametros_ipv4(d: str) -> dict:
+    """Parâmetros de conexão com o endereço IPv4 do servidor já resolvido (`hostaddr`).
+
+    O plano gratuito do Render não tem saída por IPv6, e o endereço do Neon também resolve para IPv6: sem isto, a
+    conexão pode tentar só o IPv6 e falhar com "Network is unreachable". O nome do servidor continua em `host`, que
+    o TLS usa para conferir o certificado e o Neon usa (SNI) para achar o banco certo.
+    """
+    from psycopg.conninfo import conninfo_to_dict
+
+    params = conninfo_to_dict(d)
+    host = str(params.get("host") or "")
+    if host and "hostaddr" not in params and not host.startswith("/") and "," not in host:
+        try:
+            ips = socket.getaddrinfo(host, int(params.get("port") or 5432), socket.AF_INET, socket.SOCK_STREAM)
+        except OSError:
+            return params
+        if ips:
+            params["hostaddr"] = ips[0][4][0]
+    return params
+
+
 @contextmanager
 def _conexao(d: str) -> Iterator[tuple[object, str]]:
     """(conexão, marcador de parâmetro). Cria a tabela na primeira vez. Confirma ao sair sem erro."""
     if _postgres(d):
         import psycopg  # só é necessário em produção
 
-        with psycopg.connect(d, connect_timeout=10) as con:
+        with psycopg.connect(**_parametros_ipv4(d), connect_timeout=10) as con:
             # DDL só quando falta algo: assim a API pode usar um usuário que só tem permissão de INSERT
             # (docs/seguranca.md, "Banco com menor privilégio"), sem CREATE nem ALTER.
             existe = con.execute("SELECT to_regclass('public.contribuicoes') IS NOT NULL").fetchone()[0]
