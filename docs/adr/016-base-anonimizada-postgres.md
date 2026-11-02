@@ -18,7 +18,8 @@ Railway, Fly.io) usam disco temporário, apagado a cada reinício ou nova versã
    com n ≥ 5, como manda o ADR-005; o "Não sei" fica fora da média e aparece em coluna própria.
 3. **Falha do banco não derruba a ferramenta:** a simulação continua; a contribuição responde 503 sem detalhes.
 4. **Credenciais:** o endereço do banco (com senha) fica só nas variáveis de ambiente da hospedagem e no
-   computador da autora; usuário do banco com permissão só nesta tabela; conexão com TLS (`sslmode=require`).
+   computador da autora; projeto exclusivo no Neon, que contém só esta tabela; conexão com TLS
+   (`sslmode=require`). Passo a passo em `docs/publicacao.md`.
 5. **Nada versionado:** `.gitignore` bloqueia `*.sqlite`, `*.db` e exportações.
 
 ## Consequências

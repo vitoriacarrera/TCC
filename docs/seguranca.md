@@ -42,17 +42,20 @@ elevados mesmo assim (`starlette>=1.3.1`, `h11>=0.16.0`, `fastapi>=0.162`). O CI
 - Produção com `--no-access-log` (o log de acesso registraria o IP) e `--no-server-header`.
 - O comprovante contém só o prazo e um resumo criptográfico das respostas; não é armazenado.
 
-## Para o deploy (30/10)
+## Configuração de produção
 
-1. `RISKPME_SEGREDO` com 32 bytes aleatórios (sem ele, a chave muda a cada reinício e comprovantes antigos
-   deixam de valer); `RISKPME_DOCS=0`; `RISKPME_CORS` com o domínio do frontend.
-2. `uvicorn riskpme.api.app:app --host 0.0.0.0 --no-access-log --no-server-header --proxy-headers
-   --forwarded-allow-ips=<proxy da plataforma> --limit-concurrency 50`. Sem `--proxy-headers`, todos os clientes
-   atrás do proxy dividem o mesmo limite; com `--forwarded-allow-ips="*"` fora de um proxy confiável, o limite
-   pode ser burlado forjando `X-Forwarded-For`.
-3. HTTPS obrigatório (a plataforma termina o TLS); imagem `python:3.12-slim` com usuário não root e
-   `pip install -r requirements.lock`.
-4. Com mais de uma instância, o limite por cliente passa a valer por instância (aceitável no volume do TCC).
+Aplicada em `render.yaml` e `frontend/vercel.json` (passo a passo em `docs/publicacao.md`):
+
+1. API no Render com `--no-access-log --no-server-header --proxy-headers --forwarded-allow-ips="*"
+   --limit-concurrency 50`. Aceitar `X-Forwarded-For` de qualquer origem é seguro ali porque o serviço só é
+   alcançável pelo proxy do Render; fora dessa situação, restrinja `--forwarded-allow-ips`.
+2. `RISKPME_SEGREDO` gerado pelo Render; `RISKPME_DOCS=0`; `RISKPME_CORS` com o endereço exato do site;
+   `RISKPME_CONTRIBUICOES_DB` com o PostgreSQL do Neon (TLS obrigatório). Nenhum segredo no repositório.
+3. Site no Vercel com cabeçalhos de segurança e CSP restrita: só scripts, estilos e fontes do próprio site
+   (fontes empacotadas, sem terceiros), chamadas só para a própria origem e `*.onrender.com`, sem iframes,
+   formulários ou objetos. Testado com a jornada completa sob essa política, sem bloqueios.
+4. HTTPS obrigatório nos dois (as plataformas terminam o TLS; HSTS ligado).
+5. Com mais de uma instância, o limite por cliente passa a valer por instância (aceitável no volume do TCC).
 
 ## Riscos residuais (para as Limitações)
 

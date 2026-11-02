@@ -70,6 +70,7 @@ O resumo mostra contagens e a maturidade média por função do NIST CSF por por
 grupos com pelo menos 5 contribuições. Em produção, a base fica num PostgreSQL gerenciado; localmente, num SQLite.
 
 Segurança (OWASP API Security Top 10, CVEs, configuração de produção): [`docs/seguranca.md`](docs/seguranca.md).
+Publicação (Neon + Render + Vercel), passo a passo: [`docs/publicacao.md`](docs/publicacao.md).
 Outras variáveis: `RISKPME_SEGREDO` (chave do comprovante) e `RISKPME_DOCS=0` (desliga `/docs` em produção).
 
 ## Rodando o validador do catálogo
