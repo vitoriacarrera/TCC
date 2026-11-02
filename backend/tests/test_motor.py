@@ -327,3 +327,9 @@ def test_mag_ruptura_mostra_impacto_antes_e_depois(cat):
             assert x["impacto_com_preparacao"] <= a.impacto_ruptura["RAN"] <= x["impacto_atual"]
         else:
             assert a.impacto_ruptura == {}
+
+
+def test_acoes_tem_titulo_para_o_gestor(cat):
+    p = perfil()
+    for a in plano_de_acao(cat, p, respostas(cat, p, 1)).acoes:
+        assert a.titulo == cat.controle(a.controle).acao and a.titulo != a.controle_nome

@@ -74,7 +74,7 @@ ativos:                # RF05
 
 calibracao_risco:      # RF03 — Módulo de Calibração (sem pré-seleção: revisão C-APET)
   - id: apetite_pct
-    texto: "Pensando num ano ruim: até quanto a empresa conseguiria perder com problemas digitais sem precisar mudar seus planos (atrasar contas, cortar investimentos)?"
+    texto: "Pensando em um ano ruim: até quanto a empresa conseguiria perder com problemas digitais sem precisar mudar seus planos (atrasar contas, cortar investimentos)?"
     ajuda: "Esse é o seu apetite ao risco: perdas até esse valor são desconfortáveis, mas aceitáveis."
     tipo: escolha
     opcoes:

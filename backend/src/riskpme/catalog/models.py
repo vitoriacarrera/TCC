@@ -198,6 +198,7 @@ class ParametrosModelo(_Base):
 class Controle(_Base):
     id: str
     nome: str
+    acao: str = Field(min_length=10)     # título para o gestor no plano de ação (o nome da norma fica para o técnico)
     tipo: Literal["preventivo", "detectivo", "corretivo"]
     esforco: Literal["baixo", "medio", "alto"]
 

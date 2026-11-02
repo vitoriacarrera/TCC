@@ -35,12 +35,12 @@ termos:
     termo: "Ransomware (sequestro de dados)"
     aliases: [ransomware, "sequestro de dados"]
     explicacao: "Tipo de vírus que tranca (criptografa) os arquivos e sistemas da empresa e exige um pagamento, o \"resgate\", para devolvê-los. Muitas vezes os criminosos também copiam os dados e ameaçam divulgá-los."
-    exemplo: "Numa segunda-feira, todos os computadores mostram uma mensagem pedindo pagamento em criptomoeda, e nenhum arquivo abre."
+    exemplo: "Em uma segunda-feira, todos os computadores mostram uma mensagem pedindo pagamento em criptomoeda, e nenhum arquivo abre."
 
   - id: golpe_digital
     termo: "Golpe digital (phishing e engenharia social)"
     aliases: [phishing, "engenharia social", golpe, golpes, "e-mail falso", pretexting]
-    explicacao: "Mensagem falsa (e-mail, WhatsApp, SMS, ligação) que se passa por alguém de confiança, como banco, fornecedor ou chefe, para fazer a pessoa clicar num link, informar uma senha ou fazer um pagamento."
+    explicacao: "Mensagem falsa (e-mail, WhatsApp, SMS, ligação) que se passa por alguém de confiança, como banco, fornecedor ou chefe, para fazer a pessoa clicar em um link, informar uma senha ou fazer um pagamento."
     exemplo: "Um \"fornecedor\" avisa por e-mail que mudou de banco e manda um boleto novo. O boleto é do golpista."
 
   - id: ddos
@@ -52,7 +52,7 @@ termos:
   - id: vulnerabilidade
     termo: "Falha de segurança (vulnerabilidade)"
     aliases: [vulnerabilidade, vulnerabilidades, "falha de segurança", "falhas de segurança"]
-    explicacao: "Um defeito num programa, sistema ou configuração que permite a um criminoso entrar ou causar dano. Os fabricantes corrigem essas falhas pelas atualizações."
+    explicacao: "Um defeito em um programa, sistema ou configuração que permite a um criminoso entrar ou causar dano. Os fabricantes corrigem essas falhas pelas atualizações."
     exemplo: "Uma versão antiga do sistema da loja virtual permite que alguém de fora baixe o cadastro de clientes."
 
   - id: vazamento
@@ -71,14 +71,14 @@ termos:
     termo: "Inteligência Artificial (IA) sem controle"
     aliases: ["Inteligência Artificial", "IA", "shadow AI", ChatGPT]
     explicacao: "Ferramentas como ChatGPT, Gemini ou Copilot, que respondem perguntas e escrevem textos. O risco aparece quando alguém cola nelas dados de clientes ou documentos sigilosos: dependendo da ferramenta e do plano contratado, esse conteúdo pode ser guardado e usado pelo fornecedor."
-    exemplo: "Um colaborador cola um contrato inteiro com dados do cliente numa IA gratuita para pedir um resumo."
+    exemplo: "Um colaborador cola um contrato inteiro com dados do cliente em uma IA gratuita para pedir um resumo."
 
   # ---------------------------------------------------------------- proteções
   - id: duas_etapas
     termo: "Verificação em duas etapas"
     aliases: ["duas etapas", "dois fatores", MFA, 2FA, "autenticação multifator"]
     explicacao: "Além da senha, o sistema pede uma segunda confirmação: um código no celular, um aplicativo autenticador ou uma chave física. Mesmo que um criminoso descubra a senha, ele não entra sem o seu celular."
-    exemplo: "Ao entrar no e-mail num computador novo, chega um código por aplicativo que você precisa digitar."
+    exemplo: "Ao entrar no e-mail em um computador novo, chega um código por aplicativo que você precisa digitar."
 
   - id: gerenciador_senhas
     termo: "Gerenciador de senhas (cofre de senhas)"
@@ -143,7 +143,7 @@ termos:
   - id: nuvem
     termo: "Nuvem"
     aliases: [nuvem, "em nuvem", "Google Workspace", "Microsoft 365"]
-    explicacao: "Serviços e arquivos que ficam nos computadores de um fornecedor e são acessados pela internet, em vez de ficarem num servidor dentro da empresa."
+    explicacao: "Serviços e arquivos que ficam nos computadores de um fornecedor e são acessados pela internet, em vez de ficarem em um servidor dentro da empresa."
     exemplo: "E-mail do Gmail ou Outlook, Google Drive, OneDrive, sistema de gestão online."
 
   - id: responsabilidade_compartilhada
@@ -210,7 +210,7 @@ termos:
     termo: "Simulação (exercício)"
     aliases: [simulação, simulações, "exercício de mesa"]
     explicacao: "Um treino em que a equipe finge que um problema aconteceu e percorre o plano, para descobrir falhas antes que seja real."
-    exemplo: "Numa reunião de 1 hora, a equipe discute: \"e se hoje o sistema de agenda amanhecesse trancado?\""
+    exemplo: "Em uma reunião de 1 hora, a equipe discute: \"e se hoje o sistema de agenda amanhecesse trancado?\""
 
   - id: contingencia
     termo: "Plano de contingência (continuidade)"
@@ -304,7 +304,7 @@ termos:
     termo: "Varredura de vulnerabilidades"
     aliases: ["varredura de vulnerabilidades", "teste de invasão", pentest]
     explicacao: "Verificação feita por um especialista, com ferramentas, para encontrar falhas de segurança já conhecidas no site e nos sistemas acessíveis pela internet, sem invadir nada. É diferente do teste de invasão, em que o especialista tenta de fato entrar, que é mais caro."
-    exemplo: "Um relatório trimestral mostra que o sistema da loja virtual está numa versão com falha grave e indica a correção."
+    exemplo: "Um relatório trimestral mostra que o sistema da loja virtual está em uma versão com falha grave e indica a correção."
 
   - id: gestao_dispositivos
     termo: "Gestão de dispositivos (MDM)"
@@ -316,7 +316,7 @@ termos:
     termo: "Classificação de alertas por gravidade"
     aliases: [gravidade, "prazo de atendimento", criticidade, SLA]
     explicacao: "Regra combinada com um especialista que separa os alertas de segurança em níveis (por exemplo, crítico, alto, médio e baixo) e define em quanto tempo cada nível precisa ser atendido. Assim a equipe cuida primeiro do que importa, sem ficar sobrecarregada."
-    exemplo: "Vírus ativo num computador: atender em até 1 hora. Aviso de senha fraca: atender na semana."
+    exemplo: "Vírus ativo em um computador: atender em até 1 hora. Aviso de senha fraca: atender na semana."
 
   - id: acesso_remoto
     termo: "Acesso remoto"
@@ -345,17 +345,17 @@ conceitos_resultado:
     termo: "Perda esperada por ano"
     explicacao: "A média do prejuízo anual considerando todos os anos simulados, inclusive aqueles em que nada acontece. Serve para comparar com o custo de se proteger."
   - id: p90
-    termo: "Perda num ano ruim (P90)"
+    termo: "Perda em um ano ruim (P90)"
     explicacao: "O valor de prejuízo que só é ultrapassado em 1 de cada 10 anos em que o problema acontece. É o \"pior cenário razoável\" usado no mapa de calor: não é o pior caso possível, mas um resultado ruim e realista."
   - id: apetite
     termo: "Apetite ao risco"
-    explicacao: "Quanto a empresa aceita perder num ano ruim sem mudar os planos. Riscos abaixo disso podem ser apenas acompanhados."
+    explicacao: "Quanto a empresa aceita perder em um ano ruim sem mudar os planos. Riscos abaixo disso podem ser apenas acompanhados."
   - id: tolerancia
     termo: "Tolerância ao risco"
     explicacao: "O limite de perda a partir do qual a continuidade da empresa fica ameaçada. Riscos acima disso são críticos e pedem ação imediata."
   - id: mapa_calor
     termo: "Mapa de calor"
-    explicacao: "Quadro de 3 × 3 que posiciona cada cenário pela chance de acontecer nos próximos 5 anos (rara, possível ou provável) e pelo prejuízo num ano em que ele acontece (abaixo do apetite, entre o apetite e a tolerância, ou acima da tolerância). Verde: aceitável, basta acompanhar. Amarelo: atenção. Vermelho: agir primeiro."
+    explicacao: "Quadro de 3 × 3 que posiciona cada cenário pela chance de acontecer nos próximos 5 anos (rara, possível ou provável) e pelo prejuízo em um ano em que ele acontece (abaixo do apetite, entre o apetite e a tolerância, ou acima da tolerância). Verde: aceitável, basta acompanhar. Amarelo: atenção. Vermelho: agir primeiro."
   - id: monte_carlo
     termo: "Simulação de Monte Carlo"
     explicacao: "Em vez de dar um único número, a ferramenta \"sorteia\" 10.000 anos possíveis para a sua empresa (em alguns nada acontece, em outros há um ou mais incidentes de tamanhos diferentes) e resume o resultado. É como jogar um dado milhares de vezes para entender quais resultados são comuns e quais são raros."
@@ -369,7 +369,7 @@ conceitos_resultado:
     termo: "Redução de perda esperada"
     explicacao: "Quanto a perda esperada por ano cai se a empresa melhorar aquele ponto do questionário."
   - id: periodo_ruim
-    termo: "Prejuízo num período ruim"
+    termo: "Prejuízo em um período ruim"
     explicacao: "O prejuízo somado dos próximos 5 anos que só é ultrapassado em 1 de cada 10 simulações. No plano de ação, mostra quanto cada ação reduz esse valor: é a proteção contra os anos ruins, que a média esconde quando o problema é raro e caro."
   - id: limite_investimento
     termo: "Limite de investimento"

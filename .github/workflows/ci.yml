@@ -27,3 +27,23 @@ jobs:
         run: pip-audit -r requirements.lock
       - name: Análise estática de segurança
         run: bandit -q -r src
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci
+      - name: Vulnerabilidades conhecidas nas dependências
+        run: npm audit --audit-level=moderate
+      - name: Lint
+        run: npm run lint
+      - name: Testes
+        run: npm test
+      - name: Build (inclui checagem de tipos)
+        run: npm run build
