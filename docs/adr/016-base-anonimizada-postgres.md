@@ -30,3 +30,6 @@ Railway, Fly.io) usam disco temporário, apagado a cada reinício ou nova versã
   criada automaticamente em bases antigas (`ADD COLUMN IF NOT EXISTS`). O resumo passa a mostrar, para n ≥ 5, a
   distribuição de cores e de rupturas por cenário, a perda esperada média como fração da receita e as ações mais
   indicadas em "Comece por aqui"; a exportação ganha colunas por cenário e as listas de ações por bloco.
+- 02/11/2026 (Vitória): o resumo deixa de esconder grupos pequenos, porque a amostra deve ter menos de 5
+  contribuições; mostra todos à autora, marca com "*" os grupos com n < 5 e oferece `--minimo` para tabelas
+  publicadas (ADR-005, item 3).

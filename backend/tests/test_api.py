@@ -203,7 +203,7 @@ def _contrib(setor, porte, respostas, mes="2026-11"):
     return contribuicoes.Contribuicao(mes, "v1", setor, porte, respostas)
 
 
-def test_analise_respeita_n_minimo_e_exporta(tmp_path):
+def test_analise_mostra_tudo_a_autora_e_marca_grupos_pequenos(tmp_path):
     from riskpme.analise import N_MINIMO, agrupar, exportar_csv, resumo
     from riskpme.api.app import catalogo
     cat = catalogo()
@@ -213,7 +213,12 @@ def test_analise_respeita_n_minimo_e_exporta(tmp_path):
     assert g["celula"]["varejo|1"].pct_nao_sei("RS") == 1.0
     texto = resumo(cat, dados)
     linha_saude = next(x for x in texto.splitlines() if x.startswith("Saúde ·"))
-    assert "100%" not in linha_saude and "-" in linha_saude                 # n = 1: sem média publicada
+    assert "*" in linha_saude and "0%" in linha_saude                       # n = 1: mostrado à autora, marcado
+    linha_varejo = next(x for x in texto.splitlines() if x.startswith("Varejo & Comércio ·"))
+    assert "*" not in linha_varejo and "100%" in linha_varejo
+    publicavel = resumo(cat, dados, minimo=N_MINIMO)
+    linha_saude = next(x for x in publicavel.splitlines() if x.startswith("Saúde ·"))
+    assert "0%" not in linha_saude                                         # tabela para publicação esconde n < 5
     destino = tmp_path / "dados.csv"
     assert exportar_csv(cat, dados, destino) == N_MINIMO + 1
     linhas = destino.read_text(encoding="utf-8-sig").splitlines()
@@ -312,3 +317,16 @@ def test_comprovante_aceita_resultado_reserializado_pelo_navegador():
     como_js = {"a": 1, "b": [0, 0.25], "c": {"d": 2}}                      # JSON.stringify(1.0) == "1"
     assert seguranca.comprovante_valido(c, "varejo", 1, {"PR-01": 3}, como_js)
     assert not seguranca.comprovante_valido(c, "varejo", 1, {"PR-01": 3}, {**como_js, "a": 2})
+
+
+def test_resultados_aparecem_com_poucas_contribuicoes():
+    from riskpme.analise import resumo
+    from riskpme.api.app import catalogo
+    r = {"perda_esperada_pct_receita": 0.01, "chance_algum_prejuizo_horizonte": 0.4, "nao_sei": 0, "horizonte_anos": 5,
+         "cenarios": {"RAN": {"cor": "vermelho", "impacto": 3, "probabilidade": 2, "ruptura": False,
+                              "chance_horizonte": 0.2, "maturidade_prevencao": 0.5, "maturidade_resposta": 0.4,
+                              "perda_esperada_pct_receita": 0.002}},
+         "acoes": [{"controle": "8.13", "bloco": "comece"}]}
+    texto = resumo(catalogo(), [contribuicoes.Contribuicao("2026-11", "v1", "varejo", 1, {"PR-01": 2}, r)])
+    assert "Riscos (1 contribuição com resultado) * menos de 5" in texto
+    assert "Fazer cópias de segurança e testar a recuperação" in texto

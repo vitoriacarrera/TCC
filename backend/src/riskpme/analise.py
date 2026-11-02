@@ -2,8 +2,10 @@
 
 Inclui os resultados anonimizados (riscos por cenário e ações recomendadas), quando a contribuição os traz.
 
-Regra de publicação: só se mostram médias de grupos com pelo menos N_MINIMO contribuições (células menores são
-marcadas e entram apenas nos totais), para que nenhuma empresa possa ser reconhecida pelas respostas.
+A autora vê todos os grupos, inclusive os pequenos (revisão de 02/11/2026: a amostra do TCC deve ser pequena).
+Grupos com menos de N_PUBLICACAO contribuições aparecem marcados com "*": no texto, descreva-os sem combinar setor,
+porte e respostas de um jeito que permita reconhecer a empresa (ADR-005, item 3). `minimo` permite esconder os
+grupos pequenos ao gerar uma tabela para publicação.
 Maturidade de uma função = média de resposta/4 nas perguntas respondidas (o "Não sei" não entra na média e é
 contado à parte), na mesma escala de 0 a 100% do motor.
 """
@@ -18,7 +20,8 @@ from pathlib import Path
 from .api.contribuicoes import Contribuicao
 from .catalog.models import Catalogo
 
-N_MINIMO = 5
+N_PUBLICACAO = 5          # abaixo disso, o grupo é marcado com "*"
+N_MINIMO = N_PUBLICACAO  # compatibilidade com quem importava o nome antigo
 NAO_SEI = "nao_sei"
 
 
@@ -68,42 +71,47 @@ def agrupar(cat: Catalogo, contribs: list[Contribuicao]) -> dict[str, dict[str, 
     return g
 
 
-def resumo(cat: Catalogo, contribs: list[Contribuicao]) -> str:
-    """Texto com contagens e maturidade média por função do NIST CSF, respeitando n ≥ N_MINIMO."""
+def resumo(cat: Catalogo, contribs: list[Contribuicao], minimo: int = 1) -> str:
+    """Contagens e maturidade média por função do NIST CSF. Mostra grupos com n ≥ `minimo` (padrão: todos) e marca
+    com "*" os que têm menos de N_PUBLICACAO."""
     if not contribs:
         return "Nenhuma contribuição registrada ainda."
     funcoes = list(cat.funcoes)
     g = agrupar(cat, contribs)
     meses = sorted({c.mes_ano for c in contribs})
     versoes = sorted({c.versao_catalogo for c in contribs})
-    linhas = [f"{len(contribs)} contribuições · {meses[0]} a {meses[-1]} · versões do catálogo: {', '.join(versoes)}",
-              f"Regra de publicação: médias só para grupos com n ≥ {N_MINIMO} (os demais aparecem como '-').", ""]
+    plural = "contribuição" if len(contribs) == 1 else "contribuições"
+    linhas = [f"{len(contribs)} {plural} · {meses[0]} a {meses[-1]} · versões do catálogo: {', '.join(versoes)}",
+              f"* = grupo com menos de {N_PUBLICACAO} contribuições: use no texto sem permitir reconhecer a empresa."
+              + (f" Grupos com n < {minimo} aparecem como '-'." if minimo > 1 else ""), ""]
     cab = f"{'grupo':<56}{'n':>4}" + "".join(f"{f:>7}" for f in funcoes) + f"{'não sei':>9}"
     for nivel, titulo in (("total", "Total"), ("porte", "Por porte"), ("setor", "Por setor"), ("celula", "Setor × porte")):
         linhas += [titulo, cab]
         for k in sorted(g[nivel]):
             gr = g[nivel][k]
-            pode = gr.n >= N_MINIMO
+            pode = gr.n >= minimo
             mats = "".join(f"{(f'{gr.maturidade(f):.0%}' if pode and gr.maturidade(f) is not None else '-'):>7}"
                            for f in funcoes)
             ns_total = sum(gr.nao_sei.values())
             resp_total = sum(gr.respondidas.values()) + ns_total
             ns = f"{ns_total / resp_total:.0%}" if pode and resp_total else "-"
-            linhas.append(f"{gr.nome[:55]:<56}{gr.n:>4}{mats}{ns:>9}")
+            marca = "*" if gr.n < N_PUBLICACAO else " "
+            linhas.append(f"{(gr.nome[:53] + ' ' + marca):<56}{gr.n:>4}{mats}{ns:>9}")
         linhas.append("")
     linhas.append("Funções: " + "; ".join(f"{f} = {cat.funcoes[f].nome}" for f in funcoes))
-    linhas += _resumo_resultados(cat, contribs)
+    linhas += _resumo_resultados(cat, contribs, minimo)
     return "\n".join(linhas)
 
 
-def _resumo_resultados(cat: Catalogo, contribs: list[Contribuicao]) -> list[str]:
+def _resumo_resultados(cat: Catalogo, contribs: list[Contribuicao], minimo: int = 1) -> list[str]:
     """Riscos e ações mais recomendadas, a partir do resultado anonimizado (só contribuições que o trazem)."""
     com = [c for c in contribs if c.resultado]
-    if len(com) < N_MINIMO:
-        return ["", f"Resultados: {len(com)} contribuição(ões) com resultado; mostrados a partir de {N_MINIMO}."]
+    if not com or len(com) < minimo:
+        return ["", f"Resultados: {len(com)} contribuição(ões) com resultado."]
     n = len(com)
-    linhas = ["", f"Riscos ({n} contribuições com resultado)",
-              f"{'cenário':<46}{'vermelho':>9}{'amarelo':>9}{'verde':>7}{'ruptura':>9}{'chance 5a':>11}{'perda/receita':>15}"]
+    aviso = f" * menos de {N_PUBLICACAO}" if n < N_PUBLICACAO else ""
+    linhas = ["", f"Riscos ({n} {'contribuição' if n == 1 else 'contribuições'} com resultado){aviso}",
+              f"{'cenário':<56}{'vermelho':>9}{'amarelo':>9}{'verde':>7}{'ruptura':>9}{'chance 5a':>11}{'perda/receita':>15}"]
     for cen in cat.cenarios:
         rs = [c.resultado["cenarios"][cen.id] for c in com if cen.id in c.resultado.get("cenarios", {})]
         if not rs:
@@ -112,7 +120,7 @@ def _resumo_resultados(cat: Catalogo, contribs: list[Contribuicao]) -> list[str]
         rup = sum(bool(r["ruptura"]) for r in rs) / len(rs)
         chance = sum(r["chance_horizonte"] for r in rs) / len(rs)
         perda = sum(r["perda_esperada_pct_receita"] for r in rs) / len(rs)
-        linhas.append(f"{cen.nome[:45]:<46}{cor['vermelho']:>9.0%}{cor['amarelo']:>9.0%}{cor['verde']:>7.0%}"
+        linhas.append(f"{cen.nome[:55]:<56}{cor['vermelho']:>9.0%}{cor['amarelo']:>9.0%}{cor['verde']:>7.0%}"
                       f"{rup:>9.0%}{chance:>11.1%}{perda:>15.3%}")
     perda_total = sum(c.resultado["perda_esperada_pct_receita"] for c in com) / n
     linhas.append(f"Perda esperada média: {perda_total:.3%} da receita por ano")

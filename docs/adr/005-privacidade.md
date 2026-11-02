@@ -17,8 +17,11 @@ analisar como PMEs de diferentes setores e portes responderam ao questionário.
    - setor, nível de porte (1–4), respostas 0–4/"não sei" por id de pergunta, versão do catálogo, mês/ano;
    - **não** são gravados: faturamento ou outros valores financeiros, nº de registros, nº de usuários, ativo crítico, IP,
      user-agent, horário exato, texto livre, qualquer id que ligue a contribuição à sessão.
-3. **Minimização contra reidentificação:** análises publicadas só por agregados com n ≥ 5 por célula
-   setor × porte; células menores são agrupadas.
+3. **Minimização contra reidentificação:** análises publicadas preferencialmente por agregados com n ≥ 5 por
+   célula setor × porte. Revisão de 02/11/2026: como a amostra do TCC deve ser pequena, a ferramenta de análise mostra
+   à autora todos os grupos e marca com "*" os que têm menos de 5; no texto, esses casos são descritos sem combinar
+   setor, porte e respostas de um jeito que permita reconhecer a empresa (por exemplo, "uma empresa de serviços"
+   em vez de setor e porte juntos), e `--minimo 5` gera tabelas só com grupos maiores.
 4. **Retenção:** a base é excluída após a aprovação final do TCC.
 5. **Ética:** confirmar com a UFMG se a coleta se enquadra na dispensa de apreciação pelo CEP
    (Res. CNS 510/2016, art. 1º, parágrafo único, I e V). Dado anonimizado não é dado pessoal (LGPD, art. 12),
