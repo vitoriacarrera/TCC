@@ -330,3 +330,31 @@ def test_resultados_aparecem_com_poucas_contribuicoes():
     texto = resumo(catalogo(), [contribuicoes.Contribuicao("2026-11", "v1", "varejo", 1, {"PR-01": 2}, r)])
     assert "Riscos (1 contribuição com resultado) * menos de 5" in texto
     assert "Fazer cópias de segurança e testar a recuperação" in texto
+
+
+@pytest.mark.skipif(not __import__("os").environ.get("RISKPME_TESTE_POSTGRES"),
+                    reason="defina RISKPME_TESTE_POSTGRES=postgresql://... para testar com um PostgreSQL real")
+def test_postgres_usuario_so_insert_grava_e_nao_le():
+    """docs/seguranca.md: a API usa um usuário que só pode inserir; quem invadir a API não lê a base."""
+    import os
+    from urllib.parse import urlsplit, urlunsplit
+
+    import psycopg
+    url = os.environ["RISKPME_TESTE_POSTGRES"]
+    contribuicoes.gravar(url, "v", "saude", 3, {"PR-01": 2}, {"x": 1})           # cria a tabela como dono
+    with psycopg.connect(url, autocommit=True) as con:
+        con.execute("DROP ROLE IF EXISTS teste_coleta")
+        con.execute("CREATE ROLE teste_coleta LOGIN PASSWORD 'teste'")
+        con.execute("GRANT USAGE ON SCHEMA public TO teste_coleta")
+        con.execute("GRANT INSERT ON contribuicoes TO teste_coleta")
+    partes = urlsplit(url)
+    limitado = urlunsplit(partes._replace(netloc=f"teste_coleta:teste@{partes.hostname}:{partes.port or 5432}"))
+    try:
+        contribuicoes.gravar(limitado, "v", "varejo", 1, {"PR-01": 1}, {"x": 2})
+        with pytest.raises(psycopg.errors.InsufficientPrivilege):
+            contribuicoes.ler_todas(limitado)
+    finally:
+        with psycopg.connect(url, autocommit=True) as con:
+            con.execute("REVOKE ALL ON contribuicoes FROM teste_coleta")
+            con.execute("REVOKE ALL ON SCHEMA public FROM teste_coleta")
+            con.execute("DROP ROLE teste_coleta")

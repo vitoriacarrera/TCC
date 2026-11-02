@@ -94,6 +94,11 @@ A API só aceita chamadas do endereço do site (CORS).
 | `/saude` mostra `"coleta_anonimizada":false` | `RISKPME_CONTRIBUICOES_DB` vazio no Render | Preencha em **Environment** |
 | "Não foi possível registrar agora" ao contribuir | Banco inacessível ou endereço do Neon errado | Confira o endereço e os **Logs** do Render |
 
+## Segurança das contas (faça uma vez)
+
+Veja `docs/seguranca.md`, "Revisão da arquitetura publicada": verificação em duas etapas nas quatro contas,
+proteção da branch `main`, apps do GitHub limitados ao repositório e usuário do banco só com `INSERT` no Render.
+
 ## Depois da aprovação do TCC
 
 Pelo ADR-005, a base é excluída após a aprovação final: no Neon, abra **Settings** e use **Delete project**.

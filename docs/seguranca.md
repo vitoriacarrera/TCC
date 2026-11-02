@@ -57,6 +57,41 @@ Aplicada em `render.yaml` e `frontend/vercel.json` (passo a passo em `docs/publi
 4. HTTPS obrigatório nos dois (as plataformas terminam o TLS; HSTS ligado).
 5. Com mais de uma instância, o limite por cliente passa a valer por instância (aceitável no volume do TCC).
 
+## Revisão da arquitetura publicada (02/11/2026)
+
+Escopo: GitHub (código e CI) → Render (API) e Vercel (site), com publicação automática a partir da `main`, e Neon
+(base anonimizada). Verificado: `pip-audit -r requirements.lock` e `npm audit` sem vulnerabilidades conhecidas;
+histórico do repositório sem segredos (nenhum endereço de banco, token ou chave versionado); `bandit` sem achados.
+
+| Ameaça | Situação | Medida |
+|---|---|---|
+| Alguém entra na conta do GitHub, Render, Vercel ou Neon e troca o site ou lê a base | **Maior risco.** Quem controla essas contas controla tudo, e as três últimas entram pelo GitHub | Verificação em duas etapas nas quatro contas, de preferência com aplicativo autenticador ou chave de acesso (passkey) |
+| Uma mudança indevida chega à `main` e é publicada sozinha | Publicação automática a cada merge | Regra de proteção da `main`: só por PR e só com o CI verde |
+| Integrações do Render e do Vercel com acesso a outros repositórios | Depende de como foram autorizadas | Limitar os dois apps do GitHub ao repositório `TCC` |
+| Passo do CI comprometido altera o repositório | Token do CI tinha permissão padrão | **Corrigido:** `permissions: contents: read` no `ci.yml` |
+| Dependência ganha uma CVE depois da publicação | O CI só audita quando há push | **Corrigido:** `dependabot.yml` (pip, npm e GitHub Actions, semanal) e alertas do Dependabot |
+| Invasor da API lê ou apaga a base da pesquisa | A API usava o usuário dono do banco | **Corrigido no código:** a API só executa CREATE/ALTER quando falta a tabela ou a coluna; em produção, usar um usuário que só tem `INSERT` (abaixo). Mesmo com a API comprometida, ninguém lê, altera ou apaga o que já foi gravado |
+| Vazamento do endereço do banco (com senha) | Fica só no Render e no computador da autora | Usuário só de `INSERT` no Render; endereço do dono só no computador da autora, sem colar em código, mensagens ou prints |
+| Versões de prévia do Vercel (uma por branch) | São públicas por padrão em algumas configurações | Não alcançam a API: o CORS só aceita `https://ciberdecide.vercel.app` |
+
+### Banco com menor privilégio (passo a passo no Neon)
+
+1. Gere uma senha longa no seu computador: `py -c "import secrets; print(secrets.token_urlsafe(24))"`.
+2. No Neon, abra **SQL Editor** (conectado como dono) e rode, trocando a senha:
+
+   ```sql
+   ALTER TABLE contribuicoes ADD COLUMN IF NOT EXISTS resultado JSONB;
+   CREATE ROLE api_coleta WITH LOGIN PASSWORD 'COLE_A_SENHA_AQUI';
+   GRANT USAGE ON SCHEMA public TO api_coleta;
+   GRANT INSERT ON contribuicoes TO api_coleta;
+   ```
+
+   Crie o usuário por SQL, e não pela tela de Roles: usuários criados pela tela recebem privilégios amplos.
+3. Monte o endereço do novo usuário: o mesmo endereço do dono, trocando `neondb_owner:SENHA` por
+   `api_coleta:SENHA_NOVA`.
+4. No Render, em **Environment**, troque `RISKPME_CONTRIBUICOES_DB` por esse endereço e salve.
+5. Teste uma contribuição pelo site. Para analisar, continue usando o endereço do **dono**, só no seu computador.
+
 ## Riscos residuais (para as Limitações)
 
 - Sem autenticação, um robô paciente consegue gerar contribuições plausíveis respeitando os limites.
