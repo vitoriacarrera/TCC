@@ -5,7 +5,7 @@
     riskpme-catalogo revisao docs/revisao.md    # exporta o banco de perguntas para revisão
     riskpme-catalogo custos docs/custos.md      # memória de cálculo do custo dos controles
     riskpme-catalogo simular perfil.json        # Monte Carlo + matriz 3 × 3 + plano de ação de um perfil
-    riskpme-catalogo contribuicoes resumo       # base anonimizada: contagens e maturidade por função (n ≥ 5)
+    riskpme-catalogo contribuicoes resumo       # base anonimizada: contagens, maturidade, riscos e ações
     riskpme-catalogo contribuicoes exportar dados.csv   # uma linha por contribuição, para planilha
 """
 
@@ -86,6 +86,8 @@ def _cmd_revisao(cat: Catalogo, destino: Path) -> int:
             linhas += [
                 f"### {p.id} — {p.texto}",
                 "",
+                "**Respostas:** " + " · ".join(f"({i}) {r}" for i, r in enumerate(p.respostas)),
+                "",
                 f"**Ajuda:** {p.ajuda}",
                 "",
                 f"**Recomendação:** {p.recomendacao}",
@@ -105,6 +107,8 @@ def _cmd_revisao(cat: Catalogo, destino: Path) -> int:
                 for campo in ("texto", "ajuda", "recomendacao"):
                     if getattr(v, campo):
                         linhas.append(f"- {campo}: {getattr(v, campo)}")
+                if v.respostas:
+                    linhas.append("- respostas: " + " · ".join(f"({i}) {r}" for i, r in enumerate(v.respostas)))
                 if v.cenarios:
                     linhas.append("- pesos: " + ", ".join(f"{c} {w}" for c, w in v.cenarios.items()))
                 linhas.append("")
@@ -236,7 +240,7 @@ def _cmd_simular(cat: Catalogo, arquivo: Path, semente: int | None) -> int:
     return 0
 
 
-def _cmd_contribuicoes(cat: Catalogo, acao: str, banco: str | None, destino: Path | None) -> int:
+def _cmd_contribuicoes(cat: Catalogo, acao: str, banco: str | None, destino: Path | None, minimo: int = 1) -> int:
     from ..analise import exportar_csv, resumo
     from ..api import contribuicoes
 
@@ -246,7 +250,7 @@ def _cmd_contribuicoes(cat: Catalogo, acao: str, banco: str | None, destino: Pat
         return 1
     dados = contribuicoes.ler_todas(d)
     if acao == "resumo":
-        print(resumo(cat, dados))
+        print(resumo(cat, dados, minimo))
         return 0
     if destino is None:
         print("Informe o arquivo de saída, por exemplo: contribuicoes exportar dados.csv", file=sys.stderr)
@@ -275,6 +279,8 @@ def main(argv: list[str] | None = None) -> int:
     co.add_argument("acao", choices=["resumo", "exportar"])
     co.add_argument("destino", type=Path, nargs="?", help="arquivo .csv (só para exportar)")
     co.add_argument("--banco", default=None, help="endereço do banco (padrão: RISKPME_CONTRIBUICOES_DB)")
+    co.add_argument("--minimo", type=int, default=1,
+                    help="esconde médias de grupos com menos contribuições que isto (para tabelas publicadas)")
     cu = sub.add_parser("custos")
     cu.add_argument("destino", type=Path)
     args = ap.parse_args(argv)
@@ -292,7 +298,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "custos":
         return _cmd_custos(cat, args.destino)
     if args.cmd == "contribuicoes":
-        return _cmd_contribuicoes(cat, args.acao, args.banco, args.destino)
+        return _cmd_contribuicoes(cat, args.acao, args.banco, args.destino, args.minimo)
     if args.cmd == "simular":
         return _cmd_simular(cat, args.arquivo, args.semente)
     return _cmd_revisao(cat, args.destino)

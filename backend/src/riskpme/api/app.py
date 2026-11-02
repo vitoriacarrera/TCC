@@ -160,7 +160,8 @@ def montar_questionario(pedido: PedidoQuestionario) -> dict:
         "porte": {"nivel": porte, "nome": nome},
         "mensagem_porte": msg,
         "tempo_estimado_min": cat.instrucoes.tempo_estimado_min.get(porte),
-        "perguntas": [{"id": p.id, "funcao": p.funcao, "texto": p.texto, "ajuda": p.ajuda} for p in perguntas],
+        "perguntas": [{"id": p.id, "funcao": p.funcao, "texto": p.texto, "respostas": p.respostas, "ajuda": p.ajuda}
+                      for p in perguntas],
     }
 
 

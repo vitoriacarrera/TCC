@@ -74,8 +74,14 @@ def _conexao(d: str) -> Iterator[tuple[object, str]]:
         import psycopg  # só é necessário em produção
 
         with psycopg.connect(d, connect_timeout=10) as con:
-            con.execute(_POSTGRES)
-            con.execute(_MIGRAR_POSTGRES)
+            # DDL só quando falta algo: assim a API pode usar um usuário que só tem permissão de INSERT
+            # (docs/seguranca.md, "Banco com menor privilégio"), sem CREATE nem ALTER.
+            existe = con.execute("SELECT to_regclass('public.contribuicoes') IS NOT NULL").fetchone()[0]
+            if not existe:
+                con.execute(_POSTGRES)
+            elif not con.execute("SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' "
+                                 "AND table_name = 'contribuicoes' AND column_name = 'resultado'").fetchone():
+                con.execute(_MIGRAR_POSTGRES)
             yield con, "%s"
     else:
         caminho = Path(d)

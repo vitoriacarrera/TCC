@@ -64,7 +64,7 @@ export function Questionario({ cat, e, mudar, voltar, concluir, carregando, erro
                 <span className="mr-2 text-dourado">{inicio + i + 1}.</span><Texto>{p.texto}</Texto>
               </h3>
               <Ajuda><Texto>{p.ajuda}</Texto></Ajuda>
-              <Escala cat={cat} nome={p.id} valor={p.id in e.respostas ? e.respostas[p.id] : undefined}
+              <Escala cat={cat} rotulos={p.respostas} nome={p.id} valor={p.id in e.respostas ? e.respostas[p.id] : undefined}
                 marcarFalta={avisou && !(p.id in e.respostas)}
                 aoEscolher={(v) => mudar({ respostas: { ...e.respostas, [p.id]: v }, simulacao: null })} />
             </li>
@@ -84,8 +84,8 @@ export function Questionario({ cat, e, mudar, voltar, concluir, carregando, erro
   )
 }
 
-function Escala({ cat, nome, valor, aoEscolher, marcarFalta }:
-  { cat: Catalogo; nome: string; valor: number | null | undefined; aoEscolher: (v: number | null) => void; marcarFalta: boolean }) {
+function Escala({ cat, rotulos, nome, valor, aoEscolher, marcarFalta }:
+  { cat: Catalogo; rotulos: string[]; nome: string; valor: number | null | undefined; aoEscolher: (v: number | null) => void; marcarFalta: boolean }) {
   return (
     <div role="radiogroup" aria-label="Resposta"
       className={`mt-4 grid gap-2 lg:grid-cols-5 ${marcarFalta ? 'rounded-md ring-2 ring-risco-amarelo ring-offset-4' : ''}`}>
@@ -99,7 +99,7 @@ function Escala({ cat, nome, valor, aoEscolher, marcarFalta }:
               ${naoSei ? 'lg:col-span-5 lg:flex-row lg:items-center lg:justify-center' : ''}
               ${sel ? 'border-acao bg-acao/5 ring-1 ring-acao' : 'border-linha bg-papel hover:border-marinho/40'}`}>
             <input type="radio" name={nome} className="h-4 w-4 accent-[#0e5e57]" checked={sel} onChange={() => aoEscolher(o.valor)} />
-            <span>{o.rotulo}</span>
+            <span>{o.valor === null ? o.rotulo : (rotulos[o.valor] ?? o.rotulo)}</span>
           </label>
         )
       })}

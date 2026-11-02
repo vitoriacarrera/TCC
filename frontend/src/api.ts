@@ -38,7 +38,7 @@ export type Catalogo = {
   glossario: { termos: Termo[]; conceitos: Conceito[] }
 }
 
-export type PerguntaQuestionario = { id: string; funcao: string; texto: string; ajuda: string }
+export type PerguntaQuestionario = { id: string; funcao: string; texto: string; respostas: string[]; ajuda: string }
 export type Questionario = {
   porte: { nivel: number; nome: string }
   mensagem_porte: string

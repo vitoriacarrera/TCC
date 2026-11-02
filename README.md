@@ -66,8 +66,9 @@ riskpme-catalogo contribuicoes resumo --banco "postgresql://..."          # ou d
 riskpme-catalogo contribuicoes exportar contribuicoes.csv --banco "..."  # planilha (abre no Excel)
 ```
 
-O resumo mostra contagens e a maturidade média por função do NIST CSF por porte, setor e setor × porte, só para
-grupos com pelo menos 5 contribuições. Em produção, a base fica num PostgreSQL gerenciado; localmente, num SQLite.
+O resumo mostra contagens, a maturidade média por função do NIST CSF por porte, setor e setor × porte, os riscos por
+cenário e as ações mais indicadas. Grupos com menos de 5 contribuições aparecem marcados com "*"; `--minimo 5` os
+esconde, para gerar tabelas publicáveis. Em produção, a base fica num PostgreSQL gerenciado; localmente, num SQLite.
 
 Segurança (OWASP API Security Top 10, CVEs, configuração de produção): [`docs/seguranca.md`](docs/seguranca.md).
 Publicação (Neon + Render + Vercel), passo a passo: [`docs/publicacao.md`](docs/publicacao.md).

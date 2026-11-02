@@ -46,7 +46,8 @@ def test_questionario_classifica_porte_e_aplica_variante(cliente):
     assert "Faixa de receita do MEI" in r["mensagem_porte"]
     ids = [p["id"] for p in r["perguntas"]]
     assert "RS-01" in ids and len(ids) == len(set(ids))
-    assert set(r["perguntas"][0]) == {"id", "funcao", "texto", "ajuda"}     # recomendação só no plano
+    assert set(r["perguntas"][0]) == {"id", "funcao", "texto", "respostas", "ajuda"}   # recomendação só no plano
+    assert all(len(p["respostas"]) == 5 for p in r["perguntas"])
 
 
 def test_fora_do_escopo(cliente):
@@ -202,7 +203,7 @@ def _contrib(setor, porte, respostas, mes="2026-11"):
     return contribuicoes.Contribuicao(mes, "v1", setor, porte, respostas)
 
 
-def test_analise_respeita_n_minimo_e_exporta(tmp_path):
+def test_analise_mostra_tudo_a_autora_e_marca_grupos_pequenos(tmp_path):
     from riskpme.analise import N_MINIMO, agrupar, exportar_csv, resumo
     from riskpme.api.app import catalogo
     cat = catalogo()
@@ -212,7 +213,12 @@ def test_analise_respeita_n_minimo_e_exporta(tmp_path):
     assert g["celula"]["varejo|1"].pct_nao_sei("RS") == 1.0
     texto = resumo(cat, dados)
     linha_saude = next(x for x in texto.splitlines() if x.startswith("Saúde ·"))
-    assert "100%" not in linha_saude and "-" in linha_saude                 # n = 1: sem média publicada
+    assert "*" in linha_saude and "0%" in linha_saude                       # n = 1: mostrado à autora, marcado
+    linha_varejo = next(x for x in texto.splitlines() if x.startswith("Varejo & Comércio ·"))
+    assert "*" not in linha_varejo and "100%" in linha_varejo
+    publicavel = resumo(cat, dados, minimo=N_MINIMO)
+    linha_saude = next(x for x in publicavel.splitlines() if x.startswith("Saúde ·"))
+    assert "0%" not in linha_saude                                         # tabela para publicação esconde n < 5
     destino = tmp_path / "dados.csv"
     assert exportar_csv(cat, dados, destino) == N_MINIMO + 1
     linhas = destino.read_text(encoding="utf-8-sig").splitlines()
@@ -311,3 +317,44 @@ def test_comprovante_aceita_resultado_reserializado_pelo_navegador():
     como_js = {"a": 1, "b": [0, 0.25], "c": {"d": 2}}                      # JSON.stringify(1.0) == "1"
     assert seguranca.comprovante_valido(c, "varejo", 1, {"PR-01": 3}, como_js)
     assert not seguranca.comprovante_valido(c, "varejo", 1, {"PR-01": 3}, {**como_js, "a": 2})
+
+
+def test_resultados_aparecem_com_poucas_contribuicoes():
+    from riskpme.analise import resumo
+    from riskpme.api.app import catalogo
+    r = {"perda_esperada_pct_receita": 0.01, "chance_algum_prejuizo_horizonte": 0.4, "nao_sei": 0, "horizonte_anos": 5,
+         "cenarios": {"RAN": {"cor": "vermelho", "impacto": 3, "probabilidade": 2, "ruptura": False,
+                              "chance_horizonte": 0.2, "maturidade_prevencao": 0.5, "maturidade_resposta": 0.4,
+                              "perda_esperada_pct_receita": 0.002}},
+         "acoes": [{"controle": "8.13", "bloco": "comece"}]}
+    texto = resumo(catalogo(), [contribuicoes.Contribuicao("2026-11", "v1", "varejo", 1, {"PR-01": 2}, r)])
+    assert "Riscos (1 contribuição com resultado) * menos de 5" in texto
+    assert "Fazer cópias de segurança e testar a recuperação" in texto
+
+
+@pytest.mark.skipif(not __import__("os").environ.get("RISKPME_TESTE_POSTGRES"),
+                    reason="defina RISKPME_TESTE_POSTGRES=postgresql://... para testar com um PostgreSQL real")
+def test_postgres_usuario_so_insert_grava_e_nao_le():
+    """docs/seguranca.md: a API usa um usuário que só pode inserir; quem invadir a API não lê a base."""
+    import os
+    from urllib.parse import urlsplit, urlunsplit
+
+    import psycopg
+    url = os.environ["RISKPME_TESTE_POSTGRES"]
+    contribuicoes.gravar(url, "v", "saude", 3, {"PR-01": 2}, {"x": 1})           # cria a tabela como dono
+    with psycopg.connect(url, autocommit=True) as con:
+        con.execute("DROP ROLE IF EXISTS teste_coleta")
+        con.execute("CREATE ROLE teste_coleta LOGIN PASSWORD 'teste'")
+        con.execute("GRANT USAGE ON SCHEMA public TO teste_coleta")
+        con.execute("GRANT INSERT ON contribuicoes TO teste_coleta")
+    partes = urlsplit(url)
+    limitado = urlunsplit(partes._replace(netloc=f"teste_coleta:teste@{partes.hostname}:{partes.port or 5432}"))
+    try:
+        contribuicoes.gravar(limitado, "v", "varejo", 1, {"PR-01": 1}, {"x": 2})
+        with pytest.raises(psycopg.errors.InsufficientPrivilege):
+            contribuicoes.ler_todas(limitado)
+    finally:
+        with psycopg.connect(url, autocommit=True) as con:
+            con.execute("REVOKE ALL ON contribuicoes FROM teste_coleta")
+            con.execute("REVOKE ALL ON SCHEMA public FROM teste_coleta")
+            con.execute("DROP ROLE teste_coleta")

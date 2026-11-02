@@ -5,6 +5,10 @@ on:
     branches: [main]
   pull_request:
 
+# Token do CI só com leitura: um passo comprometido não consegue alterar o repositório (docs/seguranca.md).
+permissions:
+  contents: read
+
 jobs:
   backend:
     runs-on: ubuntu-latest

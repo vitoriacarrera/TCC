@@ -65,6 +65,11 @@ def _textos_com_recomendacoes(cat: Catalogo):
         yield "escala", "rotulo", o.rotulo
     for p in cat.perguntas:
         yield p.id, "recomendacao", p.recomendacao
+        for i, r in enumerate(p.respostas):
+            yield p.id, f"resposta {i}", r
+        for j, v in enumerate(p.variantes):
+            for i, r in enumerate(v.respostas or []):
+                yield f"{p.id}.variante{j + 1}", f"resposta {i}", r
         for i, v in enumerate(p.variantes):
             if v.recomendacao:
                 yield f"{p.id}.variante{i + 1}", "recomendacao", v.recomendacao

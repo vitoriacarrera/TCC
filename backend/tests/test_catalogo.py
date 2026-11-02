@@ -296,7 +296,7 @@ def test_frequencia_calibrada_pelo_csbs(cat):
 def test_variante_para_quem_trabalha_sozinho(cat):
     sozinho = {p.id: p for p in cat.questionario(1, "varejo", usuarios=1)}
     com_equipe = {p.id: p for p in cat.questionario(1, "varejo", usuarios=3)}
-    assert sozinho["GV-06"].texto.startswith("Você já definiu")
+    assert sozinho["GV-06"].texto.endswith("que você usa no trabalho e o tipo de informação que nunca deve ser colado nelas?")
     assert com_equipe["GV-06"].texto.startswith("Está combinado")
     assert "EDR" not in sozinho["PR-17"].recomendacao
 
@@ -353,3 +353,19 @@ def test_tolerancia_nao_sei_por_setor(cat):
     ns = tol["nao_sei_por_setor"]
     assert ns["saude"]["valor"] == ns["varejo"]["valor"] == 0.045
     assert ns["industria"]["valor"] == 0.100
+
+
+def test_cada_pergunta_tem_cinco_respostas_proprias(cat):
+    """Revisão ESC-R: respostas escritas para o assunto de cada pergunta, distintas entre si."""
+    for p in cat.perguntas:
+        for rot in [p.respostas] + [v.respostas for v in p.variantes if v.respostas]:
+            assert len(rot) == 5 and len(set(rot)) == 5, p.id
+    textos = {tuple(p.respostas) for p in cat.perguntas}
+    assert len(textos) == len(cat.perguntas)                                 # nenhuma pergunta repete a escala
+
+
+def test_variante_troca_as_respostas(cat):
+    mei = {p.id: p for p in cat.questionario(1, "varejo", usuarios=1)}
+    assert mei["GV-06"].respostas[0] == "Ainda não defini"
+    eq = {p.id: p for p in cat.questionario(3, "varejo")}
+    assert eq["GV-06"].respostas[0] == "Não há nada combinado"
