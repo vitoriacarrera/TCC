@@ -110,7 +110,7 @@ def test_contribuicao_grava_so_o_permitido(cliente, monkeypatch, tmp_path):
         linha = con.execute("SELECT * FROM contribuicoes").fetchone()
     assert colunas == ["mes_ano", "versao_catalogo", "setor", "porte", "respostas"]
     assert linha[2:4] == ("varejo", 1) and json.loads(linha[4]) == resp
-    assert contribuicoes.contar_por_celula(banco) == {("varejo", 1): 1}
+    assert contribuicoes.contar_por_celula(str(banco)) == {("varejo", 1): 1}
 
 
 # ------------------------------------------------------------------ segurança (OWASP API Security Top 10, 2023)
@@ -194,3 +194,58 @@ def test_limite_esquece_clientes_parados(monkeypatch):
     t[0] = 11.0
     assert m._permitir("/x", "b") is None
     assert ("/x", "a") not in m.janelas                                     # "a" esquecido depois da janela
+
+
+# ------------------------------------------------------------------ base anonimizada: PostgreSQL e análise (ADR-016)
+def _contrib(setor, porte, respostas, mes="2026-11"):
+    return contribuicoes.Contribuicao(mes, "v1", setor, porte, respostas)
+
+
+def test_analise_respeita_n_minimo_e_exporta(tmp_path):
+    from riskpme.analise import N_MINIMO, agrupar, exportar_csv, resumo
+    from riskpme.api.app import catalogo
+    cat = catalogo()
+    dados = [_contrib("varejo", 1, {"PR-01": 4, "RS-01": None})] * N_MINIMO + [_contrib("saude", 3, {"PR-01": 0})]
+    g = agrupar(cat, dados)
+    assert g["celula"]["varejo|1"].maturidade("PR") == 1.0
+    assert g["celula"]["varejo|1"].pct_nao_sei("RS") == 1.0
+    texto = resumo(cat, dados)
+    linha_saude = next(x for x in texto.splitlines() if x.startswith("Saúde ·"))
+    assert "100%" not in linha_saude and "-" in linha_saude                 # n = 1: sem média publicada
+    destino = tmp_path / "dados.csv"
+    assert exportar_csv(cat, dados, destino) == N_MINIMO + 1
+    linhas = destino.read_text(encoding="utf-8-sig").splitlines()
+    cab = linhas[0].split(";")
+    primeira = dict(zip(cab, linhas[1].split(";"), strict=True))
+    assert primeira["PR-01"] == "4" and primeira["RS-01"] == "nao_sei" and primeira["GV-01"] == ""
+
+
+@pytest.mark.skipif(not __import__("os").environ.get("RISKPME_TESTE_POSTGRES"),
+                    reason="defina RISKPME_TESTE_POSTGRES=postgresql://... para testar com um PostgreSQL real")
+def test_postgres_grava_e_le(cliente, monkeypatch):
+    import os
+    url = os.environ["RISKPME_TESTE_POSTGRES"]
+    import psycopg
+    with psycopg.connect(url) as con:
+        con.execute("DROP TABLE IF EXISTS contribuicoes")
+    monkeypatch.setenv(contribuicoes.VARIAVEL_BANCO, url)
+    resp = {"PR-01": 3, "RS-01": None}
+    comp = _simular_mei(cliente, resp)
+    r = cliente.post("/contribuicoes", json={"consentimento": True, "setor": "varejo", "porte": 1,
+                                             "respostas": resp, "comprovante": comp})
+    assert r.status_code == 201
+    lidas = contribuicoes.ler_todas(url)
+    assert len(lidas) == 1 and lidas[0].respostas == resp and lidas[0].porte == 1
+    with psycopg.connect(url) as con:
+        tipo = con.execute("SELECT data_type FROM information_schema.columns WHERE table_name = 'contribuicoes' "
+                           "AND column_name = 'respostas'").fetchone()[0]
+    assert tipo == "jsonb"
+
+
+def test_banco_fora_do_ar_responde_503(cliente, monkeypatch):
+    monkeypatch.setenv(contribuicoes.VARIAVEL_BANCO, "postgresql://ninguem@127.0.0.1:1/nada")
+    resp = {"PR-01": 3}
+    comp = _simular_mei(cliente, resp)
+    r = cliente.post("/contribuicoes", json={"consentimento": True, "setor": "varejo", "porte": 1,
+                                             "respostas": resp, "comprovante": comp})
+    assert r.status_code == 503 and "127.0.0.1" not in r.text

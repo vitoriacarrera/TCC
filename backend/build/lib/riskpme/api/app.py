@@ -16,6 +16,7 @@ Proteções (OWASP API Security Top 10, 2023) em `seguranca.py`. Em produção, 
 from __future__ import annotations
 
 import hashlib
+import logging
 import os
 from contextlib import asynccontextmanager
 from functools import lru_cache
@@ -121,7 +122,7 @@ def _contexto_pergunta(cat: Catalogo, pid: str) -> dict:
 @app.get("/saude")
 def saude() -> dict:
     return {"status": "ok", "versao_catalogo": versao_catalogo(),
-            "coleta_anonimizada": contribuicoes.caminho_banco() is not None}
+            "coleta_anonimizada": contribuicoes.destino() is not None}
 
 
 @app.get("/catalogo")
@@ -197,7 +198,7 @@ def contribuir(c: Contribuicao) -> dict:
     """Grava a contribuição anonimizada (ADR-005). Exige consentimento explícito."""
     if not c.consentimento:
         raise _erro("a contribuição só é gravada com a autorização marcada")
-    caminho = contribuicoes.caminho_banco()
+    caminho = contribuicoes.destino()
     if caminho is None:
         raise _erro("a coleta anonimizada não está ativa neste servidor", status=503)
     if not seguranca.comprovante_valido(c.comprovante, c.setor, c.porte, c.respostas):
@@ -206,5 +207,9 @@ def contribuir(c: Contribuicao) -> dict:
     _setor(cat, c.setor)
     validas = {q.id for u in (None, 1) for q in cat.questionario(c.porte, c.setor, u)}
     _checar_respostas(cat, validas, c.respostas)
-    contribuicoes.gravar(caminho, versao_catalogo(), c.setor, c.porte, c.respostas)
+    try:
+        contribuicoes.gravar(caminho, versao_catalogo(), c.setor, c.porte, c.respostas)
+    except Exception:   # banco fora do ar: a simulação segue funcionando; sem detalhes do erro para o cliente
+        logging.getLogger("riskpme").exception("falha ao gravar contribuição")
+        raise _erro("não foi possível registrar agora; tente de novo mais tarde", status=503) from None
     return {"gravado": True}

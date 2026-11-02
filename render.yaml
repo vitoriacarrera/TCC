@@ -1,0 +1,29 @@
+# Publicação da API no Render (Blueprint). Ver docs/publicacao.md.
+# Variáveis com "sync: false" são pedidas na tela do Render ao criar o serviço e nunca ficam no repositório.
+services:
+  - type: web
+    name: ciberdecide-api
+    runtime: python
+    plan: free
+    region: virginia          # perto do banco no Neon (AWS US East)
+    branch: main
+    rootDir: backend
+    buildCommand: pip install -r requirements.lock && pip install --no-deps -e .
+    # Sem log de acesso (não registra IP) e sem cabeçalho "server" (docs/seguranca.md). O Render fica na frente como
+    # proxy e o serviço não é acessível diretamente, por isso os cabeçalhos X-Forwarded-For são aceitos.
+    startCommand: >-
+      uvicorn riskpme.api.app:app --host 0.0.0.0 --port $PORT --no-access-log --no-server-header
+      --proxy-headers --forwarded-allow-ips="*" --limit-concurrency 50
+    healthCheckPath: /saude
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.11
+      - key: RISKPME_DOCS
+        value: "0"
+      - key: RISKPME_SEGREDO          # chave do comprovante HMAC, gerada pelo Render
+        generateValue: true
+      - key: RISKPME_CONTRIBUICOES_DB # endereço do PostgreSQL do Neon (com senha)
+        sync: false
+      - key: RISKPME_CORS             # endereço do site no Vercel, ex.: https://ciberdecide.vercel.app
+        sync: false
