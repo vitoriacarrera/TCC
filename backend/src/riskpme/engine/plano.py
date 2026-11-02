@@ -1,6 +1,6 @@
 """Plano de ação priorizado (RF11): quanto cada controle reduz a perda esperada e quanto custa.
 
-Para cada controle ISO/IEC 27002 ligado a perguntas com resposta abaixo de "Sempre" (4) ou "Não sei":
+Para cada controle ISO/IEC 27002 ligado a perguntas com resposta abaixo do nível máximo (4, "existe, está escrito e é revisado ou testado") ou "Não sei":
     redução = perda esperada atual − perda esperada com essas respostas em 4
     ROSI    = (redução − custo anual) / custo anual                         (ENISA, 2012)
 A perda esperada é ANALÍTICA (determinística): Σ_c LEF_c × E[perda por evento_c], com

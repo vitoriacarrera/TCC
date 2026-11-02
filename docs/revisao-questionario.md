@@ -146,7 +146,7 @@ _Senhas, cópias de segurança, atualizações e cuidados que evitam problemas._
 
 `CSF PR.AA-01` · `ISO 27002 5.16` · porte ≥ 2 · setores: todos · pesos: VAZ 2, FRA 1, RAN 1
 
-### PR-03 — As senhas são longas, diferentes para cada serviço e guardadas num gerenciador de senhas (e não em papel, planilha ou anotações do celular)?
+### PR-03 — As senhas são longas, diferentes para cada serviço e guardadas em um gerenciador de senhas (e não em papel, planilha ou anotações do celular)?
 
 **Ajuda:** Quando uma mesma senha é usada em vários lugares, basta um site vazar para o criminoso testar a mesma senha no seu e-mail e no seu banco. Um gerenciador de senhas cria e lembra senhas fortes por você.
 
@@ -172,7 +172,7 @@ _Senhas, cópias de segurança, atualizações e cuidados que evitam problemas._
 
 ### PR-06 — As contas de administrador (as que podem instalar programas e mudar configurações) são poucas, usadas só quando necessário e protegidas com verificação em duas etapas?
 
-**Ajuda:** Se a pessoa usa no dia a dia uma conta de administrador e clica num link malicioso, o vírus ganha o mesmo poder de instalar e apagar tudo. Com uma conta comum, o estrago costuma ficar limitado.
+**Ajuda:** Se a pessoa usa no dia a dia uma conta de administrador e clica em um link malicioso, o vírus ganha o mesmo poder de instalar e apagar tudo. Com uma conta comum, o estrago costuma ficar limitado.
 
 **Recomendação:** Retire o poder de administrador das contas de uso diário e deixe as contas de administrador separadas, com verificação em duas etapas.
 
@@ -219,7 +219,7 @@ _Senhas, cópias de segurança, atualizações e cuidados que evitam problemas._
 
 - recomendacao: Faça cópias de segurança automáticas das informações importantes pelo menos uma vez por semana, ou com mais frequência se refazer alguns dias de trabalho sair caro. Muitas ferramentas que a empresa já usa (Google Drive, OneDrive, sistema de gestão) têm cópia ou histórico de versões: confira se está ligado. Se não tiverem, faça a cotação de uma ferramenta de backup. Mantenha ao menos uma cópia separada do dia a dia, para que um vírus não apague o backup junto.
 
-### PR-11 — Pelo menos uma cópia do backup fica num lugar que um vírus não alcança, como um HD desligado ou uma nuvem que não deixa apagar as cópias?
+### PR-11 — Pelo menos uma cópia do backup fica em um lugar que um vírus não alcança, como um HD desligado ou uma nuvem que não deixa apagar as cópias?
 
 **Ajuda:** O sequestro de dados costuma procurar e trancar também os backups que estão conectados à rede. Uma cópia isolada é o que garante que a empresa consiga se recuperar sem pagar resgate.
 
@@ -241,9 +241,9 @@ _Senhas, cópias de segurança, atualizações e cuidados que evitam problemas._
 
 ### PR-13 — Os notebooks e celulares da empresa pedem senha para desbloquear e têm os dados protegidos por criptografia?
 
-**Ajuda:** Se um notebook é roubado no carro ou esquecido num táxi, a criptografia impede que o ladrão leia os arquivos. No Windows ela se chama BitLocker e no Mac, FileVault. Nos celulares modernos, basta ter senha de bloqueio.
+**Ajuda:** Se um notebook é roubado no carro ou esquecido em um táxi, a criptografia impede que o ladrão leia os arquivos. No Windows ela se chama BitLocker e no Mac, FileVault. Nos celulares modernos, basta ter senha de bloqueio.
 
-**Recomendação:** Ative a criptografia de disco em todos os notebooks. Ela já vem no Windows (BitLocker, nas versões Pro) e no Mac (FileVault) e faz com que quem roubar ou achar o equipamento não consiga ler os dados. Guarde a chave de recuperação num lugar seguro fora do notebook, como a conta de administrador da empresa, senão os dados se perdem junto com a senha. Nos celulares, exija senha ou biometria para desbloquear, o que nos aparelhos atuais já liga a criptografia. Configure o bloqueio automático da tela após poucos minutos sem uso e, se possível, use uma ferramenta de gestão de dispositivos que permite apagar os dados à distância em caso de perda ou roubo (para o técnico: MDM).
+**Recomendação:** Ative a criptografia de disco em todos os notebooks. Ela já vem no Windows (BitLocker, nas versões Pro) e no Mac (FileVault) e faz com que quem roubar ou achar o equipamento não consiga ler os dados. Guarde a chave de recuperação em um lugar seguro fora do notebook, como a conta de administrador da empresa, senão os dados se perdem junto com a senha. Nos celulares, exija senha ou biometria para desbloquear, o que nos aparelhos atuais já liga a criptografia. Configure o bloqueio automático da tela após poucos minutos sem uso e, se possível, use uma ferramenta de gestão de dispositivos que permite apagar os dados à distância em caso de perda ou roubo (para o técnico: MDM).
 
 `CSF PR.DS-01` · `ISO 27002 8.1` · porte ≥ 4 · setores: todos · pesos: VAZ 2
 
@@ -315,15 +315,15 @@ _Senhas, cópias de segurança, atualizações e cuidados que evitam problemas._
 
 `CSF PR.AA-05` · `ISO 27002 5.15` · porte ≥ 1 · setores: saude · pesos: VAZ 3
 
-### SAU-02 — Os equipamentos de saúde ligados à rede (raio-x, laboratório, monitores) ficam numa rede separada dos computadores da recepção e do administrativo?
+### SAU-02 — Os equipamentos de saúde ligados à rede (raio-x, laboratório, monitores) ficam em uma rede separada dos computadores da recepção e do administrativo?
 
 **Ajuda:** Equipamentos médicos costumam usar programas antigos que não podem ser atualizados. Mantê-los em redes separadas impede que um vírus que entrou por um e-mail da recepção chegue até eles e pare os atendimentos.
 
-**Recomendação:** Coloque os equipamentos de saúde conectados numa rede separada da rede administrativa.
+**Recomendação:** Coloque os equipamentos de saúde conectados em uma rede separada da rede administrativa.
 
 `CSF PR.IR-01` · `ISO 27002 8.22` · porte ≥ 3 · setores: saude · pesos: RAN 2, IND 2
 
-### VAR-02 — A loja virtual está numa plataforma atualizada e tem proteção contra ataques que tentam derrubar ou invadir o site?
+### VAR-02 — A loja virtual está em uma plataforma atualizada e tem proteção contra ataques que tentam derrubar ou invadir o site?
 
 **Ajuda:** Lojas virtuais são alvo de robôs que testam falhas conhecidas e de ataques de sobrecarga que tiram o site do ar em datas de muita venda. Muitas plataformas já incluem essa proteção; em sites próprios, ela precisa ser contratada.
 
@@ -331,7 +331,7 @@ _Senhas, cópias de segurança, atualizações e cuidados que evitam problemas._
 
 `CSF PR.IR-01` · `ISO 27002 8.20` · porte ≥ 2 · setores: varejo · pesos: IND 2, VAZ 2
 
-### IND-01 — Os computadores e controladores que comandam as máquinas ficam numa rede separada da rede do escritório e sem acesso direto pela internet?
+### IND-01 — Os computadores e controladores que comandam as máquinas ficam em uma rede separada da rede do escritório e sem acesso direto pela internet?
 
 **Ajuda:** Se a rede de automação industrial está ligada à rede do escritório, um vírus que chega por e-mail pode alcançar as máquinas e parar a produção. Separar as redes funciona como uma porta corta-fogo.
 
@@ -355,19 +355,19 @@ _Senhas, cópias de segurança, atualizações e cuidados que evitam problemas._
 
 `CSF PR.PS-06` · `ISO 27002 8.28` · porte ≥ 1 · setores: tecnologia · pesos: VAZ 2, TER 2
 
-### TEC-02 — As senhas e acessos que vocês têm aos sistemas dos clientes ficam num cofre de senhas, com verificação em duas etapas, e são revisados de tempos em tempos?
+### TEC-02 — As senhas e acessos que vocês têm aos sistemas dos clientes ficam em um cofre de senhas, com verificação em duas etapas, e são revisados de tempos em tempos?
 
 **Ajuda:** Empresas de tecnologia costumam ter as "chaves" de vários clientes. Um único ataque à sua empresa pode alcançar todos eles, o que transforma um incidente seu em vários incidentes dos clientes.
 
-**Recomendação:** Guarde os acessos dos clientes num cofre de senhas com verificação em duas etapas e revise a cada três meses quem tem acesso a cada cliente.
+**Recomendação:** Guarde os acessos dos clientes em um cofre de senhas com verificação em duas etapas e revise a cada três meses quem tem acesso a cada cliente.
 
 `CSF PR.AA-05` · `ISO 27002 8.2` · porte ≥ 2 · setores: tecnologia · pesos: TER 3, VAZ 2
 
-### SER-01 — Os documentos dos clientes (contratos, processos, declarações) ficam num local com acesso restrito, e não espalhados em e-mails e pastas pessoais?
+### SER-01 — Os documentos dos clientes (contratos, processos, declarações) ficam em um local com acesso restrito, e não espalhados em e-mails e pastas pessoais?
 
 **Ajuda:** Escritórios guardam documentos muito sensíveis dos clientes. Quando eles estão espalhados no e-mail e no computador de cada um, é difícil controlar quem vê e impossível garantir o backup.
 
-**Recomendação:** Centralize os documentos de clientes num repositório da empresa, com acesso restrito por cliente ou equipe.
+**Recomendação:** Centralize os documentos de clientes em um repositório da empresa, com acesso restrito por cliente ou equipe.
 
 `CSF PR.DS-01` · `ISO 27002 5.15` · porte ≥ 1 · setores: servicos · pesos: VAZ 2, IA 1
 
@@ -396,7 +396,7 @@ _Formas de notar rapidamente um ataque ou um comportamento estranho._
 
 **Ajuda:** Os logs são o histórico de quem entrou, quando e de onde. Sem eles, depois de um incidente é impossível saber o que foi acessado, e isso importa inclusive para cumprir a LGPD.
 
-**Recomendação:** Ative e guarde por pelo menos 6 meses os registros de acesso (quem entrou, quando e de onde) do e-mail, da nuvem e dos sistemas importantes. Muitos serviços guardam esses registros por pouco tempo no plano básico: confira o prazo e, se for menor, peça ao técnico para copiá-los automaticamente para um local protegido, que só o responsável pela segurança acesse. Esses registros são o que permite descobrir o que aconteceu num incidente. Se a empresa oferece site ou aplicativo com fins comerciais, guardar os registros de acesso por 6 meses é obrigação do Marco Civil da Internet (Lei nº 12.965/2014, art. 15). Esta é uma orientação geral, não um parecer jurídico: para confirmar as obrigações da sua empresa, consulte um advogado.
+**Recomendação:** Ative e guarde por pelo menos 6 meses os registros de acesso (quem entrou, quando e de onde) do e-mail, da nuvem e dos sistemas importantes. Muitos serviços guardam esses registros por pouco tempo no plano básico: confira o prazo e, se for menor, peça ao técnico para copiá-los automaticamente para um local protegido, que só o responsável pela segurança acesse. Esses registros são o que permite descobrir o que aconteceu em um incidente. Se a empresa oferece site ou aplicativo com fins comerciais, guardar os registros de acesso por 6 meses é obrigação do Marco Civil da Internet (Lei nº 12.965/2014, art. 15). Esta é uma orientação geral, não um parecer jurídico: para confirmar as obrigações da sua empresa, consulte um advogado.
 
 `CSF DE.CM-01` · `ISO 27002 8.15` · porte ≥ 4 · setores: todos · pesos: VAZ 1, TER 1
 
@@ -431,9 +431,9 @@ _O que a empresa faz nas primeiras horas de um incidente._
 
 ### RS-01 — Se um ataque acontecesse hoje, as pessoas saberiam o que fazer e quem chamar?
 
-**Ajuda:** Um plano de resposta pode caber numa folha: quem avisar, o que desligar primeiro, telefone do técnico, do banco e do advogado. Nas primeiras horas de um incidente, cada minuto de indecisão aumenta o prejuízo.
+**Ajuda:** Um plano de resposta pode caber em uma folha: quem avisar, o que desligar primeiro, telefone do técnico, do banco e do advogado. Nas primeiras horas de um incidente, cada minuto de indecisão aumenta o prejuízo.
 
-**Recomendação:** Escreva um plano de resposta de uma página: quem avisar, o que desligar primeiro e quem chamar. Guarde-o numa pasta compartilhada da empresa e mantenha uma cópia fora dos sistemas da empresa, com o dono ou sócio responsável ou num celular da empresa, porque se um vírus travar os computadores a pasta pode ficar fora do ar. Divulgue para a equipe um número de emergência do responsável (dono, sócio ou técnico de TI contratado). Se a equipe trabalha presencialmente, deixe também uma cópia impressa.
+**Recomendação:** Escreva um plano de resposta de uma página: quem avisar, o que desligar primeiro e quem chamar. Guarde-o em uma pasta compartilhada da empresa e mantenha uma cópia fora dos sistemas da empresa, com o dono ou sócio responsável ou em um celular da empresa, porque se um vírus travar os computadores a pasta pode ficar fora do ar. Divulgue para a equipe um número de emergência do responsável (dono, sócio ou técnico de TI contratado). Se a equipe trabalha presencialmente, deixe também uma cópia impressa.
 
 `CSF RS.MA-01` · `ISO 27002 5.24` · porte ≥ 1 · setores: todos · pesos: RAN 2, VAZ 2, FRA 1, IND 1, TER 1
 
@@ -485,7 +485,7 @@ _Como a empresa retoma a operação depois de um problema._
 
 **Ajuda:** Um plano de contingência simples (pedidos anotados em formulário, uma cópia da agenda guardada fora do sistema) permite continuar funcionando, mesmo que mais devagar, enquanto os sistemas são recuperados. Isso reduz a perda com a parada.
 
-**Recomendação:** Liste as atividades sem as quais a empresa para (por exemplo: vender, atender clientes, receber pagamentos, entregar). Para cada uma, defina um jeito de continuar sem os sistemas, mesmo que mais devagar: anotar pedidos num formulário, receber pela maquininha, atender por telefone, consultar uma cópia da agenda guardada fora do sistema. Combine com a equipe quando usar esse modo e como lançar no sistema, depois, o que foi feito durante a parada.
+**Recomendação:** Liste as atividades sem as quais a empresa para (por exemplo: vender, atender clientes, receber pagamentos, entregar). Para cada uma, defina um jeito de continuar sem os sistemas, mesmo que mais devagar: anotar pedidos em um formulário, receber pela maquininha, atender por telefone, consultar uma cópia da agenda guardada fora do sistema. Combine com a equipe quando usar esse modo e como lançar no sistema, depois, o que foi feito durante a parada.
 
 `CSF RC.RP-02` · `ISO 27002 5.30` · porte ≥ 1 · setores: todos · pesos: IND 2, RAN 1
 

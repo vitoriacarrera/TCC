@@ -75,7 +75,7 @@ export default function App() {
       <footer className="nao-imprimir border-t border-linha bg-papel">
         <div className="mx-auto max-w-5xl px-4 py-6 text-sm text-suave sm:px-6">
           Ferramenta acadêmica desenvolvida em trabalho de conclusão de curso na UFMG, com base na ABNT NBR ISO/IEC 27005 e
-          no método FAIR. Valores financeiros e dados da empresa nunca são guardados; as respostas do questionário só são guardadas, sem identificação, se você autorizar no final.
+          no método FAIR. Valores financeiros e dados da empresa nunca são guardados; as respostas do questionário e o resultado, sem valores em reais, só são guardados, sem identificação, se você autorizar no final.
         </div>
       </footer>
     </ProvedorGlossario>

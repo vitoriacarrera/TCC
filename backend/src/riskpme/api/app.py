@@ -35,6 +35,7 @@ from ..engine.plano import plano_de_acao
 from ..engine.simulacao import simular
 from . import contribuicoes, seguranca
 from .esquemas import Contribuicao, PedidoQuestionario, PedidoSimulacao
+from .pesquisa import resumo_pesquisa
 
 FORA_DO_ESCOPO = ("A ferramenta foi feita para micro, pequenas e médias empresas, com receita de até R$ 300 milhões "
                   "por ano. Para empresas maiores, a análise precisa de dados mais detalhados do que os pedidos aqui.")
@@ -182,14 +183,16 @@ def simular_perfil(pedido: PedidoSimulacao) -> dict:
     celulas = {f"{i},{j}": [] for i in (1, 2, 3) for j in (1, 2, 3)}
     for c in r.cenarios:
         celulas[f"{c.nivel_impacto},{c.nivel_probabilidade}"].append(c.id)
+    pesquisa = resumo_pesquisa(r, plano, p.receita_operacional_bruta)
     return {
         "porte": {"nivel": porte, "nome": cat.porte(porte).nome},
         "resultado": r.to_dict(),
         "matriz": {"celulas": celulas, "chave": "impacto,probabilidade"},
         "plano": plano.to_dict(),
         "versao_catalogo": versao_catalogo(),
-        # Só serve para POST /contribuicoes com estas mesmas respostas; não é guardado em lugar nenhum.
-        "comprovante_contribuicao": seguranca.emitir_comprovante(p.setor, porte, pedido.respostas),
+        # Só servem para POST /contribuicoes, se o gestor autorizar; nada disso é guardado aqui.
+        "resumo_pesquisa": pesquisa,
+        "comprovante_contribuicao": seguranca.emitir_comprovante(p.setor, porte, pedido.respostas, pesquisa),
     }
 
 
@@ -201,14 +204,14 @@ def contribuir(c: Contribuicao) -> dict:
     caminho = contribuicoes.destino()
     if caminho is None:
         raise _erro("a coleta anonimizada não está ativa neste servidor", status=503)
-    if not seguranca.comprovante_valido(c.comprovante, c.setor, c.porte, c.respostas):
+    if not seguranca.comprovante_valido(c.comprovante, c.setor, c.porte, c.respostas, c.resultado):
         raise _erro("comprovante inválido ou vencido: refaça a simulação antes de contribuir", status=403)
     cat = catalogo()
     _setor(cat, c.setor)
     validas = {q.id for u in (None, 1) for q in cat.questionario(c.porte, c.setor, u)}
     _checar_respostas(cat, validas, c.respostas)
     try:
-        contribuicoes.gravar(caminho, versao_catalogo(), c.setor, c.porte, c.respostas)
+        contribuicoes.gravar(caminho, versao_catalogo(), c.setor, c.porte, c.respostas, c.resultado)
     except Exception:   # banco fora do ar: a simulação segue funcionando; sem detalhes do erro para o cliente
         logging.getLogger("riskpme").exception("falha ao gravar contribuição")
         raise _erro("não foi possível registrar agora; tente de novo mais tarde", status=503) from None

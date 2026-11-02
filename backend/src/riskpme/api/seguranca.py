@@ -3,7 +3,8 @@
 - Limite de tamanho do corpo (API4: consumo irrestrito de recursos).
 - Limite de requisições por cliente, em memória e sem gravar nada (API4 e API6: fluxo de contribuição).
 - Cabeçalhos de segurança e `Cache-Control: no-store`, porque as respostas trazem dados financeiros (API8).
-- Comprovante HMAC: a contribuição só é aceita com as mesmas respostas de uma simulação feita há pouco (API6),
+- Comprovante HMAC: a contribuição só é aceita com as mesmas respostas e o mesmo resultado de uma simulação feita
+  há pouco (API6),
   o que impede gravar contribuições inventadas sem passar pela simulação. O comprovante não é armazenado e não
   contém nada além de um resumo criptográfico das respostas e do prazo de validade (ADR-005).
 """
@@ -161,18 +162,31 @@ def _segredo() -> bytes:
 _SEGREDO_PROCESSO = secrets.token_bytes(32)     # sem RISKPME_SEGREDO: vale até o servidor reiniciar
 
 
-def _mensagem(expira: int, setor: str, porte: int, respostas: dict[str, int | None]) -> bytes:
-    return json.dumps([expira, setor, porte, respostas], sort_keys=True, separators=(",", ":")).encode()
+def _canonico(x):
+    """Números inteiros na mesma forma dos dois lados: o navegador devolve 1.0 como 1 (JSON do JavaScript)."""
+    if isinstance(x, float) and x.is_integer():
+        return int(x)
+    if isinstance(x, dict):
+        return {k: _canonico(v) for k, v in x.items()}
+    if isinstance(x, list):
+        return [_canonico(v) for v in x]
+    return x
 
 
-def emitir_comprovante(setor: str, porte: int, respostas: dict[str, int | None], agora: float | None = None) -> str:
+def _mensagem(expira: int, setor: str, porte: int, respostas: dict[str, int | None], resultado: dict | None) -> bytes:
+    dados = _canonico([expira, setor, porte, respostas, resultado])
+    return json.dumps(dados, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+
+
+def emitir_comprovante(setor: str, porte: int, respostas: dict[str, int | None], resultado: dict | None = None,
+                       agora: float | None = None) -> str:
     expira = int((agora or time.time()) + VALIDADE_COMPROVANTE_S)
-    mac = hmac.new(_segredo(), _mensagem(expira, setor, porte, respostas), hashlib.sha256).hexdigest()
+    mac = hmac.new(_segredo(), _mensagem(expira, setor, porte, respostas, resultado), hashlib.sha256).hexdigest()
     return f"{expira}.{mac}"
 
 
 def comprovante_valido(comprovante: str, setor: str, porte: int, respostas: dict[str, int | None],
-                       agora: float | None = None) -> bool:
+                       resultado: dict | None = None, agora: float | None = None) -> bool:
     try:
         expira_txt, mac = comprovante.split(".", 1)
         expira = int(expira_txt)
@@ -180,5 +194,5 @@ def comprovante_valido(comprovante: str, setor: str, porte: int, respostas: dict
         return False
     if expira < (agora or time.time()):
         return False
-    esperado = hmac.new(_segredo(), _mensagem(expira, setor, porte, respostas), hashlib.sha256).hexdigest()
+    esperado = hmac.new(_segredo(), _mensagem(expira, setor, porte, respostas, resultado), hashlib.sha256).hexdigest()
     return hmac.compare_digest(esperado, mac)

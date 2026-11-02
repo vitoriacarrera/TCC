@@ -26,3 +26,7 @@ Railway, Fly.io) usam disco temporário, apagado a cada reinício ou nova versã
 - Dependência `psycopg[binary]`; o CI sobe um PostgreSQL 16 e testa gravação e leitura reais.
 - Retenção: a base é apagada após a aprovação final do TCC (ADR-005, item 4); com o banco gerenciado, basta apagar o
   projeto no provedor.
+- 02/11/2026: coluna `resultado` (JSONB, opcional) com o resultado sem valores em R$ (ADR-005, revisão de 02/11),
+  criada automaticamente em bases antigas (`ADD COLUMN IF NOT EXISTS`). O resumo passa a mostrar, para n ≥ 5, a
+  distribuição de cores e de rupturas por cenário, a perda esperada média como fração da receita e as ações mais
+  indicadas em "Comece por aqui"; a exportação ganha colunas por cenário e as listas de ações por bloco.

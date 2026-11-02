@@ -4,7 +4,7 @@ maturidade(c) = Σ (resposta/4 × peso_c) / Σ peso_c, sobre as perguntas do per
 Duas maturidades por cenário (revisão MAG, FAIR-CAM): de PREVENÇÃO (perguntas que reduzem a chance) e de RESPOSTA
 (Detecção, Resposta, Recuperação, backup e resiliência: reduzem o prejuízo). Cada pergunta entra em uma só.
 Cenário sem nenhuma pergunta do tipo pedido tem maturidade 0 (sem redução).
-"Não sei" (None) conta como `resposta_nao_sei` (1 = "raramente"): postura cautelosa, mostrada no relatório.
+"Não sei" (None) conta como `resposta_nao_sei` (1 = "existe só de forma improvisada"): postura cautelosa, mostrada no relatório.
 Vulnerabilidade(c) = v_min + (v_max − v_min) × (1 − maturidade(c))          (TCC1 §3.6, item 1)
 """
 

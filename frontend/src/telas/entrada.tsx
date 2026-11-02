@@ -47,8 +47,8 @@ export function Inicio({ cat, comecar, temSessao, continuar }:
         <p>
           <strong className="text-texto">Sua privacidade:</strong> não pedimos nome, CNPJ nem e-mail. A receita e os outros
           valores servem só para o cálculo e somem quando você fecha esta aba. No final, você pode autorizar que as respostas
-          do questionário sejam guardadas sem identificação, junto com o setor e o porte, para a pesquisa do trabalho. Sem
-          a sua autorização, nada é guardado.
+          do questionário e o resultado, sem valores em reais, sejam guardados sem identificação, junto com o setor e o
+          porte, para a pesquisa do trabalho. Sem a sua autorização, nada é guardado.
         </p>
       </div>
       <p className="mx-auto mt-6 max-w-5xl text-sm text-suave">{cat.aviso_legal}</p>

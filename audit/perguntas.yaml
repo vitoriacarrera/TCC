@@ -35,12 +35,15 @@ funcoes:
   RS: { nome: "Reagir a um problema",         descricao: "O que a empresa faz nas primeiras horas de um incidente." }
   RC: { nome: "Voltar a funcionar",           descricao: "Como a empresa retoma a operação depois de um problema." }
 
+# Escala de maturidade (revisão ESC, 02/11/2026): os rótulos descrevem o nível da prática ou capacidade, e não a
+# frequência, para servir tanto a "vocês fazem X?" quanto a "existe um jeito de Y?" / "você saberia Z?". Mesma lógica
+# de níveis dos modelos de maturidade (CMMI; NIST CSF 2.0, Tiers). Valores 0 a 4 inalterados: o modelo não muda.
 escala:
-  - { valor: 0,    rotulo: "Não fazemos" }
-  - { valor: 1,    rotulo: "Raramente, ou só quando alguém lembra" }
-  - { valor: 2,    rotulo: "Em parte: só algumas pessoas, sistemas ou vezes" }
-  - { valor: 3,    rotulo: "Quase sempre, mas nada está escrito" }
-  - { valor: 4,    rotulo: "Sempre, e está escrito e é revisado" }
+  - { valor: 0,    rotulo: "Não existe" }
+  - { valor: 1,    rotulo: "Existe só de forma improvisada: depende de alguém lembrar" }
+  - { valor: 2,    rotulo: "Existe em parte: cobre só algumas pessoas, sistemas ou situações" }
+  - { valor: 3,    rotulo: "Existe e funciona, mas não está escrito" }
+  - { valor: 4,    rotulo: "Existe, está escrito e é revisado ou testado" }
   - { valor: null, rotulo: "Não sei" }
 
 perguntas:

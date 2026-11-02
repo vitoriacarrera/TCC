@@ -82,14 +82,15 @@ def test_simulacao_rejeita_entrada_invalida(cliente):
 
 def _simular_mei(cliente, respostas):
     p = perfil(setor="varejo", receita_operacional_bruta=60_000, usuarios_ti=1, tipo_dado="cadastral")
-    return cliente.post("/simulacoes", json={"perfil": p, "respostas": respostas}).json()["comprovante_contribuicao"]
+    d = cliente.post("/simulacoes", json={"perfil": p, "respostas": respostas}).json()
+    return {"comprovante": d["comprovante_contribuicao"], "resultado": d["resumo_pesquisa"]}
 
 
 def test_contribuicao_desativada_sem_banco(cliente, monkeypatch):
     monkeypatch.delenv(contribuicoes.VARIAVEL_BANCO, raising=False)
     comp = _simular_mei(cliente, {})
     r = cliente.post("/contribuicoes", json={"consentimento": True, "setor": "varejo", "porte": 1, "respostas": {},
-                                             "comprovante": comp})
+                                             **comp})
     assert r.status_code == 503
 
 
@@ -98,7 +99,7 @@ def test_contribuicao_grava_so_o_permitido(cliente, monkeypatch, tmp_path):
     monkeypatch.setenv(contribuicoes.VARIAVEL_BANCO, str(banco))
     resp = {"PR-01": 3, "RS-01": None}
     comp = _simular_mei(cliente, resp)
-    base = {"consentimento": True, "setor": "varejo", "porte": 1, "respostas": resp, "comprovante": comp}
+    base = {"consentimento": True, "setor": "varejo", "porte": 1, "respostas": resp, **comp}
     sem = cliente.post("/contribuicoes", json=base | {"consentimento": False})
     assert sem.status_code == 422 and not banco.exists()
     extra = cliente.post("/contribuicoes", json=base | {"receita_operacional_bruta": 1})
@@ -108,7 +109,7 @@ def test_contribuicao_grava_so_o_permitido(cliente, monkeypatch, tmp_path):
     with sqlite3.connect(banco) as con:
         colunas = [c[1] for c in con.execute("PRAGMA table_info(contribuicoes)")]
         linha = con.execute("SELECT * FROM contribuicoes").fetchone()
-    assert colunas == ["mes_ano", "versao_catalogo", "setor", "porte", "respostas"]
+    assert colunas == ["mes_ano", "versao_catalogo", "setor", "porte", "respostas", "resultado"]
     assert linha[2:4] == ("varejo", 1) and json.loads(linha[4]) == resp
     assert contribuicoes.contar_por_celula(str(banco)) == {("varejo", 1): 1}
 
@@ -118,11 +119,11 @@ def test_contribuicao_exige_comprovante_da_mesma_simulacao(cliente, monkeypatch,
     monkeypatch.setenv(contribuicoes.VARIAVEL_BANCO, str(tmp_path / "c.sqlite"))
     comp = _simular_mei(cliente, {"PR-01": 3})
     base = {"consentimento": True, "setor": "varejo", "porte": 1, "respostas": {"PR-01": 3}}
-    assert cliente.post("/contribuicoes", json=base | {"comprovante": "123.abc"}).status_code == 403
+    assert cliente.post("/contribuicoes", json=base | {**comp, "comprovante": "123.abc"}).status_code == 403
     assert cliente.post("/contribuicoes", json=base | {"respostas": {"PR-01": 0},
-                                                       "comprovante": comp}).status_code == 403   # respostas trocadas
-    assert cliente.post("/contribuicoes", json=base | {"porte": 2, "comprovante": comp}).status_code == 403
-    assert cliente.post("/contribuicoes", json=base | {"comprovante": comp}).status_code == 201
+                                                       **comp}).status_code == 403   # respostas trocadas
+    assert cliente.post("/contribuicoes", json=base | {"porte": 2, **comp}).status_code == 403
+    assert cliente.post("/contribuicoes", json=base | {**comp}).status_code == 201
 
 
 def test_comprovante_vence():
@@ -232,7 +233,7 @@ def test_postgres_grava_e_le(cliente, monkeypatch):
     resp = {"PR-01": 3, "RS-01": None}
     comp = _simular_mei(cliente, resp)
     r = cliente.post("/contribuicoes", json={"consentimento": True, "setor": "varejo", "porte": 1,
-                                             "respostas": resp, "comprovante": comp})
+                                             "respostas": resp, **comp})
     assert r.status_code == 201
     lidas = contribuicoes.ler_todas(url)
     assert len(lidas) == 1 and lidas[0].respostas == resp and lidas[0].porte == 1
@@ -247,5 +248,66 @@ def test_banco_fora_do_ar_responde_503(cliente, monkeypatch):
     resp = {"PR-01": 3}
     comp = _simular_mei(cliente, resp)
     r = cliente.post("/contribuicoes", json={"consentimento": True, "setor": "varejo", "porte": 1,
-                                             "respostas": resp, "comprovante": comp})
+                                             "respostas": resp, **comp})
     assert r.status_code == 503 and "127.0.0.1" not in r.text
+
+
+def test_contribuicao_guarda_resultado_sem_reais_e_nao_aceita_adulterado(cliente, monkeypatch, tmp_path):
+    banco = tmp_path / "c.sqlite"
+    monkeypatch.setenv(contribuicoes.VARIAVEL_BANCO, str(banco))
+    resp = {"PR-01": 1, "RS-01": None}
+    comp = _simular_mei(cliente, resp)
+    res = comp["resultado"]
+    assert set(res["cenarios"]) == {"RAN", "VAZ", "FRA", "IND", "TER", "IA"}
+    texto = json.dumps(res)
+    assert "R$" not in texto and all(k not in texto for k in ("receita_operacional", "custo_anual", "p90", "reducao"))
+    base = {"consentimento": True, "setor": "varejo", "porte": 1, "respostas": resp}
+    adulterado = json.loads(json.dumps(res))
+    adulterado["cenarios"]["RAN"]["cor"] = "verde" if res["cenarios"]["RAN"]["cor"] != "verde" else "vermelho"
+    assert cliente.post("/contribuicoes", json=base | comp | {"resultado": adulterado}).status_code == 403
+    assert cliente.post("/contribuicoes", json=base | comp | {"resultado": None}).status_code == 403
+    assert cliente.post("/contribuicoes", json=base | comp).status_code == 201
+    lida = contribuicoes.ler_todas(str(banco))[0]
+    assert lida.resultado == res
+    assert [a["bloco"] for a in lida.resultado["acoes"]] and {a["bloco"] for a in lida.resultado["acoes"]} <= {
+        "comece", "preparo", "depois"}
+
+
+def test_sqlite_antigo_ganha_coluna_resultado(tmp_path):
+    banco = tmp_path / "antigo.sqlite"
+    with sqlite3.connect(banco) as con:
+        con.execute("CREATE TABLE contribuicoes (mes_ano TEXT, versao_catalogo TEXT, setor TEXT, porte INTEGER, "
+                    "respostas TEXT)")
+        con.execute("INSERT INTO contribuicoes VALUES ('2026-11', 'v0', 'varejo', 1, '{}')")
+    contribuicoes.gravar(str(banco), "v1", "saude", 3, {"PR-01": 2}, {"x": 1})
+    lidas = contribuicoes.ler_todas(str(banco))
+    assert sorted(((c.versao_catalogo, c.resultado) for c in lidas), key=lambda x: x[0]) == [("v0", None), ("v1", {"x": 1})]
+
+
+def test_resumo_com_resultados(tmp_path):
+    from riskpme.analise import N_MINIMO, exportar_csv, resumo
+    from riskpme.api.app import catalogo
+    cat = catalogo()
+    r = {"perda_esperada_pct_receita": 0.01, "chance_algum_prejuizo_horizonte": 0.4, "nao_sei": 0, "horizonte_anos": 5,
+         "cenarios": {"RAN": {"cor": "amarelo", "impacto": 3, "probabilidade": 1, "ruptura": True,
+                              "chance_horizonte": 0.05, "maturidade_prevencao": 0.5, "maturidade_resposta": 0.4,
+                              "perda_esperada_pct_receita": 0.002}},
+         "acoes": [{"controle": "8.13", "bloco": "comece"}, {"controle": "5.24", "bloco": "preparo"}]}
+    dados = [_contrib("varejo", 1, {"PR-01": 2}) for _ in range(N_MINIMO)]
+    dados = [contribuicoes.Contribuicao(c.mes_ano, c.versao_catalogo, c.setor, c.porte, c.respostas, r) for c in dados]
+    texto = resumo(cat, dados)
+    assert "Sequestro de dados" in texto and "100%" in texto
+    assert "Fazer cópias de segurança e testar a recuperação" in texto
+    destino = tmp_path / "d.csv"
+    exportar_csv(cat, dados, destino)
+    cab, linha = destino.read_text(encoding="utf-8-sig").splitlines()[:2]
+    d = dict(zip(cab.split(";"), linha.split(";"), strict=True))
+    assert d["RAN_cor"] == "amarelo" and d["acoes_comece"] == "8.13" and d["acoes_preparo"] == "5.24"
+
+
+def test_comprovante_aceita_resultado_reserializado_pelo_navegador():
+    res = {"a": 1.0, "b": [0.0, 0.25], "c": {"d": 2.0}}
+    c = seguranca.emitir_comprovante("varejo", 1, {"PR-01": 3}, res)
+    como_js = {"a": 1, "b": [0, 0.25], "c": {"d": 2}}                      # JSON.stringify(1.0) == "1"
+    assert seguranca.comprovante_valido(c, "varejo", 1, {"PR-01": 3}, como_js)
+    assert not seguranca.comprovante_valido(c, "varejo", 1, {"PR-01": 3}, {**como_js, "a": 2})
