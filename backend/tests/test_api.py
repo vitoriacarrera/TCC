@@ -364,3 +364,17 @@ def test_postgres_usuario_so_insert_grava_e_nao_le():
 def test_endereco_do_banco_colado_com_aspas(monkeypatch, valor):
     monkeypatch.setenv(contribuicoes.VARIAVEL_BANCO, valor)
     assert contribuicoes.destino() == "/tmp/x.sqlite"
+
+
+def test_conexao_postgres_prefere_ipv4(monkeypatch):
+    """Render (plano gratuito) não sai por IPv6: o endereço IPv4 vai em hostaddr, o nome continua em host (TLS/SNI)."""
+    chamadas = []
+
+    def falso(host, porta, familia, tipo):
+        chamadas.append((host, porta, familia))
+        return [(familia, tipo, 6, "", ("203.0.113.7", porta))]
+    monkeypatch.setattr(contribuicoes.socket, "getaddrinfo", falso)
+    p = contribuicoes._parametros_ipv4("postgresql://u:s@ep-x-pooler.neon.tech/neondb?sslmode=require")
+    assert p["host"] == "ep-x-pooler.neon.tech" and p["hostaddr"] == "203.0.113.7" and p["sslmode"] == "require"
+    assert chamadas == [("ep-x-pooler.neon.tech", 5432, contribuicoes.socket.AF_INET)]
+    assert "hostaddr" not in contribuicoes._parametros_ipv4("postgresql://u@localhost/db?host=/tmp")
