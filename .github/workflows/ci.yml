@@ -8,6 +8,17 @@ on:
 jobs:
   backend:
     runs-on: ubuntu-latest
+    services:
+      postgres:                       # testa a base anonimizada num PostgreSQL real (ADR-016)
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: teste
+          POSTGRES_DB: ciberdecide
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      RISKPME_TESTE_POSTGRES: postgresql://postgres:teste@localhost:5432/ciberdecide
     defaults:
       run:
         working-directory: backend

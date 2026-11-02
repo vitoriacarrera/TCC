@@ -59,6 +59,16 @@ Variáveis de ambiente: `RISKPME_CORS` (origens do frontend, separadas por vírg
 `RISKPME_AUDIT_DIR` (pasta do catálogo, usada no Docker). Campos desconhecidos são recusados (422), o que impede
 que um dado financeiro entre na base de pesquisa por engano.
 
+### Análise da base anonimizada (ADR-016)
+
+```bash
+riskpme-catalogo contribuicoes resumo --banco "postgresql://..."          # ou defina RISKPME_CONTRIBUICOES_DB
+riskpme-catalogo contribuicoes exportar contribuicoes.csv --banco "..."  # planilha (abre no Excel)
+```
+
+O resumo mostra contagens e a maturidade média por função do NIST CSF por porte, setor e setor × porte, só para
+grupos com pelo menos 5 contribuições. Em produção, a base fica num PostgreSQL gerenciado; localmente, num SQLite.
+
 Segurança (OWASP API Security Top 10, CVEs, configuração de produção): [`docs/seguranca.md`](docs/seguranca.md).
 Outras variáveis: `RISKPME_SEGREDO` (chave do comprovante) e `RISKPME_DOCS=0` (desliga `/docs` em produção).
 

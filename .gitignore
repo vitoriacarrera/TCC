@@ -24,3 +24,10 @@ dist/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Base da pesquisa e exportações: nunca versionar (ADR-005)
+*.sqlite
+*.sqlite3
+*.db
+contribuicoes*.csv
+exportacoes/

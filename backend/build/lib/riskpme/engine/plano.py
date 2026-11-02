@@ -149,6 +149,7 @@ class Acao:
     prioridade: int
     controle: str
     controle_nome: str
+    titulo: str                     # o que fazer, em linguagem simples (controles.yaml, campo acao)
     perguntas: list[str]
     recomendacoes: list[str]
     reducao_perda_anual: float
@@ -223,7 +224,7 @@ def plano_de_acao(cat: Catalogo, perfil: Perfil, respostas: Respostas,
         rosi = (reducao - custo) / custo if custo > 0 else None
         tem_selo = selo_txt and (ctrl in selo_ctrl or any(p.id in selo_perg for p in ps))
         candidatas.append(Acao(
-            prioridade=0, controle=ctrl, controle_nome=cat.controle(ctrl).nome, perguntas=[p.id for p in ps],
+            prioridade=0, controle=ctrl, controle_nome=cat.controle(ctrl).nome, titulo=cat.controle(ctrl).acao, perguntas=[p.id for p in ps],
             recomendacoes=[p.recomendacao for p in ps], reducao_perda_anual=reducao,
             reducao_periodo_ruim=max(reducao_ruim, 0.0), custo_anual=custo, rosi=rosi, acima_do_limite=False,
             selo=selo_txt if tem_selo else None, protege_ruptura=protege, impacto_ruptura=imp))

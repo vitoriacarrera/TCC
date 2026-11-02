@@ -5,6 +5,8 @@
     riskpme-catalogo revisao docs/revisao.md    # exporta o banco de perguntas para revisão
     riskpme-catalogo custos docs/custos.md      # memória de cálculo do custo dos controles
     riskpme-catalogo simular perfil.json        # Monte Carlo + matriz 3 × 3 + plano de ação de um perfil
+    riskpme-catalogo contribuicoes resumo       # base anonimizada: contagens e maturidade por função (n ≥ 5)
+    riskpme-catalogo contribuicoes exportar dados.csv   # uma linha por contribuição, para planilha
 """
 
 from __future__ import annotations
@@ -234,6 +236,26 @@ def _cmd_simular(cat: Catalogo, arquivo: Path, semente: int | None) -> int:
     return 0
 
 
+def _cmd_contribuicoes(cat: Catalogo, acao: str, banco: str | None, destino: Path | None) -> int:
+    from ..analise import exportar_csv, resumo
+    from ..api import contribuicoes
+
+    d = banco or contribuicoes.destino()
+    if not d:
+        print(f"Informe o banco com --banco ou pela variável {contribuicoes.VARIAVEL_BANCO}.", file=sys.stderr)
+        return 1
+    dados = contribuicoes.ler_todas(d)
+    if acao == "resumo":
+        print(resumo(cat, dados))
+        return 0
+    if destino is None:
+        print("Informe o arquivo de saída, por exemplo: contribuicoes exportar dados.csv", file=sys.stderr)
+        return 1
+    n = exportar_csv(cat, dados, destino)
+    print(f"{n} contribuições exportadas para {destino}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="riskpme-catalogo", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -249,6 +271,10 @@ def main(argv: list[str] | None = None) -> int:
     si = sub.add_parser("simular")
     si.add_argument("arquivo", type=Path)
     si.add_argument("--semente", type=int, default=None)
+    co = sub.add_parser("contribuicoes", help="análise da base anonimizada da pesquisa")
+    co.add_argument("acao", choices=["resumo", "exportar"])
+    co.add_argument("destino", type=Path, nargs="?", help="arquivo .csv (só para exportar)")
+    co.add_argument("--banco", default=None, help="endereço do banco (padrão: RISKPME_CONTRIBUICOES_DB)")
     cu = sub.add_parser("custos")
     cu.add_argument("destino", type=Path)
     args = ap.parse_args(argv)
@@ -265,6 +291,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_questionario(cat, args.porte, args.setor, args.usuarios)
     if args.cmd == "custos":
         return _cmd_custos(cat, args.destino)
+    if args.cmd == "contribuicoes":
+        return _cmd_contribuicoes(cat, args.acao, args.banco, args.destino)
     if args.cmd == "simular":
         return _cmd_simular(cat, args.arquivo, args.semente)
     return _cmd_revisao(cat, args.destino)

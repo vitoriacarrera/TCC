@@ -20,3 +20,4 @@ Cada ADR registra uma decisão, o contexto e as alternativas descartadas. Status
 | [013](013-plano-duas-lentes.md) | Plano de ação com duas lentes: ROSI e redução do prejuízo num período ruim; preparação nos riscos de ruptura | Aceita |
 | [014](014-magnitude-pela-preparacao.md) | Perguntas de detecção e resposta reduzem o prejuízo (FAIR-CAM); fatores por cenário com fonte | Aceita |
 | [015](015-interface.md) | Interface do gestor CiberDecide: identidade, linguagem, plano em três blocos e privacidade | Aceita |
+| [016](016-base-anonimizada-postgres.md) | Base anonimizada em PostgreSQL gerenciado; resumo e exportação para análise (n ≥ 5) | Aceita |

@@ -94,8 +94,16 @@ class LimiteRequisicoes:
         while fila and agora - fila[0] > janela:
             fila.popleft()
         self.janelas[chave] = fila
-        while len(self.janelas) > _MAX_CLIENTES:
-            self.janelas.popitem(last=False)
+        # a ordem é a do último acesso: esquece quem está parado há mais que a maior janela, e o excesso de clientes
+        maior = max(j for _, j in self.limites.values())
+        while self.janelas:
+            primeira = next(iter(self.janelas.values()))
+            if len(self.janelas) > _MAX_CLIENTES or not primeira or agora - primeira[-1] > maior:
+                if primeira is fila:
+                    break
+                self.janelas.popitem(last=False)
+            else:
+                break
         if len(fila) >= maximo:
             return int(janela - (agora - fila[0])) + 1
         fila.append(agora)
