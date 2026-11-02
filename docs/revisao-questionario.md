@@ -23,7 +23,7 @@ _Quem cuida da segurança, que regras existem e como os fornecedores são escolh
 
 `CSF GV.RR-02` · `ISO 27002 5.2` · porte ≥ 2 · setores: todos · pesos: RAN 1, VAZ 1, FRA 1, IND 1, TER 1, IA 1
 
-### GV-02 — A empresa tem regras escritas sobre como usar senhas, e-mail, computadores e dados, e as pessoas conhecem essas regras?
+### GV-02 — A empresa tem regras sobre como usar senhas, e-mail, computadores e dados, e as pessoas conhecem essas regras?
 
 **Ajuda:** Uma política de segurança pode ter poucas páginas, com regras como "não compartilhe senhas", "não use pendrive pessoal" e "desconfie de pedidos urgentes de pagamento". Regras combinadas por escrito evitam que cada um faça de um jeito e mostram a todos o que fazer quando algo der errado.
 
@@ -39,7 +39,7 @@ _Quem cuida da segurança, que regras existem e como os fornecedores são escolh
 
 `CSF GV.SC-05` · `ISO 27002 5.19` · porte ≥ 2 · setores: todos · pesos: TER 3, VAZ 1
 
-### GV-04 — A empresa sabe o que a LGPD exige dela, por exemplo informar aos clientes como usa os dados deles?
+### GV-04 — A empresa já colocou em prática o básico da LGPD, por exemplo um aviso aos clientes explicando como usa os dados deles?
 
 **Ajuda:** A LGPD (Lei Geral de Proteção de Dados) vale para empresas de todos os tamanhos que guardam dados de pessoas. Microempresas e empresas de pequeno porte têm regras mais simples, mas todas continuam responsáveis por proteger esses dados e podem ser multadas se houver vazamento por descuido.
 
@@ -69,10 +69,10 @@ _Quem cuida da segurança, que regras existem e como os fornecedores são escolh
 
 **Variante (portes 1; até 1 usuário(s)):**
 
-- texto: Você já definiu quais ferramentas de Inteligência Artificial (como ChatGPT ou Gemini) usa no trabalho e que tipo de informação nunca cola nelas?
+- texto: Estão definidas as ferramentas de Inteligência Artificial (como ChatGPT ou Gemini) que você usa no trabalho e o tipo de informação que nunca deve ser colado nelas?
 - recomendacao: Escolha as ferramentas de IA que vai usar (de preferência versões para empresas, que não usam seus dados para treinamento) e nunca cole nelas dados de clientes ou documentos sigilosos.
 
-### GV-07 — Os serviços em nuvem que vocês usam (como Google Workspace, Microsoft 365 ou o sistema de gestão online) estão com as opções de segurança ativadas, e vocês sabem o que o fornecedor protege e o que é responsabilidade de vocês?
+### GV-07 — Os serviços em nuvem que vocês usam (como Google Workspace, Microsoft 365 ou o sistema de gestão online) estão com as opções de segurança ativadas, e está claro o que o fornecedor protege e o que é responsabilidade de vocês?
 
 **Ajuda:** Na nuvem existe responsabilidade compartilhada: o fornecedor garante que o serviço funciona, mas quem controla senhas, permissões e quem acessa o quê é a sua empresa. Muitos recursos de segurança já estão incluídos no plano, só não vêm ligados.
 
@@ -101,7 +101,7 @@ _Quem cuida da segurança, que regras existem e como os fornecedores são escolh
 
 _Saber quais equipamentos, sistemas e dados a empresa tem e onde estão._
 
-### ID-01 — Vocês têm uma lista atualizada dos computadores, celulares e sistemas que a empresa usa?
+### ID-01 — A empresa controla quais computadores, celulares e sistemas usa, mantendo essa informação atualizada?
 
 **Ajuda:** É um inventário simples, que pode ser uma planilha: qual equipamento, quem usa, qual sistema, quem é o responsável. Sem ele, um notebook antigo esquecido ou um sistema que ninguém atualiza vira a porta de entrada de um ataque.
 
@@ -109,7 +109,7 @@ _Saber quais equipamentos, sistemas e dados a empresa tem e onde estão._
 
 `CSF ID.AM-01` · `ISO 27002 5.9` · porte ≥ 4 · setores: todos · pesos: RAN 1, VAZ 1, IND 1
 
-### ID-02 — Você sabe onde ficam guardadas as informações importantes da empresa (clientes, financeiro, projetos), ou seja, em quais computadores, nuvens ou sistemas?
+### ID-02 — Está mapeado onde ficam guardadas as informações importantes da empresa (clientes, financeiro, projetos), ou seja, em quais computadores, nuvens ou sistemas?
 
 **Ajuda:** Informação guardada em lugares sem controle (no computador de cada um, em pendrives, no WhatsApp, em e-mails pessoais) é difícil de proteger e fica fora do backup. Saber onde cada informação está é o que permite mantê-la só em locais seguros, com backup e acesso controlado.
 
@@ -188,7 +188,7 @@ _Senhas, cópias de segurança, atualizações e cuidados que evitam problemas._
 
 **Variante (portes 1; até 1 usuário(s)):**
 
-- texto: Você se informa, pelo menos uma vez por ano, sobre os golpes mais comuns por e-mail, WhatsApp e telefone?
+- texto: Existe um momento definido, pelo menos uma vez por ano, para você se atualizar sobre os golpes mais comuns por e-mail, WhatsApp e telefone?
 - recomendacao: Reserve um momento por ano para conhecer os golpes digitais mais comuns no seu setor. A Cartilha de Segurança para Internet do CERT.br é gratuita.
 
 ### PR-08 — Vocês fazem simulações de golpe (por exemplo, um e-mail falso de teste) para ver se as pessoas caem?
@@ -231,7 +231,7 @@ _Senhas, cópias de segurança, atualizações e cuidados que evitam problemas._
 
 - recomendacao: Siga a regra 3-2-1: três cópias dos dados (o original e dois backups), em dois tipos de lugar diferentes, sendo uma fora da empresa e fora do alcance de um vírus. Na prática, escolha uma destas opções: um serviço de backup na nuvem com bloqueio de exclusão (também chamado de imutabilidade), que impede apagar as cópias por alguns dias mesmo com a senha; ou dois HDs externos usados em rodízio, ligados só durante a cópia e guardados desconectados. Proteja o backup com uma conta e senha diferentes das do dia a dia, com verificação em duas etapas, e a cada três meses teste se consegue recuperar alguns arquivos.
 
-### PR-12 — Nos últimos 3 meses, vocês testaram recuperar arquivos do backup para ter certeza de que ele funciona?
+### PR-12 — Vocês testam, pelo menos a cada 3 meses, se conseguem recuperar arquivos do backup?
 
 **Ajuda:** É comum descobrir só no dia do problema que o backup estava incompleto, parado havia meses ou que a recuperação leva dias. Testar mostra se ele funciona e quanto tempo leva para voltar a operar.
 
@@ -371,7 +371,7 @@ _Senhas, cópias de segurança, atualizações e cuidados que evitam problemas._
 
 `CSF PR.DS-01` · `ISO 27002 5.15` · porte ≥ 1 · setores: servicos · pesos: VAZ 2, IA 1
 
-### SER-02 — Seus clientes sabem como a empresa costuma cobrar e pedir dados, por exemplo que vocês nunca mudam a conta bancária por e-mail?
+### SER-02 — A empresa avisa os clientes de como costuma cobrar e pedir dados, por exemplo que nunca muda a conta bancária por e-mail?
 
 **Ajuda:** Golpistas também se passam pela sua empresa para enganar seus clientes com boletos falsos. Avisar os clientes sobre os canais oficiais protege os dois lados e a reputação da empresa.
 
@@ -408,7 +408,7 @@ _Formas de notar rapidamente um ataque ou um comportamento estranho._
 
 `CSF DE.CM-01` · `ISO 27002 8.16` · porte ≥ 4 · setores: todos · pesos: RAN 2, VAZ 2
 
-### DE-04 — Vocês sabem quais ferramentas de Inteligência Artificial as pessoas estão usando no trabalho e com que tipo de informação?
+### DE-04 — A empresa acompanha quais ferramentas de Inteligência Artificial as pessoas estão usando no trabalho e com que tipo de informação?
 
 **Ajuda:** É comum cada pessoa usar a IA que prefere, na conta pessoal, sem que a empresa saiba. Descobrir quais ferramentas estão em uso é o primeiro passo para oferecer uma opção segura.
 
@@ -429,7 +429,7 @@ _Formas de notar rapidamente um ataque ou um comportamento estranho._
 
 _O que a empresa faz nas primeiras horas de um incidente._
 
-### RS-01 — Se um ataque acontecesse hoje, as pessoas saberiam o que fazer e quem chamar?
+### RS-01 — Existe um plano simples do que fazer e de quem chamar se acontecer um ataque, e as pessoas o conhecem?
 
 **Ajuda:** Um plano de resposta pode caber em uma folha: quem avisar, o que desligar primeiro, telefone do técnico, do banco e do advogado. Nas primeiras horas de um incidente, cada minuto de indecisão aumenta o prejuízo.
 
@@ -439,12 +439,12 @@ _O que a empresa faz nas primeiras horas de um incidente._
 
 **Variante (portes 1):**
 
-- texto: Se acontecesse um ataque ou golpe hoje, você saberia o que fazer primeiro e teria à mão os contatos do banco, de um técnico de TI e da polícia?
+- texto: Existe um roteiro do que fazer primeiro em caso de ataque ou golpe, com os contatos do banco, de um técnico de TI e da polícia à mão?
 - ajuda: Nas primeiras horas de um ataque ou golpe, cada minuto conta. Em golpes com PIX, avisar o banco logo aumenta a chance de recuperar o dinheiro pelo MED (Mecanismo Especial de Devolução). Ter um plano curto e os contatos prontos, fora do computador que pode estar travado, evita perder tempo.
 - recomendacao: Escreva um plano de uma página: o que desligar primeiro, quem chamar e os contatos de emergência (gerente do banco, técnico de TI, advogado, delegacia de crimes cibernéticos). Guarde-o na nuvem e mantenha uma cópia com você, fora dos computadores da empresa, para acessá-lo mesmo com tudo travado.
 - pesos: RAN 2, VAZ 2, FRA 2, IND 1, TER 1
 
-### RS-02 — Vocês sabem quando e como avisar a ANPD e os clientes se dados pessoais vazarem?
+### RS-02 — Existe um procedimento de quando e como avisar a ANPD e os clientes se dados pessoais vazarem?
 
 **Ajuda:** Pela LGPD, vazamentos que possam causar dano às pessoas precisam ser comunicados à ANPD (o órgão que fiscaliza a lei) e aos afetados em poucos dias úteis. Saber isso antes evita perder o prazo e ser multado por comunicação atrasada.
 
@@ -460,7 +460,7 @@ _O que a empresa faz nas primeiras horas de um incidente._
 
 `CSF RS.MA-01` · `ISO 27002 5.24` · porte ≥ 2 · setores: todos · pesos: FRA 2, RAN 1
 
-### RS-04 — Nos últimos 12 meses, a equipe fez alguma simulação de ataque para treinar o plano de resposta?
+### RS-04 — A equipe faz, pelo menos uma vez por ano, uma simulação de ataque para treinar o plano de resposta?
 
 **Ajuda:** Uma simulação pode ser só uma reunião de uma hora: "e se hoje os computadores amanhecessem trancados?". Ela mostra falhas do plano (telefone desatualizado, ninguém sabe onde está o backup) enquanto ainda há tempo de corrigir.
 
@@ -473,7 +473,7 @@ _O que a empresa faz nas primeiras horas de um incidente._
 
 _Como a empresa retoma a operação depois de um problema._
 
-### RC-01 — Vocês sabem por quanto tempo cada atividade essencial pode ficar parada e existe um plano para religar os sistemas dentro desse prazo?
+### RC-01 — Está definido por quanto tempo cada atividade essencial pode ficar parada, e existe um plano para religar os sistemas dentro desse prazo?
 
 **Ajuda:** Algumas empresas aguentam um dia parado; outras perdem clientes em uma hora. Saber por quanto tempo cada atividade essencial pode ficar parada ajuda a decidir quanto investir em backup, em reserva e em contingência.
 

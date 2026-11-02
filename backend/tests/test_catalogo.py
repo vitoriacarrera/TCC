@@ -296,7 +296,7 @@ def test_frequencia_calibrada_pelo_csbs(cat):
 def test_variante_para_quem_trabalha_sozinho(cat):
     sozinho = {p.id: p for p in cat.questionario(1, "varejo", usuarios=1)}
     com_equipe = {p.id: p for p in cat.questionario(1, "varejo", usuarios=3)}
-    assert sozinho["GV-06"].texto.startswith("Você já definiu")
+    assert sozinho["GV-06"].texto.endswith("que você usa no trabalho e o tipo de informação que nunca deve ser colado nelas?")
     assert com_equipe["GV-06"].texto.startswith("Está combinado")
     assert "EDR" not in sozinho["PR-17"].recomendacao
 
