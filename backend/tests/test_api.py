@@ -46,7 +46,8 @@ def test_questionario_classifica_porte_e_aplica_variante(cliente):
     assert "Faixa de receita do MEI" in r["mensagem_porte"]
     ids = [p["id"] for p in r["perguntas"]]
     assert "RS-01" in ids and len(ids) == len(set(ids))
-    assert set(r["perguntas"][0]) == {"id", "funcao", "texto", "ajuda"}     # recomendação só no plano
+    assert set(r["perguntas"][0]) == {"id", "funcao", "texto", "respostas", "ajuda"}   # recomendação só no plano
+    assert all(len(p["respostas"]) == 5 for p in r["perguntas"])
 
 
 def test_fora_do_escopo(cliente):

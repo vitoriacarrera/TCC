@@ -249,6 +249,7 @@ class Variante(_Base):
 
     quando: CondicaoVariante
     texto: str | None = None
+    respostas: list[str] | None = Field(default=None, min_length=5, max_length=5)
     ajuda: str | None = None
     recomendacao: str | None = None
     cenarios: dict[str, int] | None = None
@@ -265,6 +266,8 @@ class Pergunta(_Base):
     funcao: Literal["GV", "ID", "PR", "DE", "RS", "RC"]
     subcategoria: str
     texto: str = Field(min_length=10)
+    # Respostas da própria pergunta, níveis 0 a 4 (revisão ESC-R); "Não sei" é comum a todas (escala).
+    respostas: list[Annotated[str, Field(min_length=2, max_length=100)]] = Field(min_length=5, max_length=5)
     ajuda: str = Field(min_length=40)   # RNF04: toda pergunta explica o que é e por que importa
     porte_min: int = Field(ge=1, le=4)
     setores: list[str] | None = None
@@ -296,7 +299,7 @@ class Pergunta(_Base):
         """A pergunta como o gestor deste perfil a vê: a primeira variante que vale substitui os campos dela."""
         for v in self.variantes:
             if v.vale_para(porte, usuarios):
-                troca = {k: getattr(v, k) for k in ("texto", "ajuda", "recomendacao", "cenarios")
+                troca = {k: getattr(v, k) for k in ("texto", "respostas", "ajuda", "recomendacao", "cenarios")
                          if getattr(v, k) is not None}
                 return self.model_copy(update=troca | {"variantes": []})
         return self

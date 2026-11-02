@@ -86,6 +86,8 @@ def _cmd_revisao(cat: Catalogo, destino: Path) -> int:
             linhas += [
                 f"### {p.id} — {p.texto}",
                 "",
+                "**Respostas:** " + " · ".join(f"({i}) {r}" for i, r in enumerate(p.respostas)),
+                "",
                 f"**Ajuda:** {p.ajuda}",
                 "",
                 f"**Recomendação:** {p.recomendacao}",
@@ -105,6 +107,8 @@ def _cmd_revisao(cat: Catalogo, destino: Path) -> int:
                 for campo in ("texto", "ajuda", "recomendacao"):
                     if getattr(v, campo):
                         linhas.append(f"- {campo}: {getattr(v, campo)}")
+                if v.respostas:
+                    linhas.append("- respostas: " + " · ".join(f"({i}) {r}" for i, r in enumerate(v.respostas)))
                 if v.cenarios:
                     linhas.append("- pesos: " + ", ".join(f"{c} {w}" for c, w in v.cenarios.items()))
                 linhas.append("")
