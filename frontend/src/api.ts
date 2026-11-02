@@ -131,6 +131,7 @@ export type Simulacao = {
     ruptura: Ruptura[]
   }
   versao_catalogo: string
+  resumo_pesquisa: Record<string, unknown>
   comprovante_contribuicao: string
 }
 
@@ -172,6 +173,6 @@ export const api = {
   questionario: (setor: string, receita: number, usuarios: number) =>
     chamar<Questionario>('/questionario', { setor, receita_operacional_bruta: receita, usuarios_ti: usuarios }),
   simular: (perfil: Perfil, respostas: Respostas) => chamar<Simulacao>('/simulacoes', { perfil, respostas }),
-  contribuir: (setor: string, porte: number, respostas: Respostas, comprovante: string) =>
-    chamar<{ gravado: boolean }>('/contribuicoes', { consentimento: true, setor, porte, respostas, comprovante }),
+  contribuir: (setor: string, porte: number, respostas: Respostas, comprovante: string, resultado: Record<string, unknown>) =>
+    chamar<{ gravado: boolean }>('/contribuicoes', { consentimento: true, setor, porte, respostas, comprovante, resultado }),
 }

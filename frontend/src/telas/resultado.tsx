@@ -311,7 +311,7 @@ function Contribuicao({ e, mudar, s }: { e: Estado; mudar: (p: Partial<Estado>) 
     setErro(null)
     setEnviando(true)
     try {
-      await api.contribuir(e.setor!, s.porte.nivel, e.respostas, s.comprovante_contribuicao)
+      await api.contribuir(e.setor!, s.porte.nivel, e.respostas, s.comprovante_contribuicao, s.resumo_pesquisa)
       mudar({ contribuiu: true })
     } catch (x) {
       setErro(x instanceof ErroApi && x.status === 503 ? 'A coleta para pesquisa não está ativa neste momento.'
@@ -325,8 +325,9 @@ function Contribuicao({ e, mudar, s }: { e: Estado; mudar: (p: Partial<Estado>) 
       <h2 className="text-xl">Quer ajudar a pesquisa?</h2>
       <p className="mt-2 text-[15px] text-suave">
         Esta ferramenta faz parte de um trabalho de conclusão de curso na UFMG. Se você autorizar, enviamos só o setor, o
-        porte e as respostas do questionário. Nunca a receita, valores, número de pessoas ou qualquer dado que identifique
-        a empresa. Os dados são analisados só em conjunto e apagados depois da aprovação do trabalho.
+        porte, as respostas do questionário e o resultado sem valores em reais: a posição de cada risco no mapa e as
+        medidas recomendadas. Nunca a receita, valores em reais, número de pessoas ou qualquer dado que identifique a
+        empresa. Os dados são analisados só em conjunto e apagados depois da aprovação do trabalho.
       </p>
       <label className="mt-4 flex items-start gap-3">
         <input type="checkbox" className="mt-1 h-4 w-4 accent-[#0e5e57]" checked={aceito} onChange={(ev) => setAceito(ev.target.checked)} />

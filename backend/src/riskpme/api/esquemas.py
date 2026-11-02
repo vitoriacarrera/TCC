@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
@@ -47,10 +47,12 @@ class PedidoSimulacao(_Entrada):
 
 
 class Contribuicao(_Entrada):
-    """Contribuição anonimizada (ADR-005): só setor, porte e respostas. Nada financeiro, nada que identifique."""
+    """Contribuição anonimizada (ADR-005): setor, porte, respostas e resultado sem valores em R$. Nada que identifique."""
 
     consentimento: bool = Field(description="Precisa ser true: o gestor marcou a autorização (desmarcada por padrão)")
     setor: Id
     porte: int = Field(ge=1, le=4)
     respostas: Respostas
     comprovante: str = Field(max_length=200, description="`comprovante_contribuicao` devolvido por POST /simulacoes")
+    resultado: dict[str, Any] | None = Field(
+        default=None, description="`resumo_pesquisa` devolvido por POST /simulacoes (sem valores em R$), conferido pelo comprovante")
