@@ -358,3 +358,9 @@ def test_postgres_usuario_so_insert_grava_e_nao_le():
             con.execute("REVOKE ALL ON contribuicoes FROM teste_coleta")
             con.execute("REVOKE ALL ON SCHEMA public FROM teste_coleta")
             con.execute("DROP ROLE teste_coleta")
+
+
+@pytest.mark.parametrize("valor", ["  /tmp/x.sqlite ", "'/tmp/x.sqlite'", "psql '/tmp/x.sqlite'", '"/tmp/x.sqlite"'])
+def test_endereco_do_banco_colado_com_aspas(monkeypatch, valor):
+    monkeypatch.setenv(contribuicoes.VARIAVEL_BANCO, valor)
+    assert contribuicoes.destino() == "/tmp/x.sqlite"

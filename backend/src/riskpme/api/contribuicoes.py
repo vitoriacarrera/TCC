@@ -60,7 +60,11 @@ class Contribuicao:
 
 def destino() -> str | None:
     """Conexão configurada, ou None quando a coleta está desativada."""
-    return os.environ.get(VARIAVEL_BANCO) or None
+    # Tolera o endereço colado com espaços ou entre aspas, como o Neon mostra no exemplo "psql '...'".
+    v = (os.environ.get(VARIAVEL_BANCO) or "").strip().strip("'\"").strip()
+    if v.startswith("psql "):
+        v = v[5:].strip().strip("'\"").strip()
+    return v or None
 
 
 def _postgres(d: str) -> bool:

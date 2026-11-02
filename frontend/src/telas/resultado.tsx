@@ -314,8 +314,9 @@ function Contribuicao({ e, mudar, s }: { e: Estado; mudar: (p: Partial<Estado>) 
       await api.contribuir(e.setor!, s.porte.nivel, e.respostas, s.comprovante_contribuicao, s.resumo_pesquisa)
       mudar({ contribuiu: true })
     } catch (x) {
-      setErro(x instanceof ErroApi && x.status === 503 ? 'A coleta para pesquisa não está ativa neste momento.'
-        : x instanceof ErroApi ? x.message : 'Não foi possível enviar. Tente de novo.')
+      setErro(x instanceof ErroApi && /não está ativa/.test(x.message) ? 'A coleta para pesquisa não está ativa neste momento.'
+        : x instanceof ErroApi && x.status === 503 ? 'Não foi possível registrar agora. Tente de novo em alguns minutos.'
+          : x instanceof ErroApi ? x.message : 'Não foi possível enviar. Tente de novo.')
     } finally {
       setEnviando(false)
     }
