@@ -241,7 +241,7 @@ def _cmd_simular(cat: Catalogo, arquivo: Path, semente: int | None) -> int:
 
 
 def _cmd_contribuicoes(cat: Catalogo, acao: str, banco: str | None, destino: Path | None, minimo: int = 1) -> int:
-    from ..analise import exportar_csv, resumo
+    from ..analise import exportar_csv, exportar_latex, resumo
     from ..api import contribuicoes
 
     d = banco or contribuicoes.destino()
@@ -253,8 +253,13 @@ def _cmd_contribuicoes(cat: Catalogo, acao: str, banco: str | None, destino: Pat
         print(resumo(cat, dados, minimo))
         return 0
     if destino is None:
-        print("Informe o arquivo de saída, por exemplo: contribuicoes exportar dados.csv", file=sys.stderr)
+        print("Informe o arquivo de saída, por exemplo: contribuicoes exportar dados.csv "
+              "ou contribuicoes latex tabelas-pesquisa.tex", file=sys.stderr)
         return 1
+    if acao == "latex":
+        n = exportar_latex(cat, dados, destino, minimo)
+        print(f"Tabelas de {n} contribuições gravadas em {destino}")
+        return 0
     n = exportar_csv(cat, dados, destino)
     print(f"{n} contribuições exportadas para {destino}")
     return 0
@@ -276,8 +281,8 @@ def main(argv: list[str] | None = None) -> int:
     si.add_argument("arquivo", type=Path)
     si.add_argument("--semente", type=int, default=None)
     co = sub.add_parser("contribuicoes", help="análise da base anonimizada da pesquisa")
-    co.add_argument("acao", choices=["resumo", "exportar"])
-    co.add_argument("destino", type=Path, nargs="?", help="arquivo .csv (só para exportar)")
+    co.add_argument("acao", choices=["resumo", "exportar", "latex"])
+    co.add_argument("destino", type=Path, nargs="?", help="arquivo .csv (exportar) ou .tex (latex)")
     co.add_argument("--banco", default=None, help="endereço do banco (padrão: RISKPME_CONTRIBUICOES_DB)")
     co.add_argument("--minimo", type=int, default=1,
                     help="esconde médias de grupos com menos contribuições que isto (para tabelas publicadas)")
