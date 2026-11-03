@@ -399,3 +399,20 @@ def test_exportar_latex(tmp_path):
     assert "tab:pesq-riscos" not in destino.read_text(encoding="utf-8")
     exportar_latex(cat, [], destino)
     assert "Nenhuma contribuição" in destino.read_text(encoding="utf-8")
+
+
+def test_estudos_variacao_e_incerteza():
+    from pathlib import Path
+
+    from riskpme import estudos
+    from riskpme.api.app import catalogo
+    cat = catalogo()
+    alt = estudos.catalogo_variado(estudos._faixa_v(0.05, 0.5))
+    assert alt.parametros_modelo.vulnerabilidade_max == 0.5 and cat.parametros_modelo.vulnerabilidade_max == 0.35
+    horas = estudos.catalogo_variado(estudos._horas(2.0))
+    assert list(horas.custos.controles["5.1"].horas_anuais) == [2 * h for h in cat.custos.controles["5.1"].horas_anuais]
+    perfil, resp = estudos.carregar_clinica(Path(__file__).parents[2] / "docs" / "exemplos" / "clinica-epp.json")
+    inc = estudos.estudo_incerteza(cat, perfil, resp, sementes=2)
+    assert inc["perda_media"] > 0 and 0 <= inc["cores_iguais"] <= 1
+    a = estudos.rodar(cat, perfil, resp)
+    assert a == estudos.rodar(cat, perfil, resp)           # semente fixa: reprodutível
