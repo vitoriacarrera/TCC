@@ -241,7 +241,7 @@ def _cmd_simular(cat: Catalogo, arquivo: Path, semente: int | None) -> int:
 
 
 def _cmd_contribuicoes(cat: Catalogo, acao: str, banco: str | None, destino: Path | None, minimo: int = 1) -> int:
-    from ..analise import exportar_csv, resumo
+    from ..analise import exportar_csv, exportar_latex, resumo
     from ..api import contribuicoes
 
     d = banco or contribuicoes.destino()
@@ -253,8 +253,13 @@ def _cmd_contribuicoes(cat: Catalogo, acao: str, banco: str | None, destino: Pat
         print(resumo(cat, dados, minimo))
         return 0
     if destino is None:
-        print("Informe o arquivo de saída, por exemplo: contribuicoes exportar dados.csv", file=sys.stderr)
+        print("Informe o arquivo de saída, por exemplo: contribuicoes exportar dados.csv "
+              "ou contribuicoes latex tabelas-pesquisa.tex", file=sys.stderr)
         return 1
+    if acao == "latex":
+        n = exportar_latex(cat, dados, destino, minimo)
+        print(f"Tabelas de {n} contribuições gravadas em {destino}")
+        return 0
     n = exportar_csv(cat, dados, destino)
     print(f"{n} contribuições exportadas para {destino}")
     return 0
@@ -274,10 +279,15 @@ def main(argv: list[str] | None = None) -> int:
     rv.add_argument("destino", type=Path)
     si = sub.add_parser("simular")
     si.add_argument("arquivo", type=Path)
-    si.add_argument("--semente", type=int, default=None)
+    si.add_argument("--semente", type=int, default=0, help="semente do sorteio (padrão 0, igual à API)")
+    es = sub.add_parser("estudos", help="perfis de referência, incerteza do Monte Carlo e sensibilidade (monografia)")
+    es.add_argument("destino", type=Path, help="pasta de saída (CSVs e estudos.tex)")
+    es.add_argument("--clinica", type=Path, default=None,
+                    help="perfil do caso ilustrativo (padrão: docs/exemplos/clinica-epp.json)")
+    es.add_argument("--sementes", type=int, default=20)
     co = sub.add_parser("contribuicoes", help="análise da base anonimizada da pesquisa")
-    co.add_argument("acao", choices=["resumo", "exportar"])
-    co.add_argument("destino", type=Path, nargs="?", help="arquivo .csv (só para exportar)")
+    co.add_argument("acao", choices=["resumo", "exportar", "latex"])
+    co.add_argument("destino", type=Path, nargs="?", help="arquivo .csv (exportar) ou .tex (latex)")
     co.add_argument("--banco", default=None, help="endereço do banco (padrão: RISKPME_CONTRIBUICOES_DB)")
     co.add_argument("--minimo", type=int, default=1,
                     help="esconde médias de grupos com menos contribuições que isto (para tabelas publicadas)")
@@ -297,6 +307,12 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_questionario(cat, args.porte, args.setor, args.usuarios)
     if args.cmd == "custos":
         return _cmd_custos(cat, args.destino)
+    if args.cmd == "estudos":
+        from ..estudos import carregar_clinica, gerar
+        clinica = args.clinica or Path(__file__).resolve().parents[4] / "docs" / "exemplos" / "clinica-epp.json"
+        gerar(args.destino, cat, carregar_clinica(clinica) if clinica.exists() else None, args.sementes)
+        print(f"Estudos gravados em {args.destino} (estudos.tex, perfis.csv, incerteza.csv, sensibilidade.csv)")
+        return 0
     if args.cmd == "contribuicoes":
         return _cmd_contribuicoes(cat, args.acao, args.banco, args.destino, args.minimo)
     if args.cmd == "simular":

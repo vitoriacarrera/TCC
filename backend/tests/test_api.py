@@ -378,3 +378,41 @@ def test_conexao_postgres_prefere_ipv4(monkeypatch):
     assert p["host"] == "ep-x-pooler.neon.tech" and p["hostaddr"] == "203.0.113.7" and p["sslmode"] == "require"
     assert chamadas == [("ep-x-pooler.neon.tech", 5432, contribuicoes.socket.AF_INET)]
     assert "hostaddr" not in contribuicoes._parametros_ipv4("postgresql://u@localhost/db?host=/tmp")
+
+
+def test_exportar_latex(tmp_path):
+    from riskpme.analise import exportar_latex
+    from riskpme.api.app import catalogo
+    cat = catalogo()
+    r = {"perda_esperada_pct_receita": 0.01, "chance_algum_prejuizo_horizonte": 0.4, "nao_sei": 0, "horizonte_anos": 5,
+         "cenarios": {"RAN": {"cor": "amarelo", "impacto": 3, "probabilidade": 1, "ruptura": True,
+                              "chance_horizonte": 0.05, "maturidade_prevencao": 0.5, "maturidade_resposta": 0.4,
+                              "perda_esperada_pct_receita": 0.002}},
+         "acoes": [{"controle": "8.13", "bloco": "comece"}]}
+    dados = [contribuicoes.Contribuicao("2026-11", "v1", "varejo", 1, {"PR-01": 2, "GV-01": None}, r)]
+    destino = tmp_path / "t.tex"
+    assert exportar_latex(cat, dados, destino) == 1
+    tex = destino.read_text(encoding="utf-8")
+    assert r"\newcommand{\pesqN}{1}" in tex and r"\newcommand{\pesqTabelas}" in tex and r"\label{tab:pesq-riscos}" in tex and r"\label{tab:pesq-acoes}" in tex
+    assert r"50\%" in tex and "Comércio*" in tex and "ilustrativa" in tex
+    exportar_latex(cat, dados, destino, minimo=5)
+    assert "tab:pesq-riscos" not in destino.read_text(encoding="utf-8")
+    exportar_latex(cat, [], destino)
+    assert "Nenhuma contribuição" in destino.read_text(encoding="utf-8")
+
+
+def test_estudos_variacao_e_incerteza():
+    from pathlib import Path
+
+    from riskpme import estudos
+    from riskpme.api.app import catalogo
+    cat = catalogo()
+    alt = estudos.catalogo_variado(estudos._faixa_v(0.05, 0.5))
+    assert alt.parametros_modelo.vulnerabilidade_max == 0.5 and cat.parametros_modelo.vulnerabilidade_max == 0.35
+    horas = estudos.catalogo_variado(estudos._horas(2.0))
+    assert list(horas.custos.controles["5.1"].horas_anuais) == [2 * h for h in cat.custos.controles["5.1"].horas_anuais]
+    perfil, resp = estudos.carregar_clinica(Path(__file__).parents[2] / "docs" / "exemplos" / "clinica-epp.json")
+    inc = estudos.estudo_incerteza(cat, perfil, resp, sementes=2)
+    assert inc["perda_media"] > 0 and 0 <= inc["cores_iguais"] <= 1
+    a = estudos.rodar(cat, perfil, resp)
+    assert a == estudos.rodar(cat, perfil, resp)           # semente fixa: reprodutível

@@ -42,8 +42,8 @@ class PedidoSimulacao(_Entrada):
     perfil: PerfilEntrada
     respostas: Respostas = Field(
         description='Resposta 0 a 4 por id de pergunta; null = "Não sei". Pergunta ausente também conta como "Não sei".')
-    semente: int | None = Field(default=None, ge=0, le=2**32 - 1,
-                                description="Fixa o sorteio (reprodutibilidade, testes)")
+    semente: int | None = Field(default=0, ge=0, le=2**32 - 1,
+                                description="Fixa o sorteio; padrão 0, para o mesmo perfil dar sempre o mesmo resultado (como o plano)")
 
 
 class Contribuicao(_Entrada):
