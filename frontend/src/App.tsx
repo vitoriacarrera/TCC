@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import { api, ErroApi, type Catalogo } from './api'
 import { Cabecalho, Erro, Pagina, Passos, ProvedorGlossario } from './componentes/base'
 import { apagar, carregar, INICIAL, montarPerfil, salvar, type Estado, type Etapa } from './estado'
@@ -78,6 +79,7 @@ export default function App() {
           no método FAIR. Valores financeiros e dados da empresa nunca são guardados; as respostas do questionário e o resultado, sem valores em reais, só são guardados, sem identificação, se você autorizar no final.
         </div>
       </footer>
+      <Analytics />
     </ProvedorGlossario>
   )
 }
